@@ -48,7 +48,7 @@ public class NullChannelTests implements SpringIntegrationExamplesConstants {
 
         theInputMessage = MessageBuilder.withPayload(GREETING_STRING).build();
 
-        // <editor-fold desc="Start of answer section" defaultstate="collapsed">
+        // <editor-fold desc="Answer Section" defaultstate="collapsed">
         /* Create and name the message channel. */
         theNullChannel = new NullChannel();
         /*
@@ -84,7 +84,7 @@ public class NullChannelTests implements SpringIntegrationExamplesConstants {
         final DefaultMessageChannelMetrics theMessageChannelMetrics;
         Message<String> theInputMessage;
 
-        // <editor-fold desc="Start of answer section" defaultstate="collapsed">
+        // <editor-fold desc="Answer Section" defaultstate="collapsed">
         /* Create and name the message channel. */
         theNullChannel = new NullChannel();
         theNullChannel.setBeanName(NULL_CHANNEL_NAME);

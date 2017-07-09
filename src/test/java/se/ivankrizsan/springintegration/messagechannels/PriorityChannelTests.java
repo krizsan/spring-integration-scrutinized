@@ -51,7 +51,7 @@ public class PriorityChannelTests implements SpringIntegrationExamplesConstants 
 
         theInputMessage = MessageBuilder.withPayload(GREETING_STRING).build();
 
-        // <editor-fold desc="Start of answer section" defaultstate="collapsed">
+        // <editor-fold desc="Answer Section" defaultstate="collapsed">
         thePriorityChannel = new PriorityChannel();
         /* Set the name of the channel which will be included in exceptions and log messages. */
         thePriorityChannel.setComponentName(PRIORITY_CHANNEL_NAME);
@@ -92,7 +92,7 @@ public class PriorityChannelTests implements SpringIntegrationExamplesConstants 
         theInputMessage1 = MessageBuilder.withPayload("1").setPriority(1).build();
         theInputMessage2 = MessageBuilder.withPayload("2").setPriority(2).build();
 
-        // <editor-fold desc="Start of answer section" defaultstate="collapsed">
+        // <editor-fold desc="Answer Section" defaultstate="collapsed">
         thePriorityChannel = new PriorityChannel();
         /* Set the name of the channel which will be included in exceptions and log messages. */
         thePriorityChannel.setComponentName(PRIORITY_CHANNEL_NAME);
@@ -150,7 +150,7 @@ public class PriorityChannelTests implements SpringIntegrationExamplesConstants 
             .setHeader(CUSTOM_PRIORITY_HEADER, "banana")
             .build();
 
-        // <editor-fold desc="Start of answer section" defaultstate="collapsed">
+        // <editor-fold desc="Answer Section" defaultstate="collapsed">
         /*
          * Create the custom message priority comparator that retrieves message priority from
          * a custom header and assumes that priority values are strings.
@@ -212,7 +212,7 @@ public class PriorityChannelTests implements SpringIntegrationExamplesConstants 
         theInputMessage1 = MessageBuilder.withPayload("1").setPriority(1).build();
         theInputMessage2 = MessageBuilder.withPayload("2").setPriority(1).build();
 
-        // <editor-fold desc="Start of answer section" defaultstate="collapsed">
+        // <editor-fold desc="Answer Section" defaultstate="collapsed">
         thePriorityChannel = new PriorityChannel();
         /* Set the name of the channel which will be included in exceptions and log messages. */
         thePriorityChannel.setComponentName(PRIORITY_CHANNEL_NAME);

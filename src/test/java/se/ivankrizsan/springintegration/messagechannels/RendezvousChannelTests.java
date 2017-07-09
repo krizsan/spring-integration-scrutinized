@@ -53,7 +53,7 @@ public class RendezvousChannelTests implements SpringIntegrationExamplesConstant
 
         theInputMessage = MessageBuilder.withPayload(GREETING_STRING).build();
 
-        // <editor-fold desc="Start of answer section" defaultstate="collapsed">
+        // <editor-fold desc="Answer Section" defaultstate="collapsed">
         theRendezvousChannel = new RendezvousChannel();
         /* Set the name of the channel which will be included in exceptions and log messages. */
         theRendezvousChannel.setComponentName(RENDEZVOUS_CHANNEL_NAME);
@@ -101,7 +101,7 @@ public class RendezvousChannelTests implements SpringIntegrationExamplesConstant
 
         theInputMessage = MessageBuilder.withPayload(GREETING_STRING).build();
 
-        // <editor-fold desc="Start of answer section" defaultstate="collapsed">
+        // <editor-fold desc="Answer Section" defaultstate="collapsed">
         theRendezvousChannel = new RendezvousChannel();
         /* Set the name of the channel which will be included in exceptions and log messages. */
         theRendezvousChannel.setComponentName(RENDEZVOUS_CHANNEL_NAME);
@@ -154,7 +154,7 @@ public class RendezvousChannelTests implements SpringIntegrationExamplesConstant
 
         theInputMessage = MessageBuilder.withPayload(GREETING_STRING).build();
 
-        // <editor-fold desc="Start of answer section" defaultstate="collapsed">
+        // <editor-fold desc="Answer Section" defaultstate="collapsed">
         theRendezvousChannel = new RendezvousChannel();
         /* Set the name of the channel which will be included in exceptions and log messages. */
         theRendezvousChannel.setComponentName(RENDEZVOUS_CHANNEL_NAME);
@@ -192,7 +192,7 @@ public class RendezvousChannelTests implements SpringIntegrationExamplesConstant
         final Message<String> theClientRequestMessage;
         final Message<String> theClientReplyMessage;
 
-        // <editor-fold desc="Start of answer section" defaultstate="collapsed">
+        // <editor-fold desc="Answer Section" defaultstate="collapsed">
         theRequestRendezvousChannel = new RendezvousChannel();
         theRequestRendezvousChannel.setComponentName(RENDEZVOUS_CHANNEL_NAME);
         /*

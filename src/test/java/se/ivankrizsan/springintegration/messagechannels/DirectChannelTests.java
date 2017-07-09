@@ -70,7 +70,7 @@ public class DirectChannelTests implements SpringIntegrationExamplesConstants {
 
         theInputMessage = MessageBuilder.withPayload(GREETING_STRING).build();
 
-        // <editor-fold desc="Start of answer section" defaultstate="collapsed">
+        // <editor-fold desc="Answer Section" defaultstate="collapsed">
         theDirectChannel = new DirectChannel();
         theDirectChannel.setComponentName(DIRECT_CHANNEL_NAME);
 
@@ -129,7 +129,7 @@ public class DirectChannelTests implements SpringIntegrationExamplesConstants {
 
         theInputMessage = MessageBuilder.withPayload(GREETING_STRING).build();
 
-        // <editor-fold desc="Start of answer section" defaultstate="collapsed">
+        // <editor-fold desc="Answer Section" defaultstate="collapsed">
         theDirectChannel = new DirectChannel();
         theDirectChannel.setComponentName(DIRECT_CHANNEL_NAME);
 
@@ -194,7 +194,7 @@ public class DirectChannelTests implements SpringIntegrationExamplesConstants {
         theInputMessage1 = MessageBuilder.withPayload("1").build();
         theInputMessage2 = MessageBuilder.withPayload("2").build();
 
-        // <editor-fold desc="Start of answer section" defaultstate="collapsed">
+        // <editor-fold desc="Answer Section" defaultstate="collapsed">
         /*
          * Explicitly set the round-robin load balancing strategy thought it is
          * not necessary since it is the default load balancing strategy used by

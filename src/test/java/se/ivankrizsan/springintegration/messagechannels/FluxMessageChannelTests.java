@@ -40,7 +40,7 @@ public class FluxMessageChannelTests implements SpringIntegrationExamplesConstan
 
         theInputMessage = MessageBuilder.withPayload(GREETING_STRING).build();
 
-        // <editor-fold desc="Start of answer section" defaultstate="collapsed">
+        // <editor-fold desc="Answer Section" defaultstate="collapsed">
         /* Create the two subscribers. */
         final MyReactiveSubscriber theFirstSubscriber =
             new MyReactiveSubscriber("First subscriber");
@@ -91,7 +91,7 @@ public class FluxMessageChannelTests implements SpringIntegrationExamplesConstan
         theFirstInputMessage = MessageBuilder.withPayload("1").build();
         theSecondInputMessage = MessageBuilder.withPayload("2").build();
 
-        // <editor-fold desc="Start of answer section" defaultstate="collapsed">
+        // <editor-fold desc="Answer Section" defaultstate="collapsed">
         /* Create the two subscribers. */
         final MyReactiveSubscriber theFirstSubscriber =
             new MyReactiveSubscriber("First subscriber");
@@ -152,7 +152,7 @@ public class FluxMessageChannelTests implements SpringIntegrationExamplesConstan
         theFirstInputMessage = MessageBuilder.withPayload("1").build();
         theSecondInputMessage = MessageBuilder.withPayload("2").build();
 
-        // <editor-fold desc="Start of answer section" defaultstate="collapsed">
+        // <editor-fold desc="Answer Section" defaultstate="collapsed">
         /*
          * Create the two subscribers.
          * Note that the second subscriber limits the number of messages it

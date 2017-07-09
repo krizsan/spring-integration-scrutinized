@@ -48,7 +48,7 @@ public class QueueChannelTests implements SpringIntegrationExamplesConstants {
 
         theInputMessage = MessageBuilder.withPayload(GREETING_STRING).build();
 
-        // <editor-fold desc="Start of answer section" defaultstate="collapsed">
+        // <editor-fold desc="Answer Section" defaultstate="collapsed">
         theQueueChannel = new QueueChannel();
         /* Set the name of the channel which will be included in exceptions and log messages. */
         theQueueChannel.setComponentName(QUEUE_CHANNEL_NAME);
@@ -88,7 +88,7 @@ public class QueueChannelTests implements SpringIntegrationExamplesConstants {
         theQueueChannel = new QueueChannel();
         theQueueChannel.setComponentName(DIRECT_CHANNEL_NAME);
 
-        // <editor-fold desc="Start of answer section" defaultstate="collapsed">
+        // <editor-fold desc="Answer Section" defaultstate="collapsed">
         theLoggingAndCountingChannelInterceptor = new LoggingAndCountingChannelInterceptor();
         theQueueChannel.addInterceptor(theLoggingAndCountingChannelInterceptor);
 
@@ -152,7 +152,7 @@ public class QueueChannelTests implements SpringIntegrationExamplesConstants {
         theInputMessage1 = MessageBuilder.withPayload("1").build();
         theInputMessage2 = MessageBuilder.withPayload("2").build();
 
-        // <editor-fold desc="Start of answer section" defaultstate="collapsed">
+        // <editor-fold desc="Answer Section" defaultstate="collapsed">
         theQueueChannel = new QueueChannel(1);
         /* Set the name of the channel which will be included in exceptions and log messages. */
         theQueueChannel.setComponentName(QUEUE_CHANNEL_NAME);
@@ -193,7 +193,7 @@ public class QueueChannelTests implements SpringIntegrationExamplesConstants {
         final QueueChannel theQueueChannel;
         final Message<?> theOutputMessage;
 
-        // <editor-fold desc="Start of answer section" defaultstate="collapsed">
+        // <editor-fold desc="Answer Section" defaultstate="collapsed">
         theQueueChannel = new QueueChannel();
         /* Set the name of the channel which will be included in exceptions and log messages. */
         theQueueChannel.setComponentName(QUEUE_CHANNEL_NAME);

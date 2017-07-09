@@ -51,7 +51,7 @@ public class WireTapInterceptorTests implements SpringIntegrationExamplesConstan
 
         theInputMessage = MessageBuilder.withPayload(GREETING_STRING).build();
 
-        // <editor-fold desc="Start of answer section" defaultstate="collapsed">
+        // <editor-fold desc="Answer Section" defaultstate="collapsed">
         /* Create the main message channel. */
         theQueueChannel = new QueueChannel();
         theQueueChannel.setComponentName(QUEUE_CHANNEL_NAME);
@@ -114,7 +114,7 @@ public class WireTapInterceptorTests implements SpringIntegrationExamplesConstan
 
         theInputMessage = new MutableMessage<>(GREETING_STRING);
 
-        // <editor-fold desc="Start of answer section" defaultstate="collapsed">
+        // <editor-fold desc="Answer Section" defaultstate="collapsed">
         /* Create the main message channel. */
         theQueueChannel = new QueueChannel();
         theQueueChannel.setComponentName(QUEUE_CHANNEL_NAME);

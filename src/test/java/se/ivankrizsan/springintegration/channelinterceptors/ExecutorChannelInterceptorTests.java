@@ -65,7 +65,7 @@ public class ExecutorChannelInterceptorTests implements SpringIntegrationExample
 
         theInputMessage = MessageBuilder.withPayload(GREETING_STRING).build();
 
-        // <editor-fold desc="Start of answer section" defaultstate="collapsed">
+        // <editor-fold desc="Answer Section" defaultstate="collapsed">
         /*
          * Create and initialize the executor that the executor channel will
          * use for message dispatching.
@@ -148,7 +148,7 @@ public class ExecutorChannelInterceptorTests implements SpringIntegrationExample
 
         theInputMessage = MessageBuilder.withPayload(GREETING_STRING).build();
 
-        // <editor-fold desc="Start of answer section" defaultstate="collapsed">
+        // <editor-fold desc="Answer Section" defaultstate="collapsed">
         theDirectChannel = new DirectChannel();
         theDirectChannel.setComponentName(DIRECT_CHANNEL_NAME);
 
@@ -223,7 +223,7 @@ public class ExecutorChannelInterceptorTests implements SpringIntegrationExample
 
         theInputMessage = MessageBuilder.withPayload(GREETING_STRING).build();
 
-        // <editor-fold desc="Start of answer section" defaultstate="collapsed">
+        // <editor-fold desc="Answer Section" defaultstate="collapsed">
         thePublishSubscribeChannel = new PublishSubscribeChannel();
         thePublishSubscribeChannel.setComponentName(PUBSUB_CHANNEL_NAME);
 

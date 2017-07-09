@@ -86,7 +86,7 @@ public class MessageChannelsCommonTests implements SpringIntegrationExamplesCons
 
         theInputMessage = MessageBuilder.withPayload(NUMBER_STRING).build();
 
-        // <editor-fold desc="Start of answer section" defaultstate="collapsed">
+        // <editor-fold desc="Answer Section" defaultstate="collapsed">
         theDirectChannel = new DirectChannel();
         theDirectChannel.setComponentName(DIRECT_CHANNEL_NAME);
 
@@ -154,7 +154,7 @@ public class MessageChannelsCommonTests implements SpringIntegrationExamplesCons
             throw new MessagingException("Always fail message handling!");
         };
 
-        // <editor-fold desc="Start of answer section" defaultstate="collapsed">
+        // <editor-fold desc="Answer Section" defaultstate="collapsed">
         theDirectChannel = new DirectChannel();
         theDirectChannel.setComponentName(DIRECT_CHANNEL_NAME);
 
@@ -179,7 +179,7 @@ public class MessageChannelsCommonTests implements SpringIntegrationExamplesCons
     public void scopedMessageChannelTest() throws Exception {
         final Message<String> theInputMessage = MessageBuilder.withPayload(GREETING_STRING).build();
 
-        // <editor-fold desc="Start of answer section" defaultstate="collapsed">
+        // <editor-fold desc="Answer Section" defaultstate="collapsed">
         mThreadScopedQueueChannel.send(theInputMessage);
 
         /* Attempt to receive the message in another thread. */
@@ -210,7 +210,7 @@ public class MessageChannelsCommonTests implements SpringIntegrationExamplesCons
         final List<Message> theSubscriberReceivedMessages =
             new CopyOnWriteArrayList<>();
 
-        // <editor-fold desc="Start of answer section" defaultstate="collapsed">
+        // <editor-fold desc="Answer Section" defaultstate="collapsed">
         /*
          * Create the message channel and enable message history
          * for the individual message channel.
@@ -259,7 +259,7 @@ public class MessageChannelsCommonTests implements SpringIntegrationExamplesCons
         final List<Message> theSubscriberReceivedMessages =
             new CopyOnWriteArrayList<>();
 
-        // <editor-fold desc="Start of answer section" defaultstate="collapsed">
+        // <editor-fold desc="Answer Section" defaultstate="collapsed">
         /* Create the message channel. */
         theDirectChannel = new DirectChannel();
         theDirectChannel.setComponentName(DIRECT_CHANNEL_NAME);

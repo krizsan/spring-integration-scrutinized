@@ -67,7 +67,7 @@ public class ExecutorChannelTests implements SpringIntegrationExamplesConstants 
 
         theInputMessage = MessageBuilder.withPayload(GREETING_STRING).build();
 
-        // <editor-fold desc="Start of answer section" defaultstate="collapsed">
+        // <editor-fold desc="Answer Section" defaultstate="collapsed">
         /*
          * Create and initialize the executor that the executor channel will
          * use for message dispatching.
@@ -134,7 +134,7 @@ public class ExecutorChannelTests implements SpringIntegrationExamplesConstants 
 
         theInputMessage = MessageBuilder.withPayload(GREETING_STRING).build();
 
-        // <editor-fold desc="Start of answer section" defaultstate="collapsed">
+        // <editor-fold desc="Answer Section" defaultstate="collapsed">
         /*
          * Create and initialize the executor that the executor channel will
          * use for message dispatching.
@@ -207,7 +207,7 @@ public class ExecutorChannelTests implements SpringIntegrationExamplesConstants 
         theInputMessage1 = MessageBuilder.withPayload("1").build();
         theInputMessage2 = MessageBuilder.withPayload("2").build();
 
-        // <editor-fold desc="Start of answer section" defaultstate="collapsed">
+        // <editor-fold desc="Answer Section" defaultstate="collapsed">
 
         final LoadBalancingStrategy theLoadBalancingStrategy =
             new RoundRobinLoadBalancingStrategy();

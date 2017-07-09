@@ -73,7 +73,7 @@ public class PublishSubscribeChannelTests
 
         theInputMessage = MessageBuilder.withPayload(GREETING_STRING).build();
 
-        // <editor-fold desc="Start of answer section" defaultstate="collapsed">
+        // <editor-fold desc="Answer Section" defaultstate="collapsed">
         thePubsubChannel = new PublishSubscribeChannel();
         thePubsubChannel.setComponentName(PUBSUB_CHANNEL_NAME);
         /*
@@ -135,7 +135,7 @@ public class PublishSubscribeChannelTests
 
         theInputMessage = MessageBuilder.withPayload(GREETING_STRING).build();
 
-        // <editor-fold desc="Start of answer section" defaultstate="collapsed">
+        // <editor-fold desc="Answer Section" defaultstate="collapsed">
         thePubsubChannel = new PublishSubscribeChannel();
         thePubsubChannel.setComponentName(PUBSUB_CHANNEL_NAME);
         thePubsubChannel.setMinSubscribers(1);
@@ -197,7 +197,7 @@ public class PublishSubscribeChannelTests
 
         theInputMessage = MessageBuilder.withPayload(GREETING_STRING).build();
 
-        // <editor-fold desc="Start of answer section" defaultstate="collapsed">
+        // <editor-fold desc="Answer Section" defaultstate="collapsed">
         thePubsubChannel = new PublishSubscribeChannel();
         thePubsubChannel.setComponentName(PUBSUB_CHANNEL_NAME);
         /*
@@ -289,7 +289,7 @@ public class PublishSubscribeChannelTests
          * error handler, a bean factory must be set in order for the message channel
          * to be able to create a default error handler.
          */
-        // <editor-fold desc="Start of answer section" defaultstate="collapsed">
+        // <editor-fold desc="Answer Section" defaultstate="collapsed">
         thePubsubChannel = new PublishSubscribeChannel(new ConcurrentTaskExecutor());
         thePubsubChannel.setBeanFactory(mBeanFactory);
         thePubsubChannel.setComponentName(PUBSUB_CHANNEL_NAME);
@@ -342,7 +342,7 @@ public class PublishSubscribeChannelTests
             throw new MessagingException("Always fail message handling!");
         };
 
-        // <editor-fold desc="Start of answer section" defaultstate="collapsed">
+        // <editor-fold desc="Answer Section" defaultstate="collapsed">
         thePubsubChannel = new PublishSubscribeChannel(new ConcurrentTaskExecutor());
         thePubsubChannel.setComponentName(PUBSUB_CHANNEL_NAME);
         thePubsubChannel.setMinSubscribers(1);
@@ -411,7 +411,7 @@ public class PublishSubscribeChannelTests
          * error handler, a bean factory must be set in order for the message channel
          * to be able to create a default error handler.
          */
-        // <editor-fold desc="Start of answer section" defaultstate="collapsed">
+        // <editor-fold desc="Answer Section" defaultstate="collapsed">
         thePubsubChannel = new PublishSubscribeChannel(new ConcurrentTaskExecutor());
         thePubsubChannel.setBeanFactory(mBeanFactory);
         thePubsubChannel.setComponentName(PUBSUB_CHANNEL_NAME);
