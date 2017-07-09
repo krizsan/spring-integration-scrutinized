@@ -19,6 +19,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Exercises demonstrating the use of Spring Integration rendezvous message channels.
+ * This type of message channel cause the producer of messages to block until a consumer
+ * has polled the message channel for the message.
  *
  * @author Ivan Krizsan
  * @see RendezvousChannel
