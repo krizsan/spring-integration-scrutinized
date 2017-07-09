@@ -10,6 +10,7 @@ There are more ways of solving the same problem and probably even better ways.
 The following concepts are scrutinized in the project.
 
 ## Message Channels
+Examines the different types of message channels in Spring Integration.
 Located in the package se.ivankrizsan.springintegration.messagechannels.
 
 ### DirectChannelTests
@@ -47,10 +48,10 @@ This type of message channel cause the producer of messages to block until a con
 
 ## Message Channel Interceptors
 Message channel interceptors can be used to intercept the sending and receiving of message to/from a message channel.
+Located in the package se.ivankrizsan.springintegration.channelinterceptors.
 
 ### ExecutorChannelInterceptorTests
 Message channel interceptor that makes it possible to intercept asynchronous sending of messages to a subscriber.
 
 ### WireTapInterceptorTests
 Wire-taps messages from the intercepted message channel, sending them to an additional message channel.
-
