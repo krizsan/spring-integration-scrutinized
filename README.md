@@ -55,3 +55,10 @@ Message channel interceptor that makes it possible to intercept asynchronous sen
 
 ### WireTapInterceptorTests
 Wire-taps messages from the intercepted message channel, sending them to an additional message channel.
+
+## Messages
+Examines the different types of messages.
+Located in the package se.ivankrizsan.springintegration.messages.
+
+### MutableMessageTests
+Message that can be modified after having been created.
