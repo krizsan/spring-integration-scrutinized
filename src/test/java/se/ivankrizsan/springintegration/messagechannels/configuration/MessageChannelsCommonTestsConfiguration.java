@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.context.support.SimpleThreadScope;
 import org.springframework.integration.channel.QueueChannel;
 import org.springframework.messaging.Message;
-import se.ivankrizsan.springintegration.SpringIntegrationExamplesConstants;
+import se.ivankrizsan.springintegration.shared.SpringIntegrationExamplesConstants;
 
 import java.util.concurrent.atomic.AtomicReference;
 

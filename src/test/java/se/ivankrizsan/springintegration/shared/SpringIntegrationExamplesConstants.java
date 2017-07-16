@@ -1,4 +1,4 @@
-package se.ivankrizsan.springintegration;
+package se.ivankrizsan.springintegration.shared;
 
 /**
  * Constants used in tests.
@@ -31,4 +31,6 @@ public interface SpringIntegrationExamplesConstants {
     String CUSTOM_PRIORITY_HEADER = "myCustomPriorityHeader";
     int METRICSTEST_MESSAGE_COUNT = 40;
     long METRICSTEST_MAX_DELAY = 100;
+    String MESSAGE_HEADER_NAME = "myMessageHeaderName";
+    String MESSAGE_HEADER_VALUE = "myMessageHeaderValue";
 }

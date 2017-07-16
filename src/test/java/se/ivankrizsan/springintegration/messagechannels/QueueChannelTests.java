@@ -11,7 +11,7 @@ import org.springframework.integration.config.EnableIntegration;
 import org.springframework.integration.support.MessageBuilder;
 import org.springframework.messaging.Message;
 import org.springframework.test.context.junit4.SpringRunner;
-import se.ivankrizsan.springintegration.SpringIntegrationExamplesConstants;
+import se.ivankrizsan.springintegration.shared.SpringIntegrationExamplesConstants;
 import se.ivankrizsan.springintegration.channelinterceptors.helpers.LoggingAndCountingChannelInterceptor;
 
 /**

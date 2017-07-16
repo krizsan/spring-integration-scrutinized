@@ -24,7 +24,7 @@ import org.springframework.messaging.MessagingException;
 import org.springframework.messaging.converter.GenericMessageConverter;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
-import se.ivankrizsan.springintegration.SpringIntegrationExamplesConstants;
+import se.ivankrizsan.springintegration.shared.SpringIntegrationExamplesConstants;
 import se.ivankrizsan.springintegration.messagechannels.configuration.MessageChannelsCommonTestsConfiguration;
 
 import java.util.List;

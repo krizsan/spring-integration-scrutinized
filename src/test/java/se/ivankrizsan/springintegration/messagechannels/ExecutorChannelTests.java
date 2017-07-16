@@ -14,7 +14,7 @@ import org.springframework.integration.support.MessageBuilder;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHandler;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import se.ivankrizsan.springintegration.SpringIntegrationExamplesConstants;
+import se.ivankrizsan.springintegration.shared.SpringIntegrationExamplesConstants;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;

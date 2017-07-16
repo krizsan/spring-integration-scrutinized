@@ -12,7 +12,7 @@ import org.springframework.integration.support.MessageBuilder;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.test.context.junit4.SpringRunner;
-import se.ivankrizsan.springintegration.SpringIntegrationExamplesConstants;
+import se.ivankrizsan.springintegration.shared.SpringIntegrationExamplesConstants;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;

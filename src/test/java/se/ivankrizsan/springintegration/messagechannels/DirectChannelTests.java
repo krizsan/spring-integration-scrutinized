@@ -16,7 +16,7 @@ import org.springframework.integration.support.MessageBuilder;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHandler;
 import org.springframework.test.context.junit4.SpringRunner;
-import se.ivankrizsan.springintegration.SpringIntegrationExamplesConstants;
+import se.ivankrizsan.springintegration.shared.SpringIntegrationExamplesConstants;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -45,8 +45,7 @@ public class DirectChannelTests implements SpringIntegrationExamplesConstants {
 
     /**
      * Tests creating a direct message channel and subscriber that is
-     * to receive messages sent to the channel. A message is then sent to the
-     * channel.
+     * to receive messages sent to the channel. A message is then sent to the channel.
      * To determine whether direct message channels support transaction spanning sender and
      * receiver, the id of the thread sending the message and the id of the thread receiving
      * the message are compared. If one and the same thread sends and receives a message, then
@@ -143,10 +142,8 @@ public class DirectChannelTests implements SpringIntegrationExamplesConstants {
             theSecondSubscriberReceivedMessages::add;
 
         /* Register the subscribers with the subscribable message channel. */
-        final boolean theFirstSubscribedFlag =
-            theDirectChannel.subscribe(theFirstSubscriber);
-        final boolean theSecondSubscribedFlag =
-            theDirectChannel.subscribe(theSecondSubscriber);
+        final boolean theFirstSubscribedFlag = theDirectChannel.subscribe(theFirstSubscriber);
+        final boolean theSecondSubscribedFlag = theDirectChannel.subscribe(theSecondSubscriber);
 
         Assert.assertTrue(theFirstSubscribedFlag);
         Assert.assertTrue(theSecondSubscribedFlag);

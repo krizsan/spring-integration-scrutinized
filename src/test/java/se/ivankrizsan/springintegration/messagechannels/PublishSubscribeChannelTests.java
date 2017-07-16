@@ -21,7 +21,7 @@ import org.springframework.messaging.MessagingException;
 import org.springframework.scheduling.concurrent.ConcurrentTaskExecutor;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
-import se.ivankrizsan.springintegration.SpringIntegrationExamplesConstants;
+import se.ivankrizsan.springintegration.shared.SpringIntegrationExamplesConstants;
 import se.ivankrizsan.springintegration.channelinterceptors.helpers.LoggingAndCountingChannelInterceptor;
 import se.ivankrizsan.springintegration.messagechannels.configuration.PublishSubscribeChannelTestsConfiguration;
 import se.ivankrizsan.springintegration.messagechannels.helpers.LoggingAndCountingErrorHandler;

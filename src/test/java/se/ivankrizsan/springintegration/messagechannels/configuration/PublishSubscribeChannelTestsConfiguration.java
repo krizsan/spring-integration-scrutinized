@@ -3,7 +3,7 @@ package se.ivankrizsan.springintegration.messagechannels.configuration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.integration.channel.QueueChannel;
-import se.ivankrizsan.springintegration.SpringIntegrationExamplesConstants;
+import se.ivankrizsan.springintegration.shared.SpringIntegrationExamplesConstants;
 
 /**
  * Beans used in the {@code PublishSubscribeChannelTests} tests.

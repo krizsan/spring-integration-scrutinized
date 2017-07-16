@@ -19,7 +19,7 @@ import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHandler;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.test.context.junit4.SpringRunner;
-import se.ivankrizsan.springintegration.SpringIntegrationExamplesConstants;
+import se.ivankrizsan.springintegration.shared.SpringIntegrationExamplesConstants;
 import se.ivankrizsan.springintegration.channelinterceptors.helpers.ExecutorChannelLoggingAndCountingInterceptor;
 
 import java.util.List;

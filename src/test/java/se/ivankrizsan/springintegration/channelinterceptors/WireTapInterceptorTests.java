@@ -13,10 +13,10 @@ import org.springframework.integration.support.MessageBuilder;
 import org.springframework.integration.support.MutableMessage;
 import org.springframework.messaging.Message;
 import org.springframework.test.context.junit4.SpringRunner;
-import se.ivankrizsan.springintegration.SpringIntegrationExamplesConstants;
+import se.ivankrizsan.springintegration.shared.SpringIntegrationExamplesConstants;
 
 /**
- * Exercises demonstrating the use of the Spring Integration wire-tap channel interceptor.
+ * Exercises demonstrating the use of the wire-tap channel interceptor.
  *
  * @author Ivan Krizsan
  * @see WireTap
