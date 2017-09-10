@@ -9,6 +9,29 @@ There are more ways of solving the same problem and probably even better ways.
 
 The following concepts are scrutinized in the project.
 
+## Message Aggregation
+Located in the package se.ivankrizsan.springintegration.aggregation.
+
+### AggregatingMessageHandlerTests
+Examines message aggregation with Spring Integration.
+
+## Message Channel Interceptors
+Message channel interceptors can be used to intercept the sending and receiving of message to/from a message channel.
+Located in the package se.ivankrizsan.springintegration.channelinterceptors.
+
+### ExecutorChannelInterceptorTests
+Message channel interceptor that makes it possible to intercept asynchronous sending of messages to a subscriber.
+
+### WireTapInterceptorTests
+Wire-taps messages from the intercepted message channel, sending them to an additional message channel.
+
+## HTTP
+HTTP communication with Spring Integration.
+Located in the package se.ivankrizsan.springintegration.http.
+
+### ReactiveHttpInboundEndpointTest
+Examines the reactive HTTP inbound endpoint.
+
 ## Message Channels
 Examines the different types of message channels in Spring Integration.
 Located in the package se.ivankrizsan.springintegration.messagechannels.
@@ -45,16 +68,6 @@ The queue message channel retains messages in a queue for clients to poll when r
 
 ### RendezvousChannelTests
 This type of message channel cause the producer of messages to block until a consumer has polled the message channel for the message.
-
-## Message Channel Interceptors
-Message channel interceptors can be used to intercept the sending and receiving of message to/from a message channel.
-Located in the package se.ivankrizsan.springintegration.channelinterceptors.
-
-### ExecutorChannelInterceptorTests
-Message channel interceptor that makes it possible to intercept asynchronous sending of messages to a subscriber.
-
-### WireTapInterceptorTests
-Wire-taps messages from the intercepted message channel, sending them to an additional message channel.
 
 ## Messages
 Examines the different types of messages.
