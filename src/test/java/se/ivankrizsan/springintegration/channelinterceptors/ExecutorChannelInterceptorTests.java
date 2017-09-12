@@ -1,7 +1,5 @@
 package se.ivankrizsan.springintegration.channelinterceptors;
 
-import static org.awaitility.Awaitility.await;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Assert;
@@ -12,19 +10,25 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.integration.channel.DirectChannel;
 import org.springframework.integration.channel.ExecutorChannel;
+import org.springframework.integration.channel.FluxMessageChannel;
+import org.springframework.integration.channel.PriorityChannel;
 import org.springframework.integration.channel.PublishSubscribeChannel;
 import org.springframework.integration.config.EnableIntegration;
 import org.springframework.integration.support.MessageBuilder;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHandler;
+import org.springframework.messaging.support.ExecutorChannelInterceptor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.test.context.junit4.SpringRunner;
-import se.ivankrizsan.springintegration.shared.SpringIntegrationExamplesConstants;
 import se.ivankrizsan.springintegration.channelinterceptors.helpers.ExecutorChannelLoggingAndCountingInterceptor;
+import se.ivankrizsan.springintegration.messagechannels.helpers.MyReactiveSubscriber;
+import se.ivankrizsan.springintegration.shared.SpringIntegrationExamplesConstants;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
+
+import static org.awaitility.Awaitility.await;
 
 /**
  * Exercises demonstrating the use of the Spring Integration executor channel interceptor.
@@ -143,7 +147,7 @@ public class ExecutorChannelInterceptorTests implements SpringIntegrationExample
         final DirectChannel theDirectChannel;
         final Message<String> theInputMessage;
         final List<Message> theSubscriberReceivedMessages =
-                new CopyOnWriteArrayList<>();
+            new CopyOnWriteArrayList<>();
         final ExecutorChannelLoggingAndCountingInterceptor theLoggingAndCountingChannelInterceptor;
 
         theInputMessage = MessageBuilder.withPayload(GREETING_STRING).build();
@@ -169,38 +173,10 @@ public class ExecutorChannelInterceptorTests implements SpringIntegrationExample
         await().atMost(2, TimeUnit.SECONDS).until(() -> theSubscriberReceivedMessages.size() > 0);
 
         Assert.assertTrue("A single message should have been received",
-                theSubscriberReceivedMessages.size() == 1);
+            theSubscriberReceivedMessages.size() == 1);
 
         /* Sending of message should have been intercepted. */
-        Assert.assertEquals(
-                "Message sending should have been intercepted before"
-                        + " the message being sent", 1,
-                theLoggingAndCountingChannelInterceptor.getPreSendMessageCount());
-        Assert.assertEquals("Message sending should have been intercepted "
-                        + "after the message having been sent", 1,
-                theLoggingAndCountingChannelInterceptor.getPostSendMessageCount());
-        Assert.assertEquals("Message sending should have completed", 1,
-                theLoggingAndCountingChannelInterceptor.getAfterSendCompletionMessageCount());
-
-        /* Handling of message should not have been intercepted. */
-        Assert.assertEquals("Message handling should not have been intercepted "
-                        + "before message was handled",
-                0, theLoggingAndCountingChannelInterceptor.getBeforeHandleMessageCount());
-        Assert.assertEquals("Message handling should not have been intercepted "
-                        + "after message was handled", 0,
-                theLoggingAndCountingChannelInterceptor.getAfterMessageHandledMessageCount());
-
-        /* Receiving of message should not have been intercepted. */
-        Assert.assertEquals(
-                "Receiving will not be intercepted with direct message channels",
-                0, theLoggingAndCountingChannelInterceptor.getPreReceiveMessageCount());
-        Assert.assertEquals(
-                "Receiving will not be intercepted with direct message channels",
-                0, theLoggingAndCountingChannelInterceptor.getPostReceiveMessageCount());
-        Assert.assertEquals(
-                "Receiving will not be intercepted with direct message channels",
-                0,
-                theLoggingAndCountingChannelInterceptor.getAfterReceiveCompletionMessageCount());
+        verifyDirectMessageChannelInterception(theLoggingAndCountingChannelInterceptor);
     }
 
     /**
@@ -218,7 +194,7 @@ public class ExecutorChannelInterceptorTests implements SpringIntegrationExample
         final PublishSubscribeChannel thePublishSubscribeChannel;
         final Message<String> theInputMessage;
         final List<Message> theSubscriberReceivedMessages =
-                new CopyOnWriteArrayList<>();
+            new CopyOnWriteArrayList<>();
         final ExecutorChannelLoggingAndCountingInterceptor theLoggingAndCountingChannelInterceptor;
 
         theInputMessage = MessageBuilder.withPayload(GREETING_STRING).build();
@@ -229,7 +205,7 @@ public class ExecutorChannelInterceptorTests implements SpringIntegrationExample
 
         /* Create the logging and counting interceptor and add it to the message channel. */
         theLoggingAndCountingChannelInterceptor =
-                new ExecutorChannelLoggingAndCountingInterceptor();
+            new ExecutorChannelLoggingAndCountingInterceptor();
         thePublishSubscribeChannel.addInterceptor(theLoggingAndCountingChannelInterceptor);
         thePublishSubscribeChannel.setBeanFactory(mBeanFactory);
         thePublishSubscribeChannel.onInit();
@@ -246,35 +222,155 @@ public class ExecutorChannelInterceptorTests implements SpringIntegrationExample
         await().atMost(2, TimeUnit.SECONDS).until(() -> theSubscriberReceivedMessages.size() > 0);
 
         Assert.assertTrue("A single message should have been received by subscriber",
-                theSubscriberReceivedMessages.size() == 1);
+            theSubscriberReceivedMessages.size() == 1);
+
+        verifyDirectMessageChannelInterception(theLoggingAndCountingChannelInterceptor);
+    }
+
+    /**
+     * Tests creating a flux message channel with a subscriber and an executor channel
+     * interceptor registered on the channel. A message is then sent to the channel.
+     *
+     * Expected result: Sending message to the channel should be intercepted.
+     * Receiving message from the channel should not be intercepted.
+     * Message handling should not be intercepted.
+     *
+     * @throws Exception If an error occurs. Indicates test failure.
+     */
+    @Test
+    public void fluxChannelWithExecutorChannelInterceptorTest() throws Exception {
+        final FluxMessageChannel theFluxMessageChannel;
+        final Message<String> theInputMessage;
+        final ExecutorChannelLoggingAndCountingInterceptor theLoggingAndCountingChannelInterceptor;
+
+        theInputMessage = MessageBuilder.withPayload(GREETING_STRING).build();
+
+        // <editor-fold desc="Answer Section" defaultstate="collapsed">
+        theFluxMessageChannel = new FluxMessageChannel();
+        theFluxMessageChannel.setComponentName(FLUX_CHANNEL_NAME);
+
+        theLoggingAndCountingChannelInterceptor =
+            new ExecutorChannelLoggingAndCountingInterceptor();
+        theFluxMessageChannel.addInterceptor(theLoggingAndCountingChannelInterceptor);
+
+        /* Create a subscriber and subscribe to the message channel. */
+        final MyReactiveSubscriber theSubscriber =
+            new MyReactiveSubscriber("First subscriber");
+        theFluxMessageChannel.subscribe(theSubscriber);
+
+        theFluxMessageChannel.send(theInputMessage);
+        // </editor-fold>
+        await().atMost(2, TimeUnit.SECONDS).until(() ->
+            theSubscriber.getSubscriberReceivedMessages().size() > 0);
+
+        Assert.assertTrue("A single message should have been received",
+            theSubscriber.getSubscriberReceivedMessages().size() == 1);
+
+        verifyDirectMessageChannelInterception(theLoggingAndCountingChannelInterceptor);
+    }
+
+    /**
+     * Tests creating a priority message channel with a subscriber and an executor channel
+     * interceptor registered on the channel. A message is then sent to the channel.
+     *
+     * Expected result: Sending message to the channel should be intercepted.
+     * Receiving message from the channel should not be intercepted.
+     * Message handling should not be intercepted.
+     *
+     * @throws Exception If an error occurs. Indicates test failure.
+     */
+    @Test
+    public void priorityChannelWithExecutorChannelInterceptorTest() throws Exception {
+        final PriorityChannel thePriorityChannel;
+        final Message<String> theInputMessage;
+        final Message<?> theOutputMessage;
+        final ExecutorChannelLoggingAndCountingInterceptor theLoggingAndCountingChannelInterceptor;
+
+        theInputMessage = MessageBuilder.withPayload(GREETING_STRING).build();
+
+        // <editor-fold desc="Answer Section" defaultstate="collapsed">
+        thePriorityChannel = new PriorityChannel();
+        thePriorityChannel.setComponentName(PRIORITY_CHANNEL_NAME);
+
+        theLoggingAndCountingChannelInterceptor =
+            new ExecutorChannelLoggingAndCountingInterceptor();
+        thePriorityChannel.addInterceptor(theLoggingAndCountingChannelInterceptor);
+
+        thePriorityChannel.send(theInputMessage);
+        // </editor-fold>
+        theOutputMessage =
+            thePriorityChannel.receive(RECEIVE_TIMEOUT_5000_MILLISECONDS);
+
+        Assert.assertNotNull("A message should have been received", theOutputMessage);
 
         /* Sending of message should have been intercepted. */
         Assert.assertEquals(
-                "Message sending should have been intercepted before the message being sent", 1,
-                theLoggingAndCountingChannelInterceptor.getPreSendMessageCount());
-        Assert.assertEquals(
-                "Message sending should have been intercepted after the message having been sent",
-                1, theLoggingAndCountingChannelInterceptor.getPostSendMessageCount());
+            "Message sending should have been intercepted before"
+                + " the message being sent", 1,
+            theLoggingAndCountingChannelInterceptor.getPreSendMessageCount());
+        Assert.assertEquals("Message sending should have been intercepted "
+                + "after the message having been sent", 1,
+            theLoggingAndCountingChannelInterceptor.getPostSendMessageCount());
         Assert.assertEquals("Message sending should have completed", 1,
-                theLoggingAndCountingChannelInterceptor.getAfterSendCompletionMessageCount());
+            theLoggingAndCountingChannelInterceptor.getAfterSendCompletionMessageCount());
 
         /* Handling of message should not have been intercepted. */
+        Assert.assertEquals("Message handling should not have been intercepted "
+                + "before message was handled",
+            0, theLoggingAndCountingChannelInterceptor.getBeforeHandleMessageCount());
+        Assert.assertEquals("Message handling should not have been intercepted "
+                + "after message was handled", 0,
+            theLoggingAndCountingChannelInterceptor.getAfterMessageHandledMessageCount());
+
+        /* Receiving of message should have been intercepted. */
         Assert.assertEquals(
-                "Message handling should not have been intercepted before message was handled",
-                0, theLoggingAndCountingChannelInterceptor.getBeforeHandleMessageCount());
+            "Receiving should be intercepted with priority message channels",
+            1, theLoggingAndCountingChannelInterceptor.getPreReceiveMessageCount());
         Assert.assertEquals(
-                "Message handling should not have been intercepted after message was handled",
-                0, theLoggingAndCountingChannelInterceptor.getAfterMessageHandledMessageCount());
+            "Receiving should be intercepted with priority message channels",
+            1, theLoggingAndCountingChannelInterceptor.getPostReceiveMessageCount());
+        Assert.assertEquals(
+            "Receiving should be intercepted with priority message channels",
+            1,
+            theLoggingAndCountingChannelInterceptor.getAfterReceiveCompletionMessageCount());
+    }
+
+    /**
+     * Verifies the supplied executor channel interceptor as to have intercepted
+     * messages as having been intercepting messages for a direct message channel.
+     *
+     * @param inLoggingAndCountingChannelInterceptor Interceptor which to verify.
+     */
+    protected void verifyDirectMessageChannelInterception(final ExecutorChannelLoggingAndCountingInterceptor
+        inLoggingAndCountingChannelInterceptor) {
+        /* Sending of message should have been intercepted. */
+        Assert.assertEquals(
+            "Message sending should have been intercepted before"
+                + " the message being sent", 1,
+            inLoggingAndCountingChannelInterceptor.getPreSendMessageCount());
+        Assert.assertEquals("Message sending should have been intercepted "
+                + "after the message having been sent", 1,
+            inLoggingAndCountingChannelInterceptor.getPostSendMessageCount());
+        Assert.assertEquals("Message sending should have completed", 1,
+            inLoggingAndCountingChannelInterceptor.getAfterSendCompletionMessageCount());
+
+        /* Handling of message should not have been intercepted. */
+        Assert.assertEquals("Message handling should not have been intercepted "
+                + "before message was handled",
+            0, inLoggingAndCountingChannelInterceptor.getBeforeHandleMessageCount());
+        Assert.assertEquals("Message handling should not have been intercepted "
+                + "after message was handled", 0,
+            inLoggingAndCountingChannelInterceptor.getAfterMessageHandledMessageCount());
 
         /* Receiving of message should not have been intercepted. */
         Assert.assertEquals(
-                "Receiving will not be intercepted by message channels with subscribers",
-                0, theLoggingAndCountingChannelInterceptor.getPreReceiveMessageCount());
+            "Receiving will not be intercepted by message channels with subscribers",
+            0, inLoggingAndCountingChannelInterceptor.getPreReceiveMessageCount());
         Assert.assertEquals(
-                "Receiving will not be intercepted by message channels with subscribers",
-                0, theLoggingAndCountingChannelInterceptor.getPostReceiveMessageCount());
+            "Receiving will not be intercepted by message channels with subscribers",
+            0, inLoggingAndCountingChannelInterceptor.getPostReceiveMessageCount());
         Assert.assertEquals(
-                "Receiving will not be intercepted by message channels with subscribers",
-                0, theLoggingAndCountingChannelInterceptor.getAfterReceiveCompletionMessageCount());
+            "Receiving will not be intercepted by message channels with subscribers",
+            0, inLoggingAndCountingChannelInterceptor.getAfterReceiveCompletionMessageCount());
     }
 }
