@@ -9,10 +9,10 @@ import org.springframework.http.MediaType;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.integration.channel.DirectChannel;
 import org.springframework.integration.config.EnableIntegration;
-import org.springframework.integration.http.inbound.ReactiveHttpInboundEndpoint;
 import org.springframework.integration.http.inbound.RequestMapping;
 import org.springframework.integration.http.support.DefaultHttpHeaderMapper;
 import org.springframework.integration.support.MessageBuilder;
+import org.springframework.integration.webflux.inbound.WebFluxInboundEndpoint;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -21,14 +21,14 @@ import org.springframework.web.reactive.config.EnableWebFlux;
 import java.util.Date;
 
 /**
- * Spring configuration for the {@code ReactiveHttpInboundEndpointTest}.
+ * Spring configuration for the {@code WebFluxInboundEndpointTest}.
  *
  * @author Ivan Krizsan
  */
 @Configuration
 @EnableIntegration
 @EnableWebFlux
-public class ReactiveHttpInboundEndpointTestConfiguration {
+public class WebFluxInboundEndpointTestConfiguration {
     /* Constant(s): */
     /** Name of HTTP inbound endpoint request message channel bean. */
     public static final String HTTP_REQUEST_CHANNEL = "httpRequestChannel";
@@ -99,13 +99,13 @@ public class ReactiveHttpInboundEndpointTestConfiguration {
      * @return Reactive HTTP inbound endpoint.
      */
     @Bean
-    public ReactiveHttpInboundEndpoint httpInboundEndpoint(
+    public WebFluxInboundEndpoint httpInboundEndpoint(
         @Qualifier(HTTP_REQUEST_MAPPING) final RequestMapping inRequestMapping,
         @Qualifier(HTTP_REQUEST_CHANNEL) final MessageChannel inRequestChannel,
         @Qualifier(HTTP_REPLY_CHANNEL) final MessageChannel inReplyChannel,
         @Qualifier(HTTP_HEADER_MAPPER) final DefaultHttpHeaderMapper inHttpHeaderMapper) {
-        final ReactiveHttpInboundEndpoint
-            theGateway = new ReactiveHttpInboundEndpoint(true);
+        final WebFluxInboundEndpoint
+            theGateway = new WebFluxInboundEndpoint(true);
 
         theGateway.setRequestMapping(inRequestMapping);
         theGateway.setRequestPayloadTypeClass(String.class);

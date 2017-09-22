@@ -15,14 +15,14 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.BodyInserters;
 
 /**
- * Exercises demonstrating the use of the {@code ReactiveHttpInboundEndpoint}.
+ * Exercises demonstrating the use of the {@code WebFluxInboundEndpoint}.
  *
  * @author Ivan Krizsan
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest
-@ContextConfiguration(classes = {ReactiveHttpInboundEndpointTestConfiguration.class})
-public class ReactiveHttpInboundEndpointTest {
+@ContextConfiguration(classes = {WebFluxInboundEndpointTestConfiguration.class})
+public class WebFluxInboundEndpointTest {
     /* Constant(s): */
 
     /* Instance variable(s): */
@@ -33,6 +33,7 @@ public class ReactiveHttpInboundEndpointTest {
 
     /**
      * Tests sending a request to the inbound endpoint.
+     *
      * Expected result: The reply should contain an expected string payload
      * and a header should have the expected value.
      */
@@ -40,11 +41,11 @@ public class ReactiveHttpInboundEndpointTest {
     public void successfulRequestTest() {
         final FluxExchangeResult<String> theReplyFlux = mTestClient
             .post()
-            .uri(ReactiveHttpInboundEndpointTestConfiguration.HTTP_GATEWAY_PATH)
+            .uri(WebFluxInboundEndpointTestConfiguration.HTTP_GATEWAY_PATH)
             .contentType(MediaType.TEXT_PLAIN)
             .accept(MediaType.TEXT_PLAIN)
             .body(BodyInserters.fromObject("request body payload"))
-            .header(ReactiveHttpInboundEndpointTestConfiguration.HEADER_NAME,
+            .header(WebFluxInboundEndpointTestConfiguration.HEADER_NAME,
                 "myCustomRequestHeaderValue")
             .exchange()
             .returnResult(String.class);
@@ -52,14 +53,14 @@ public class ReactiveHttpInboundEndpointTest {
         /* Get the reply body and headers. */
         final HttpHeaders theReplyHeaders = theReplyFlux.getResponseHeaders();
         final String theReplyHeaderValue =
-            theReplyHeaders.getFirst(ReactiveHttpInboundEndpointTestConfiguration.HEADER_NAME);
+            theReplyHeaders.getFirst(WebFluxInboundEndpointTestConfiguration.HEADER_NAME);
         final String theReplyBody = theReplyFlux.getResponseBody().blockFirst();
 
         /* Verify the result. */
         Assert.assertTrue("Reply body should contain expected string",
             theReplyBody.contains(
-                ReactiveHttpInboundEndpointTestConfiguration.RESPONSE_MESSAGE_INITIAL_PART));
+                WebFluxInboundEndpointTestConfiguration.RESPONSE_MESSAGE_INITIAL_PART));
         Assert.assertEquals("Reply header should contain expected content",
-            ReactiveHttpInboundEndpointTestConfiguration.HEADER_VALUE, theReplyHeaderValue);
+            WebFluxInboundEndpointTestConfiguration.HEADER_VALUE, theReplyHeaderValue);
     }
 }
