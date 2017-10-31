@@ -1,7 +1,5 @@
 package se.ivankrizsan.springintegration.messagechannels;
 
-import static org.awaitility.Awaitility.await;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Assert;
@@ -15,13 +13,17 @@ import org.springframework.integration.dispatcher.RoundRobinLoadBalancingStrateg
 import org.springframework.integration.support.MessageBuilder;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHandler;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
+import se.ivankrizsan.springintegration.shared.EmptyConfiguration;
 import se.ivankrizsan.springintegration.shared.SpringIntegrationExamplesConstants;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
+
+import static org.awaitility.Awaitility.await;
 
 /**
  * Exercises demonstrating use of Spring Integration direct message channels.
@@ -36,6 +38,7 @@ import java.util.concurrent.atomic.AtomicLong;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @EnableIntegration
+@ContextConfiguration(classes = { EmptyConfiguration.class })
 public class DirectChannelTests implements SpringIntegrationExamplesConstants {
 
     /* Class variable(s): */

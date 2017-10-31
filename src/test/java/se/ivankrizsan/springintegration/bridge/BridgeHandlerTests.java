@@ -28,7 +28,7 @@ import se.ivankrizsan.springintegration.shared.SpringIntegrationExamplesConstant
 @SpringBootTest
 @EnableIntegration
 @ContextConfiguration(classes = { EmptyConfiguration.class })
-public class BridgeHandlerTest implements SpringIntegrationExamplesConstants {
+public class BridgeHandlerTests implements SpringIntegrationExamplesConstants {
     /* Constant(s): */
 
     /* Instance variable(s): */

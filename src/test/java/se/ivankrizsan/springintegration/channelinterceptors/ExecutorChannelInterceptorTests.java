@@ -19,9 +19,12 @@ import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHandler;
 import org.springframework.messaging.support.ExecutorChannelInterceptor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
-import se.ivankrizsan.springintegration.channelinterceptors.helpers.ExecutorChannelLoggingAndCountingInterceptor;
+import se.ivankrizsan.springintegration.channelinterceptors.helpers
+    .ExecutorChannelLoggingAndCountingInterceptor;
 import se.ivankrizsan.springintegration.messagechannels.helpers.MyReactiveSubscriber;
+import se.ivankrizsan.springintegration.shared.EmptyConfiguration;
 import se.ivankrizsan.springintegration.shared.SpringIntegrationExamplesConstants;
 
 import java.util.List;
@@ -39,6 +42,7 @@ import static org.awaitility.Awaitility.await;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @EnableIntegration
+@ContextConfiguration(classes = { EmptyConfiguration.class })
 public class ExecutorChannelInterceptorTests implements SpringIntegrationExamplesConstants {
     /* Constant(s): */
     protected static final Log LOGGER = LogFactory.getLog(ExecutorChannelInterceptorTests.class);

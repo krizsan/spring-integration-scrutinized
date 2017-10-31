@@ -1,7 +1,5 @@
 package se.ivankrizsan.springintegration.aggregation;
 
-import static org.awaitility.Awaitility.await;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hamcrest.Matchers;
@@ -22,11 +20,15 @@ import org.springframework.integration.channel.QueueChannel;
 import org.springframework.integration.config.EnableIntegration;
 import org.springframework.integration.support.MessageBuilder;
 import org.springframework.messaging.Message;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
+import se.ivankrizsan.springintegration.shared.EmptyConfiguration;
 import se.ivankrizsan.springintegration.shared.SpringIntegrationExamplesConstants;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+
+import static org.awaitility.Awaitility.await;
 
 /**
  * Exercises demonstrating the use of the aggregating message handler.
@@ -37,6 +39,7 @@ import java.util.concurrent.TimeUnit;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @EnableIntegration
+@ContextConfiguration(classes = { EmptyConfiguration.class })
 public class AggregatingMessageHandlerTests implements SpringIntegrationExamplesConstants {
     /* Class variable(s): */
     protected static final Log LOGGER = LogFactory.getLog(AggregatingMessageHandlerTests.class);

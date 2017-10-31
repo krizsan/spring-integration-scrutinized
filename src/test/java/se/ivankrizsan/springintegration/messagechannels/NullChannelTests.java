@@ -9,7 +9,9 @@ import org.springframework.integration.config.EnableIntegration;
 import org.springframework.integration.support.MessageBuilder;
 import org.springframework.integration.support.management.DefaultMessageChannelMetrics;
 import org.springframework.messaging.Message;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
+import se.ivankrizsan.springintegration.shared.EmptyConfiguration;
 import se.ivankrizsan.springintegration.shared.SpringIntegrationExamplesConstants;
 
 import java.util.concurrent.ThreadLocalRandom;
@@ -26,6 +28,7 @@ import java.util.concurrent.ThreadLocalRandom;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @EnableIntegration
+@ContextConfiguration(classes = { EmptyConfiguration.class })
 public class NullChannelTests implements SpringIntegrationExamplesConstants {
     /* Constant(s): */
 

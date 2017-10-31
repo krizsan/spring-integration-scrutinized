@@ -11,7 +11,9 @@ import org.springframework.integration.channel.PriorityChannel;
 import org.springframework.integration.config.EnableIntegration;
 import org.springframework.integration.support.MessageBuilder;
 import org.springframework.messaging.Message;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
+import se.ivankrizsan.springintegration.shared.EmptyConfiguration;
 import se.ivankrizsan.springintegration.shared.SpringIntegrationExamplesConstants;
 
 import java.util.Comparator;
@@ -27,6 +29,7 @@ import java.util.Comparator;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @EnableIntegration
+@ContextConfiguration(classes = { EmptyConfiguration.class })
 public class PriorityChannelTests implements SpringIntegrationExamplesConstants {
     /* Constant(s): */
     protected static final Log LOGGER = LogFactory.getLog(PriorityChannelTests.class);

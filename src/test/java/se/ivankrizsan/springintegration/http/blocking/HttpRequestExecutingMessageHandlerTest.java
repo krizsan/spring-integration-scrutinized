@@ -1,4 +1,4 @@
-package se.ivankrizsan.springintegration.http;
+package se.ivankrizsan.springintegration.http.blocking;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -10,6 +10,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.integration.channel.QueueChannel;
+import org.springframework.integration.config.EnableIntegration;
 import org.springframework.integration.http.HttpHeaders;
 import org.springframework.integration.http.outbound.HttpRequestExecutingMessageHandler;
 import org.springframework.integration.support.MessageBuilder;
@@ -37,15 +38,22 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 /**
  * Exercises demonstrating the use of the {@code HttpRequestExecutingMessageHandler}
  * for sending outbound HTTP requests.
+ * Note that no actual requests are sent to any external servers during the execution of
+ * this test since a mock service is used.
  *
  * @author Ivan Krizsan
  */
 @RunWith(SpringRunner.class)
 @SpringBootTest
+@EnableIntegration
 @ContextConfiguration(classes = { EmptyConfiguration.class })
 public class HttpRequestExecutingMessageHandlerTest implements
     SpringIntegrationExamplesConstants {
     /* Constant(s): */
+    /**
+     * URL used to configure mock server and the HTTP outbound message handler.
+     * No requests are sent to this URL.
+     */
     protected static final String REQUEST_URL = "http://www.ivankrizsan.se";
 
     /* Instance variable(s): */
