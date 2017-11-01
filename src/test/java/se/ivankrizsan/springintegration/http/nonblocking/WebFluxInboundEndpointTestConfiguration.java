@@ -1,14 +1,17 @@
-package se.ivankrizsan.springintegration.http;
+package se.ivankrizsan.springintegration.http.nonblocking;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.integration.channel.DirectChannel;
 import org.springframework.integration.config.EnableIntegration;
+import org.springframework.integration.http.HttpHeaders;
 import org.springframework.integration.http.inbound.RequestMapping;
 import org.springframework.integration.http.support.DefaultHttpHeaderMapper;
 import org.springframework.integration.support.MessageBuilder;
@@ -53,7 +56,7 @@ public class WebFluxInboundEndpointTestConfiguration {
     /**
      * Creates the HTTP test client.
      *
-     * @param inApplicationContext Application context.
+     * @param inApplicationContext Application context which the test client will be bound to.
      * @return Test HTTP client.
      */
     @Bean
@@ -105,17 +108,17 @@ public class WebFluxInboundEndpointTestConfiguration {
         @Qualifier(HTTP_REPLY_CHANNEL) final MessageChannel inReplyChannel,
         @Qualifier(HTTP_HEADER_MAPPER) final DefaultHttpHeaderMapper inHttpHeaderMapper) {
         final WebFluxInboundEndpoint
-            theGateway = new WebFluxInboundEndpoint(true);
+            theInboundEndpoint = new WebFluxInboundEndpoint(true);
 
-        theGateway.setRequestMapping(inRequestMapping);
-        theGateway.setRequestPayloadTypeClass(String.class);
-        theGateway.setRequestChannel(inRequestChannel);
-        theGateway.setReplyChannel(inReplyChannel);
-        theGateway.setHeaderMapper(inHttpHeaderMapper);
-        theGateway.afterPropertiesSet();
-        theGateway.start();
+        theInboundEndpoint.setRequestMapping(inRequestMapping);
+        theInboundEndpoint.setRequestPayloadTypeClass(String.class);
+        theInboundEndpoint.setRequestChannel(inRequestChannel);
+        theInboundEndpoint.setReplyChannel(inReplyChannel);
+        theInboundEndpoint.setHeaderMapper(inHttpHeaderMapper);
+        theInboundEndpoint.afterPropertiesSet();
+        theInboundEndpoint.start();
 
-        return theGateway;
+        return theInboundEndpoint;
     }
 
     /**
@@ -156,11 +159,30 @@ public class WebFluxInboundEndpointTestConfiguration {
      * @return Reply message.
      */
     @ServiceActivator(inputChannel = HTTP_REQUEST_CHANNEL, outputChannel = HTTP_REPLY_CHANNEL)
-    public Message<String> processHttpRequest(final Message<String> inRequestMessage) {
-        final Message<String> theResponse = MessageBuilder
-            .withPayload(RESPONSE_MESSAGE_INITIAL_PART + (new Date()))
-            .setHeader(HEADER_NAME, HEADER_VALUE)
-            .build();
+    public Message<ResponseEntity<String>> processHttpRequest(final Message<String> inRequestMessage) {
+        final Message<ResponseEntity<String>> theResponse;
+        final ResponseEntity<String> theResponseEntity;
+
+        final String theRequestPayload = inRequestMessage.getPayload();
+
+        if (HttpStatus.INTERNAL_SERVER_ERROR.toString().equals(theRequestPayload)) {
+            theResponseEntity = new ResponseEntity<>(
+                "<500 Internal Server Error,{}>", HttpStatus.INTERNAL_SERVER_ERROR);
+            theResponse = MessageBuilder
+                .withPayload(theResponseEntity)
+                .setHeader(HEADER_NAME, HEADER_VALUE)
+                .setHeader(HttpHeaders.STATUS_CODE, HttpStatus.INTERNAL_SERVER_ERROR.toString())
+                .build();
+        } else {
+
+            theResponseEntity =
+                ResponseEntity
+                    .ok(RESPONSE_MESSAGE_INITIAL_PART + (new Date()));
+            theResponse = MessageBuilder
+                .withPayload(theResponseEntity)
+                .setHeader(HEADER_NAME, HEADER_VALUE)
+                .build();
+        }
         return theResponse;
     }
 }
