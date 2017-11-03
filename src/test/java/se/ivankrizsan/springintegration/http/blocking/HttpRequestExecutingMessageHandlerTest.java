@@ -16,6 +16,7 @@ import org.springframework.integration.http.outbound.HttpRequestExecutingMessage
 import org.springframework.integration.support.MessageBuilder;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHandlingException;
+import org.springframework.messaging.MessagingException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.client.MockRestServiceServer;
@@ -38,8 +39,6 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 /**
  * Exercises demonstrating the use of the {@code HttpRequestExecutingMessageHandler}
  * for sending outbound HTTP requests.
- * Note that no actual requests are sent to any external servers during the execution of
- * this test since a mock service is used.
  *
  * @author Ivan Krizsan
  */
@@ -62,6 +61,7 @@ public class HttpRequestExecutingMessageHandlerTest implements
 
     /**
      * Tests sending a HTTP GET request to a URL.
+     *
      * Expected result: There should be a response on the HTTP outbound message handler's
      * output channel which contains a reply indicating a successful request.
      */
@@ -76,7 +76,7 @@ public class HttpRequestExecutingMessageHandlerTest implements
 
         /*
          * Create and configure the mock server that will respond to requests from the
-         * HttpRequestExecutingMessageHandler.
+         * {@code HttpRequestExecutingMessageHandler}.
          */
         final MockRestServiceServer theMockRestServiceServer = MockRestServiceServer
             .bindTo(theHttpOutboundHandlerRestTemplate)
@@ -124,6 +124,7 @@ public class HttpRequestExecutingMessageHandlerTest implements
 
     /**
      * Tests sending a HTTP GET request to a URL with a connection refused.
+     *
      * Expected result: An exception should be thrown which root cause should indicate
      * that the connection was refused.
      */
@@ -133,6 +134,22 @@ public class HttpRequestExecutingMessageHandlerTest implements
         final QueueChannel theHttpOutboundHandlerReplyChannel;
         final HttpRequestExecutingMessageHandler theHttpOutboundHandler;
         Throwable theExceptionRootCause = null;
+        final RestTemplate theHttpOutboundHandlerRestTemplate = new RestTemplate();
+
+        /*
+         * Create and configure the mock server that will respond to requests from the
+         * {@code HttpRequestExecutingMessageHandler}.
+         */
+        final MockRestServiceServer theMockRestServiceServer = MockRestServiceServer
+            .bindTo(theHttpOutboundHandlerRestTemplate)
+            .build();
+        theMockRestServiceServer
+            .expect(once(), requestTo(REQUEST_URL))
+            .andExpect(method(HttpMethod.GET))
+            .andRespond(inRequest -> {
+                throw new MessageHandlingException(null, "A client error occurred!",
+                    new ConnectException("Connection refused"));
+            });
 
         // <editor-fold desc="Answer Section" defaultstate="collapsed">
         /*
@@ -142,7 +159,8 @@ public class HttpRequestExecutingMessageHandlerTest implements
         theHttpOutboundHandlerReplyChannel = new QueueChannel();
 
         /* Create and configure the HTTP outbound message handler. */
-        theHttpOutboundHandler = new HttpRequestExecutingMessageHandler("http://localhost:17123");
+        theHttpOutboundHandler = new HttpRequestExecutingMessageHandler(
+            REQUEST_URL, theHttpOutboundHandlerRestTemplate);
         theHttpOutboundHandler.setHttpMethod(HttpMethod.GET);
         theHttpOutboundHandler.setOutputChannel(theHttpOutboundHandlerReplyChannel);
         theHttpOutboundHandler.setExpectReply(true);
@@ -177,6 +195,7 @@ public class HttpRequestExecutingMessageHandlerTest implements
     /**
      * Tests sending a HTTP GET request to a URL where the response is a HTTP status 400
      * bad request and the default error handler is used.
+     *
      * Expected result: An exception should be thrown.
      */
     @Test
@@ -238,6 +257,7 @@ public class HttpRequestExecutingMessageHandlerTest implements
     /**
      * Tests sending a HTTP GET request to a URL where the response is a HTTP status 400
      * bad request and the default error handler is used.
+     *
      * Expected result: There should be a response on the HTTP outbound message handler's
      * output channel which contains a reply with HTTP status 400.
      */

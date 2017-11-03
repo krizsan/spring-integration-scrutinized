@@ -80,25 +80,6 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
-            <!-- Generates code coverage report. -->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>cobertura-maven-plugin</artifactId>
-                <version>2.7</version>
-                <configuration>
-                    <format>xml</format>
-                    <maxmem>256m</maxmem>
-                    <check/>
-                </configuration>
-            </plugin>
-            <!-- Submit code coverage report to Coveralls.io. -->
-            <plugin>
-                <groupId>org.eluder.coveralls</groupId>
-                <artifactId>coveralls-maven-plugin</artifactId>
-                <version>4.3.0</version>
-                <configuration>
-                </configuration>
-            </plugin>
         </plugins>
     </build>
 
