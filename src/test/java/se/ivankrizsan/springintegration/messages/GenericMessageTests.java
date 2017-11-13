@@ -18,7 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Exercises demonstrating the properties of generic messages.
+ * Exercises demonstrating the properties of generic, immutable, messages.
  *
  * @author Ivan Krizsan
  * @see org.springframework.messaging.support.GenericMessage
@@ -33,7 +33,7 @@ public class GenericMessageTests implements SpringIntegrationExamplesConstants {
     /* Instance variable(s): */
 
     /**
-     * Tests creating a generic message using the {@code GenericMessage} constructor.
+     * Tests creating a generic message using new.
      *
      * Expected result:
      * A message should be created with the expected payload and with one expected
@@ -41,7 +41,7 @@ public class GenericMessageTests implements SpringIntegrationExamplesConstants {
      * an id and a timestamp message header that are set on all messages upon creation.
      */
     @Test
-    public void createGenericMessageUsingConstructor() {
+    public void createMessageUsingNew() {
         final Message<String> theMessage;
         final Map<String, Object> theMessageHeadersMap;
 
@@ -58,14 +58,7 @@ public class GenericMessageTests implements SpringIntegrationExamplesConstants {
 
         // </editor-fold>
 
-        /*
-         * Check that the message created:
-         * Is a {@code GenericMessage}.
-         * Has the expected payload.
-         * Contains one single message header.
-         * Contains a message header with the expected key.
-         * Contains a message header with the expected key that has the expected value.
-         */
+        /* Verify the created message. */
         Assert.assertTrue("Message should be a GenericMessage",
             theMessage instanceof GenericMessage);
         Assert.assertEquals("Message payload should be the greeting string",
@@ -88,10 +81,10 @@ public class GenericMessageTests implements SpringIntegrationExamplesConstants {
      * Expected result:
      * A message should be created with the expected payload and with one expected
      * message header having the expected key and value. In addition, there will be
-     * an id and a timestamp message header that are set on all messages upon creation.
+     * an id and a timestamp message headers that are set on all messages upon creation.
      */
     @Test
-    public void createGenericMessageUsingMessageBuilder() {
+    public void createMessageUsingMessageBuilder() {
         final Message<String> theMessage;
 
         // <editor-fold desc="Answer Section" defaultstate="collapsed">
@@ -103,14 +96,7 @@ public class GenericMessageTests implements SpringIntegrationExamplesConstants {
 
         // </editor-fold>
 
-        /*
-         * Check that the message created:
-         * Is a {@code GenericMessage}.
-         * Has the expected payload.
-         * Contains one single message header.
-         * Contains a message header with the expected key.
-         * Contains a message header with the expected key that has the expected value.
-         */
+        /* Verify the created message. */
         Assert.assertTrue("Message should be a GenericMessage",
             theMessage instanceof GenericMessage);
         Assert.assertEquals("Message payload should be the greeting string",

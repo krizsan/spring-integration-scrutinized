@@ -38,6 +38,86 @@ public class MutableMessageTests implements SpringIntegrationExamplesConstants {
     /* Instance variable(s): */
 
     /**
+     * Tests creating a mutable message using new.
+     *
+     * Expected result:
+     * A message should be created with the expected payload and with one expected
+     * message header having the expected key and value. In addition, there will be
+     * an id and a timestamp message header that are set on all messages upon creation.
+     */
+    @Test
+    public void createMessageUsingNew() {
+        final Message<String> theMessage;
+        final Map<String, Object> theMessageHeadersMap;
+
+        // <editor-fold desc="Answer Section" defaultstate="collapsed">
+        /*
+         * Create and populate the map that holds the message headers
+         * that are to be set on the message.
+         */
+        theMessageHeadersMap = new HashMap<>();
+        theMessageHeadersMap.put(MESSAGE_HEADER_NAME, MESSAGE_HEADER_VALUE);
+
+        /* Create the message. */
+        theMessage = new MutableMessage<>(GREETING_STRING, theMessageHeadersMap);
+        // </editor-fold>
+
+        /* Verify the created message. */
+        Assert.assertTrue("Message should be a MutableMessage",
+            theMessage instanceof MutableMessage);
+        Assert.assertEquals("Message payload should be the greeting string",
+            GREETING_STRING, theMessage.getPayload());
+        Assert.assertEquals("Message should contain three message headers",
+            3, theMessage.getHeaders().size());
+        Assert.assertTrue("Message should contain expected header",
+            theMessage.getHeaders().containsKey(MESSAGE_HEADER_NAME));
+        Assert.assertEquals("Message header value should be expected value",
+            MESSAGE_HEADER_VALUE, theMessage.getHeaders().get(MESSAGE_HEADER_NAME));
+        Assert.assertTrue("Message should contain an id header",
+            theMessage.getHeaders().containsKey(MessageHeaders.ID));
+        Assert.assertTrue("Message should contain a timestamp header",
+            theMessage.getHeaders().containsKey(MessageHeaders.TIMESTAMP));
+    }
+
+    /**
+     * Tests creating a mutable message using the {@code MutableMessageBuilder} message builder.
+     *
+     * Expected result:
+     * A message should be created with the expected payload and with one expected
+     * message header having the expected key and value. In addition, there will be
+     * an id and a timestamp message headers that are set on all messages upon creation.
+     */
+    @Test
+    public void createMessageUsingMessageBuilder() {
+        final Message<String> theMessage;
+
+        // <editor-fold desc="Answer Section" defaultstate="collapsed">
+        /* Create the message. */
+        theMessage = MutableMessageBuilder
+            .withPayload(GREETING_STRING)
+            .setHeader(MESSAGE_HEADER_NAME, MESSAGE_HEADER_VALUE)
+            .build();
+
+        // </editor-fold>
+
+        /* Verify the created message. */
+        Assert.assertTrue("Message should be a MutableMessage",
+            theMessage instanceof MutableMessage);
+        Assert.assertEquals("Message payload should be the greeting string",
+            GREETING_STRING, theMessage.getPayload());
+        Assert.assertEquals("Message should contain three message headers",
+            3, theMessage.getHeaders().size());
+        Assert.assertTrue("Message should contain expected header",
+            theMessage.getHeaders().containsKey(MESSAGE_HEADER_NAME));
+        Assert.assertEquals("Message header value should be expected value",
+            MESSAGE_HEADER_VALUE, theMessage.getHeaders().get(MESSAGE_HEADER_NAME));
+        Assert.assertTrue("Message should contain an id header",
+            theMessage.getHeaders().containsKey(MessageHeaders.ID));
+        Assert.assertTrue("Message should contain a timestamp header",
+            theMessage.getHeaders().containsKey(MessageHeaders.TIMESTAMP));
+    }
+
+    /**
      * Tests modifying a message header in a {@code MutableMessage} after it has been created.
      *
      * Expected result: It should be possible to modify the value of the message header.
