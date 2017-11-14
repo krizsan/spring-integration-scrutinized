@@ -118,6 +118,116 @@ public class MutableMessageTests implements SpringIntegrationExamplesConstants {
     }
 
     /**
+     * Tests modification of a message header in a mutable message cloned
+     * using the {@code MutableMessageBuilder}.
+     * Intuition says that the value of the message headers in the two messages
+     * should be independent, but in reality they are not.
+     * Please refer to the following JIRA for details:
+     * https://jira.spring.io/browse/INT-4314
+     * This test wants to highlight this potential pitfall when using the
+     * {@code MutableMessageBuilder} to clone messages.
+     * The {@code MutableMessageBuilder} is not intended for general use, according
+     * to one of its creators.
+     *
+     * Expected result: Asserting that the values of the message header in the
+     * first and second message are different is expected to fail.
+     *
+     */
+    @Test(expected = AssertionError.class)
+    public void cloningMutableMessageWithMutableMessageBuilderTest() {
+        final String theHeaderName = "myHeaderName";
+        final String theFirstHeaderValue = "myHeaderValueOne";
+        final String theSecondHeaderValue = "myHeaderValueTwo";
+
+        /* Create the first message. */
+        final Message<String> theFirstMessage = MutableMessageBuilder
+            .withPayload("Hello Integrated World!")
+            .setHeader(theHeaderName, theFirstHeaderValue)
+            .build();
+
+        /* Double-check that the header value is indeed what it is supposed to. */
+        Assert.assertEquals("Header " + theHeaderName + " should contain expected value",
+            theFirstHeaderValue, theFirstMessage.getHeaders().get(theHeaderName));
+
+        /*
+         * Create the second message using the {@code MutableMessageBuilder}
+         * and creating a copy of the first message.
+         */
+        final Message<String> theSecondMessage = MutableMessageBuilder
+            .fromMessage(theFirstMessage)
+            .build();
+
+        /* Check that the header value of the second message is the same as that of the first. */
+        Assert.assertEquals(
+            "Message header in first and second messages should contain the same value",
+            theFirstMessage.getHeaders().get(theHeaderName),
+            theSecondMessage.getHeaders().get(theHeaderName));
+
+        /*
+         * Modify what one would believe is the header in the second message (only)
+         * but what turns out to be the headers of both the messages.
+         */
+        theSecondMessage.getHeaders().put(theHeaderName, theSecondHeaderValue);
+
+        /*
+         * Here's the counter-intuitive behaviour:
+         * Modifying the header value of the first message affects both the messages since
+         * they share one and the same {@code MessageHeaders} object.
+         * Note that this behaviour is intended according to https://jira.spring.io/browse/INT-4314
+         * The assertion is thus expected to fail.
+         */
+        Assert.assertNotEquals(theFirstMessage.getHeaders().get(theHeaderName),
+            theSecondMessage.getHeaders().get(theHeaderName));
+    }
+
+    /**
+     * Tests modification of a message header in a mutable message cloned
+     * using a constructor of the {@code MutableMessage} class.
+     * This is the preferred way to clone mutable messages, compared to using
+     * the {@code MutableMessageBuilder}, as shown in the previous test.
+     *
+     * Expected result: Modifying the value of the message header in the second message
+     * should result in the value of the message header in first and second messages
+     * to be different.
+     */
+    @Test
+    public void cloningMutableMessageWithConstructorTest() {
+        final String theHeaderName = "myHeaderName";
+        final String theFirstHeaderValue = "myHeaderValueOne";
+        final String theSecondHeaderValue = "myHeaderValueTwo";
+
+        /* Create the first message. */
+        final Message<String> theFirstMessage = MutableMessageBuilder
+            .withPayload("Hello Integrated World!")
+            .setHeader(theHeaderName, theFirstHeaderValue)
+            .build();
+
+        /* Double-check that the header value is indeed what it is supposed to. */
+        Assert.assertEquals("Header " + theHeaderName + " should contain expected value",
+            theFirstHeaderValue, theFirstMessage.getHeaders().get(theHeaderName));
+
+        /*
+         * Create the second message using the {@code MutableMessageBuilder}
+         * and creating a copy of the first message.
+         */
+        final Message<String> theSecondMessage = new MutableMessage<String>(
+            theFirstMessage.getPayload(), theFirstMessage.getHeaders());
+
+        /* Check that the header value of the second message is the same as that of the first. */
+        Assert.assertEquals(
+            "Message header in first and second messages should contain the same value",
+            theFirstMessage.getHeaders().get(theHeaderName),
+            theSecondMessage.getHeaders().get(theHeaderName));
+
+        /* Modify the value of the message header in the second message. */
+        theSecondMessage.getHeaders().put(theHeaderName, theSecondHeaderValue);
+
+        /* Verify that the value of the message header in the first and second messages differ. */
+        Assert.assertNotEquals(theFirstMessage.getHeaders().get(theHeaderName),
+            theSecondMessage.getHeaders().get(theHeaderName));
+    }
+
+    /**
      * Tests modifying a message header in a {@code MutableMessage} after it has been created.
      *
      * Expected result: It should be possible to modify the value of the message header.
