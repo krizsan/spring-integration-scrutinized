@@ -1,6 +1,5 @@
 # Spring Integration Scrutinized
 [![Build Status](https://travis-ci.org/krizsan/spring-integration-scrutinized.svg?branch=master)](https://travis-ci.org/krizsan/spring-integration-scrutinized)
-[![Coverage Status](https://coveralls.io/repos/github/krizsan/spring-integration-scrutinized/badge.svg?branch=master)](https://coveralls.io/github/krizsan/spring-integration-scrutinized?branch=master)
 
 A detailed look at the different concepts in Spring Integration 5.
 
