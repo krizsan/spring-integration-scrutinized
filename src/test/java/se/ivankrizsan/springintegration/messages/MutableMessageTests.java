@@ -131,7 +131,6 @@ public class MutableMessageTests implements SpringIntegrationExamplesConstants {
      *
      * Expected result: Asserting that the values of the message header in the
      * first and second message are different is expected to fail.
-     *
      */
     @Test(expected = AssertionError.class)
     public void cloningMutableMessageWithMutableMessageBuilderTest() {
@@ -159,7 +158,7 @@ public class MutableMessageTests implements SpringIntegrationExamplesConstants {
 
         /* Check that the header value of the second message is the same as that of the first. */
         Assert.assertEquals(
-            "Message header in first and second messages should contain the same value",
+            "Message header in first and second message should contain the same value",
             theFirstMessage.getHeaders().get(theHeaderName),
             theSecondMessage.getHeaders().get(theHeaderName));
 
@@ -183,11 +182,10 @@ public class MutableMessageTests implements SpringIntegrationExamplesConstants {
     /**
      * Tests modification of a message header in a mutable message cloned
      * using a constructor of the {@code MutableMessage} class.
-     * This is the preferred way to clone mutable messages, compared to using
-     * the {@code MutableMessageBuilder}, as shown in the previous test.
+     * This is one of the working message cloning alternatives.
      *
      * Expected result: Modifying the value of the message header in the second message
-     * should result in the value of the message header in first and second messages
+     * should result in the value of the message header in first and second message
      * to be different.
      */
     @Test
@@ -215,16 +213,70 @@ public class MutableMessageTests implements SpringIntegrationExamplesConstants {
 
         /* Check that the header value of the second message is the same as that of the first. */
         Assert.assertEquals(
-            "Message header in first and second messages should contain the same value",
+            "Message header in first and second message should contain the same value",
             theFirstMessage.getHeaders().get(theHeaderName),
             theSecondMessage.getHeaders().get(theHeaderName));
 
         /* Modify the value of the message header in the second message. */
         theSecondMessage.getHeaders().put(theHeaderName, theSecondHeaderValue);
 
-        /* Verify that the value of the message header in the first and second messages differ. */
-        Assert.assertNotEquals(theFirstMessage.getHeaders().get(theHeaderName),
+        /* Verify that the value of the message header in the first and second message differ. */
+        Assert.assertNotEquals(
+            "The value of the header from the first and second message should not be equal",
+            theFirstMessage.getHeaders().get(theHeaderName),
             theSecondMessage.getHeaders().get(theHeaderName));
+    }
+
+    /**
+     * Tests modification of a message header in a mutable message cloned
+     * using an alternative way of using the {@code MutableMessageBuilder}.
+     * This is one of the working message cloning alternatives.
+     *
+     * Expected result: Modifying the value of the message header in the second message
+     * should result in the value of the message header in first and second message
+     * to be different.
+     */
+    @Test
+    public void cloningMutableMessageWithMutableMessageBuilderAlternativeTest() {
+        final String theHeaderName = "myHeaderName";
+        final String theFirstHeaderValue = "myHeaderValueOne";
+        final String theSecondHeaderValue = "myHeaderValueTwo";
+
+        /* Create the first message. */
+        final Message<String> theFirstMessage = MutableMessageBuilder
+                .withPayload("Hello Integrated World!")
+                .setHeader(theHeaderName, theFirstHeaderValue)
+                .build();
+
+        /* Double-check that the header value is indeed what it is supposed to. */
+        Assert.assertEquals("Header " + theHeaderName + " should contain expected value",
+                theFirstHeaderValue, theFirstMessage.getHeaders().get(theHeaderName));
+
+        /*
+         * Create the second message using the {@code MutableMessageBuilder}
+         * and creating a copy of the first message.
+         * Note that the payload is set using the withPayload method of the builder
+         * and the message headers are set using the copyHeaders method.
+         */
+        final Message<String> theSecondMessage = MutableMessageBuilder
+                .withPayload(theFirstMessage.getPayload())
+                .copyHeaders(theFirstMessage.getHeaders())
+                .build();
+
+        /* Check that the header value of the second message is the same as that of the first. */
+        Assert.assertEquals(
+                "Message header in first and second message should contain the same value",
+                theFirstMessage.getHeaders().get(theHeaderName),
+                theSecondMessage.getHeaders().get(theHeaderName));
+
+        /* Modify the header in the second message. */
+        theSecondMessage.getHeaders().put(theHeaderName, theSecondHeaderValue);
+
+        /* Check that the value of the message header is different in the two messages. */
+        Assert.assertNotEquals(
+                "The value of the header from the first and second message should not be equal",
+                theFirstMessage.getHeaders().get(theHeaderName),
+                theSecondMessage.getHeaders().get(theHeaderName));
     }
 
     /**
@@ -349,6 +401,32 @@ public class MutableMessageTests implements SpringIntegrationExamplesConstants {
     }
 
     /**
+     * Tests modifying the payload of a {@code MutableMessage} after it has been created.
+     *
+     * Expected result: The list payload should be modifiable.
+     */
+    @Test
+    public void modifyPayloadTest() {
+        final Message<ArrayList<String>> theMessage;
+        final ArrayList<String> theListPayload;
+
+        // <editor-fold desc="Answer Section" defaultstate="collapsed">
+        /* Create a message with a list as payload. */
+        theListPayload = new ArrayList<>();
+        theListPayload.add("First list payload entry");
+        theMessage = MessageBuilder
+            .withPayload(theListPayload)
+            .build();
+
+        /* Attempt to modify the payload of the message. */
+        theMessage.getPayload().add("Second list payload entry");
+        // </editor-fold>
+
+        Assert.assertEquals("Payload list should contain two entries",
+            2, theMessage.getPayload().size());
+    }
+
+    /**
      * Compares the two supplied messages disregarding the message ids
      * and the message timestamps.
      *
@@ -357,10 +435,10 @@ public class MutableMessageTests implements SpringIntegrationExamplesConstants {
      * @return True if payload and headers, excluding message id header, are
      * identical in both messages.
      */
-    protected boolean compareMessagesDisregardMsgIdAndTimestamp(
+    private boolean compareMessagesDisregardMsgIdAndTimestamp(
         final Message<String> inFirstMessage,
         final Message<String> inSecondMessage) {
-        /* If payloads does not mtach, the messages are not equal. */
+        /* If payloads does not match, the messages are not equal. */
         if (!ObjectUtils.nullSafeEquals(inFirstMessage.getPayload(),
             inSecondMessage.getPayload())) {
             return false;
@@ -403,31 +481,5 @@ public class MutableMessageTests implements SpringIntegrationExamplesConstants {
         }
 
         return true;
-    }
-
-    /**
-     * Tests modifying the payload of a {@code MutableMessage} after it has been created.
-     *
-     * Expected result: The list payload should be modifiable.
-     */
-    @Test
-    public void modifyPayloadTest() {
-        final Message<ArrayList<String>> theMessage;
-        final ArrayList<String> theListPayload;
-
-        // <editor-fold desc="Answer Section" defaultstate="collapsed">
-        /* Create a message with a list as payload. */
-        theListPayload = new ArrayList<>();
-        theListPayload.add("First list payload entry");
-        theMessage = MessageBuilder
-            .withPayload(theListPayload)
-            .build();
-
-        /* Attempt to modify the payload of the message. */
-        theMessage.getPayload().add("Second list payload entry");
-        // </editor-fold>
-
-        Assert.assertEquals("Payload list should contain two entries",
-            2, theMessage.getPayload().size());
     }
 }
