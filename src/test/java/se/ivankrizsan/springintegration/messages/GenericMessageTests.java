@@ -112,4 +112,88 @@ public class GenericMessageTests implements SpringIntegrationExamplesConstants {
         Assert.assertTrue("Message should contain a timestamp header",
             theMessage.getHeaders().containsKey(MessageHeaders.TIMESTAMP));
     }
+
+    /**
+     * Tests cloning an immutable message using the {@code MessageBuilder}.
+     *
+     * Expected result: The cloned message should be one and the same instance
+     * as the original message.
+     */
+    @Test
+    public void cloningMessageWithMessageBuilderTest() {
+        final String theHeaderName = "myHeaderName";
+        final String theFirstHeaderValue = "myHeaderValueOne";
+
+        /* Create the first message. */
+        final Message<String> theFirstMessage = MessageBuilder
+            .withPayload("Hello Integrated World!")
+            .setHeader(theHeaderName, theFirstHeaderValue)
+            .build();
+
+        // <editor-fold desc="Answer Section" defaultstate="collapsed">
+        /*
+         * Clone the first message using the {@code MessageBuilder}, creating
+         * the second message.
+         */
+        final Message<String> theSecondMessage = MessageBuilder
+            .fromMessage(theFirstMessage)
+            .build();
+        // </editor-fold>
+
+        /* Verify the result. */
+        Assert.assertTrue("Cloned message is one and the same instance as the original",
+            theFirstMessage == theSecondMessage);
+    }
+
+    /**
+     * Tests creating an immutable message using the {@code MessageBuilder} from a
+     * message and adding a new header to the new message.
+     *
+     * Expected result: The new message should have the same payload and headers
+     * as the original message except for the message id and timestamp headers and,
+     * of course, the header added to the new message.
+     *
+     * @throws InterruptedException If delay interrupted. Should not happen.
+     */
+    @Test
+    public void cloningMessageAndAddingHeaderWithMessageBuilderTest() throws InterruptedException {
+        final String theHeaderName = "myHeaderName";
+        final String theFirstHeaderValue = "myHeaderValueOne";
+
+        /* Create the first message. */
+        final Message<String> theFirstMessage = MessageBuilder
+            .withPayload("Hello Integrated World!")
+            .setHeader(theHeaderName, theFirstHeaderValue)
+            .build();
+
+        /* A short delay as to ascertain that the timestamps will be different. */
+        Thread.sleep(20L);
+        // <editor-fold desc="Answer Section" defaultstate="collapsed">
+        /*
+         * Clone the first message using the {@code MessageBuilder}, creating
+         * the second message adding a new header.
+         */
+        final Message<String> theSecondMessage = MessageBuilder
+            .fromMessage(theFirstMessage)
+            .setHeader("myNewHeader", "myNewHeaderValue")
+            .build();
+        // </editor-fold>
+
+        /* Verify the result. */
+        Assert.assertFalse(
+            "Cloned message is not one and the same instance as the original",
+            theFirstMessage == theSecondMessage);
+        Assert.assertEquals("Payloads should be equal",
+            theFirstMessage.getPayload(), theSecondMessage.getPayload());
+        Assert.assertEquals(
+            "The value of the header from the original message should be equal",
+            theFirstMessage.getHeaders().get(theHeaderName),
+            theSecondMessage.getHeaders().get(theHeaderName));
+        Assert.assertNotEquals("The message ids should be different",
+            theFirstMessage.getHeaders().getId(),
+            theSecondMessage.getHeaders().getId());
+        Assert.assertNotEquals("The message timestamps should be different",
+            theFirstMessage.getHeaders().getTimestamp(),
+            theSecondMessage.getHeaders().getTimestamp());
+    }
 }
