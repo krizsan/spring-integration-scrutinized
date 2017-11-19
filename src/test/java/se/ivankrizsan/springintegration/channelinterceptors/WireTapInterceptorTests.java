@@ -5,6 +5,8 @@ import org.apache.commons.logging.LogFactory;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.integration.channel.QueueChannel;
 import org.springframework.integration.channel.interceptor.WireTap;
@@ -41,6 +43,8 @@ public class WireTapInterceptorTests implements SpringIntegrationExamplesConstan
     protected static final String PAYLOAD2 = "this is payload two";
 
     /* Instance variable(s): */
+    @Autowired
+    protected BeanFactory mBeanFactory;
 
 
     /**
@@ -206,6 +210,7 @@ public class WireTapInterceptorTests implements SpringIntegrationExamplesConstan
         /* Create a message selector that only accepts messages with a certain header value. */
         theMessageSelector = new ExpressionEvaluatingSelector("headers['"
             + WIRETAP_FILTER_HEADER + "']=='" + WIRETAP_FILTER_HEADER_ACCEPT_VALUE + "'");
+        theMessageSelector.setBeanFactory(mBeanFactory);
 
         /*
          * Create the wire-tap message channel interceptor.
