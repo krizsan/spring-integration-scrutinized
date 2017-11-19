@@ -9,12 +9,10 @@ import org.springframework.integration.support.MessageBuilder;
 import org.springframework.integration.support.MutableMessage;
 import org.springframework.integration.support.MutableMessageBuilder;
 import org.springframework.messaging.Message;
-import org.springframework.messaging.MessageHeaders;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.util.ObjectUtils;
+import se.ivankrizsan.springintegration.shared.AbstractTestsParent;
 import se.ivankrizsan.springintegration.shared.EmptyConfiguration;
-import se.ivankrizsan.springintegration.shared.SpringIntegrationExamplesConstants;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,8 +29,8 @@ import java.util.Set;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @EnableIntegration
-@ContextConfiguration(classes = { EmptyConfiguration.class })
-public class MutableMessageTests implements SpringIntegrationExamplesConstants {
+@ContextConfiguration(classes = {EmptyConfiguration.class})
+public class MutableMessageTests extends AbstractTestsParent {
     /* Constant(s): */
 
     /* Instance variable(s): */
@@ -73,10 +71,7 @@ public class MutableMessageTests implements SpringIntegrationExamplesConstants {
             theMessage.getHeaders().containsKey(MESSAGE_HEADER_NAME));
         Assert.assertEquals("Message header value should be expected value",
             MESSAGE_HEADER_VALUE, theMessage.getHeaders().get(MESSAGE_HEADER_NAME));
-        Assert.assertTrue("Message should contain an id header",
-            theMessage.getHeaders().containsKey(MessageHeaders.ID));
-        Assert.assertTrue("Message should contain a timestamp header",
-            theMessage.getHeaders().containsKey(MessageHeaders.TIMESTAMP));
+        assertContainsTimestampAndIdHeaders(theMessage);
     }
 
     /**
@@ -111,10 +106,7 @@ public class MutableMessageTests implements SpringIntegrationExamplesConstants {
             theMessage.getHeaders().containsKey(MESSAGE_HEADER_NAME));
         Assert.assertEquals("Message header value should be expected value",
             MESSAGE_HEADER_VALUE, theMessage.getHeaders().get(MESSAGE_HEADER_NAME));
-        Assert.assertTrue("Message should contain an id header",
-            theMessage.getHeaders().containsKey(MessageHeaders.ID));
-        Assert.assertTrue("Message should contain a timestamp header",
-            theMessage.getHeaders().containsKey(MessageHeaders.TIMESTAMP));
+        assertContainsTimestampAndIdHeaders(theMessage);
     }
 
     /**
@@ -143,10 +135,6 @@ public class MutableMessageTests implements SpringIntegrationExamplesConstants {
             .withPayload("Hello Integrated World!")
             .setHeader(theHeaderName, theFirstHeaderValue)
             .build();
-
-        /* Double-check that the header value is indeed what it is supposed to. */
-        Assert.assertEquals("Header " + theHeaderName + " should contain expected value",
-            theFirstHeaderValue, theFirstMessage.getHeaders().get(theHeaderName));
 
         /*
          * Create the second message using the {@code MutableMessageBuilder}
@@ -186,7 +174,8 @@ public class MutableMessageTests implements SpringIntegrationExamplesConstants {
      *
      * Expected result: Modifying the value of the message header in the second message
      * should result in the value of the message header in first and second message
-     * to be different.
+     * to be different. The cloned message should have the same timestamp and id
+     * as the original message.
      */
     @Test
     public void cloningMutableMessageWithConstructorTest() {
@@ -200,13 +189,9 @@ public class MutableMessageTests implements SpringIntegrationExamplesConstants {
             .setHeader(theHeaderName, theFirstHeaderValue)
             .build();
 
-        /* Double-check that the header value is indeed what it is supposed to. */
-        Assert.assertEquals("Header " + theHeaderName + " should contain expected value",
-            theFirstHeaderValue, theFirstMessage.getHeaders().get(theHeaderName));
-
         /*
          * Create the second message using the {@code MutableMessageBuilder}
-         * and creating a copy of the first message.
+         * with the same payload and headers as the first message.
          */
         final Message<String> theSecondMessage = new MutableMessage<String>(
             theFirstMessage.getPayload(), theFirstMessage.getHeaders());
@@ -225,6 +210,9 @@ public class MutableMessageTests implements SpringIntegrationExamplesConstants {
             "The value of the header from the first and second message should not be equal",
             theFirstMessage.getHeaders().get(theHeaderName),
             theSecondMessage.getHeaders().get(theHeaderName));
+
+        /* Verify that message id and timestamp are the same in the two messages. */
+        assertTimestampAndIdHeadersEqual(theFirstMessage, theSecondMessage);
     }
 
     /**
@@ -234,7 +222,8 @@ public class MutableMessageTests implements SpringIntegrationExamplesConstants {
      *
      * Expected result: Modifying the value of the message header in the second message
      * should result in the value of the message header in first and second message
-     * to be different.
+     * to be different. The cloned message should have the same timestamp and id
+     * as the original message.
      */
     @Test
     public void cloningMutableMessageWithMutableMessageBuilderAlternativeTest() {
@@ -244,39 +233,37 @@ public class MutableMessageTests implements SpringIntegrationExamplesConstants {
 
         /* Create the first message. */
         final Message<String> theFirstMessage = MutableMessageBuilder
-                .withPayload("Hello Integrated World!")
-                .setHeader(theHeaderName, theFirstHeaderValue)
-                .build();
-
-        /* Double-check that the header value is indeed what it is supposed to. */
-        Assert.assertEquals("Header " + theHeaderName + " should contain expected value",
-                theFirstHeaderValue, theFirstMessage.getHeaders().get(theHeaderName));
+            .withPayload("Hello Integrated World!")
+            .setHeader(theHeaderName, theFirstHeaderValue)
+            .build();
 
         /*
          * Create the second message using the {@code MutableMessageBuilder}
-         * and creating a copy of the first message.
+         * with the same payload and headers as the first message.
          * Note that the payload is set using the withPayload method of the builder
          * and the message headers are set using the copyHeaders method.
          */
         final Message<String> theSecondMessage = MutableMessageBuilder
-                .withPayload(theFirstMessage.getPayload())
-                .copyHeaders(theFirstMessage.getHeaders())
-                .build();
+            .withPayload(theFirstMessage.getPayload())
+            .copyHeaders(theFirstMessage.getHeaders())
+            .build();
 
         /* Check that the header value of the second message is the same as that of the first. */
         Assert.assertEquals(
-                "Message header in first and second message should contain the same value",
-                theFirstMessage.getHeaders().get(theHeaderName),
-                theSecondMessage.getHeaders().get(theHeaderName));
+            "Message header in first and second message should contain the same value",
+            theFirstMessage.getHeaders().get(theHeaderName),
+            theSecondMessage.getHeaders().get(theHeaderName));
 
         /* Modify the header in the second message. */
         theSecondMessage.getHeaders().put(theHeaderName, theSecondHeaderValue);
 
         /* Check that the value of the message header is different in the two messages. */
         Assert.assertNotEquals(
-                "The value of the header from the first and second message should not be equal",
-                theFirstMessage.getHeaders().get(theHeaderName),
-                theSecondMessage.getHeaders().get(theHeaderName));
+            "The value of the header from the first and second message should not be equal",
+            theFirstMessage.getHeaders().get(theHeaderName),
+            theSecondMessage.getHeaders().get(theHeaderName));
+
+        assertTimestampAndIdHeadersEqual(theFirstMessage, theSecondMessage);
     }
 
     /**
@@ -306,12 +293,6 @@ public class MutableMessageTests implements SpringIntegrationExamplesConstants {
     /**
      * Tests message equality by comparing different messages against a reference message
      * and also comparing the reference message with itself.
-     * Important note: It is strongly advised not to use
-     * {@code MutableMessageBuilder} to clone a message as the result will be two
-     * messages that share the same instance of {@code MutableMessageHeaders}.
-     * The consequences of this will be that if the headers of the first message
-     * are modified, the headers of the cloned message will also change (as they are
-     * one and the same).
      *
      * Expected result: The reference message should be equal to itself.
      * Other messages with different payload or different message headers should not be
@@ -326,7 +307,7 @@ public class MutableMessageTests implements SpringIntegrationExamplesConstants {
         final Map<String, Object> theReferenceMessageHeaders;
 
         /* Reference message headers. */
-        theReferenceMessageHeaders  = new HashMap<>();
+        theReferenceMessageHeaders = new HashMap<>();
         theReferenceMessageHeaders.put(MESSAGE_HEADER_NAME, MESSAGE_HEADER_VALUE);
 
         /* Reference message. */
@@ -383,21 +364,21 @@ public class MutableMessageTests implements SpringIntegrationExamplesConstants {
         /* Compare the reference message to each of the other messages. */
         Assert.assertTrue(
             "One and the same message shall be equal",
-            compareMessagesDisregardMsgIdAndTimestamp(
-                theReferenceMessage, theReferenceMessage));
+            compareMessagesDisregardIdAndTimestampHeaders(theReferenceMessage,
+                theReferenceMessage));
         Assert.assertTrue(
             "Two messages created in the same way have different ids and"
                 + " will not be equal",
-            compareMessagesDisregardMsgIdAndTimestamp(
-                theReferenceMessage, theSameAsFirstMessage));
+            compareMessagesDisregardIdAndTimestampHeaders(theReferenceMessage,
+                theSameAsFirstMessage));
         Assert.assertFalse(
             "Two messages created with different headers shall not be equal",
-            compareMessagesDisregardMsgIdAndTimestamp(
-                theReferenceMessage, theDifferentHeaderMessage));
+            compareMessagesDisregardIdAndTimestampHeaders(theReferenceMessage,
+                theDifferentHeaderMessage));
         Assert.assertFalse(
             "Two messages created with different payloads shall not be equal",
-            compareMessagesDisregardMsgIdAndTimestamp(
-                theReferenceMessage, theDifferentPayloadMessage));
+            compareMessagesDisregardIdAndTimestampHeaders(theReferenceMessage,
+                theDifferentPayloadMessage));
     }
 
     /**
@@ -424,62 +405,5 @@ public class MutableMessageTests implements SpringIntegrationExamplesConstants {
 
         Assert.assertEquals("Payload list should contain two entries",
             2, theMessage.getPayload().size());
-    }
-
-    /**
-     * Compares the two supplied messages disregarding the message ids
-     * and the message timestamps.
-     *
-     * @param inFirstMessage First message to compare.
-     * @param inSecondMessage Second message to compare.
-     * @return True if payload and headers, excluding message id header, are
-     * identical in both messages.
-     */
-    private boolean compareMessagesDisregardMsgIdAndTimestamp(
-        final Message<String> inFirstMessage,
-        final Message<String> inSecondMessage) {
-        /* If payloads does not match, the messages are not equal. */
-        if (!ObjectUtils.nullSafeEquals(inFirstMessage.getPayload(),
-            inSecondMessage.getPayload())) {
-            return false;
-        }
-
-        /* If the number of message headers differs, the messages are not equal. */
-        if (inFirstMessage.getHeaders().size()
-            != inSecondMessage.getHeaders().size()) {
-            return false;
-        }
-
-        /* Compare each message header. */
-        for (Map.Entry<String, Object> theFirstMsgHdrEntry :
-            inFirstMessage.getHeaders().entrySet()) {
-            final String theFirstMsgHdrKey = theFirstMsgHdrEntry.getKey();
-
-            /* Disregard id and timestamp message headers. */
-            if (!MessageHeaders.ID.equals(theFirstMsgHdrKey)
-                && !MessageHeaders.TIMESTAMP.equals(theFirstMsgHdrKey)) {
-
-                /*
-                 * If header does not exist in both messages, then the
-                 * messages not equal.
-                 */
-                if (!inSecondMessage.getHeaders().containsKey(theFirstMsgHdrKey)) {
-                    return false;
-                }
-
-                /* Compare the values of the message headers. */
-                final Object theFirstMsgHdrValue = theFirstMsgHdrEntry.getValue();
-                final Object theSecondMsgHdrValue =
-                    inSecondMessage.getHeaders().get(theFirstMsgHdrKey);
-
-                /* If header values not equal, then messages are not equal. */
-                if (!ObjectUtils.nullSafeEquals(
-                    theFirstMsgHdrValue, theSecondMsgHdrValue)) {
-                    return false;
-                }
-            }
-        }
-
-        return true;
     }
 }

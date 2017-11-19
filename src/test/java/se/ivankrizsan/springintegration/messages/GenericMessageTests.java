@@ -11,8 +11,8 @@ import org.springframework.messaging.support.GenericMessage;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
+import se.ivankrizsan.springintegration.shared.AbstractTestsParent;
 import se.ivankrizsan.springintegration.shared.EmptyConfiguration;
-import se.ivankrizsan.springintegration.shared.SpringIntegrationExamplesConstants;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,13 +27,13 @@ import java.util.Map;
 @SpringBootTest
 @EnableIntegration
 @ContextConfiguration(classes = { EmptyConfiguration.class })
-public class GenericMessageTests implements SpringIntegrationExamplesConstants {
+public class GenericMessageTests extends AbstractTestsParent {
     /* Constant(s): */
 
     /* Instance variable(s): */
 
     /**
-     * Tests creating a generic message using new.
+     * Tests creating an immutable message using new.
      *
      * Expected result:
      * A message should be created with the expected payload and with one expected
@@ -69,14 +69,11 @@ public class GenericMessageTests implements SpringIntegrationExamplesConstants {
             theMessage.getHeaders().containsKey(MESSAGE_HEADER_NAME));
         Assert.assertEquals("Message header value should be expected value",
             MESSAGE_HEADER_VALUE, theMessage.getHeaders().get(MESSAGE_HEADER_NAME));
-        Assert.assertTrue("Message should contain an id header",
-            theMessage.getHeaders().containsKey(MessageHeaders.ID));
-        Assert.assertTrue("Message should contain a timestamp header",
-            theMessage.getHeaders().containsKey(MessageHeaders.TIMESTAMP));
+        assertContainsTimestampAndIdHeaders(theMessage);
     }
 
     /**
-     * Tests creating a generic message using the {@code MessageBuilder} message builder.
+     * Tests creating an immutable message using the {@code MessageBuilder} message builder.
      *
      * Expected result:
      * A message should be created with the expected payload and with one expected
@@ -103,14 +100,11 @@ public class GenericMessageTests implements SpringIntegrationExamplesConstants {
             GREETING_STRING, theMessage.getPayload());
         Assert.assertEquals("Message should contain three message headers",
             3, theMessage.getHeaders().size());
-        Assert.assertTrue("Message should contain expected header",
+        Assert.assertTrue("Message should contain the expected header",
             theMessage.getHeaders().containsKey(MESSAGE_HEADER_NAME));
         Assert.assertEquals("Message header value should be expected value",
             MESSAGE_HEADER_VALUE, theMessage.getHeaders().get(MESSAGE_HEADER_NAME));
-        Assert.assertTrue("Message should contain an id header",
-            theMessage.getHeaders().containsKey(MessageHeaders.ID));
-        Assert.assertTrue("Message should contain a timestamp header",
-            theMessage.getHeaders().containsKey(MessageHeaders.TIMESTAMP));
+        assertContainsTimestampAndIdHeaders(theMessage);
     }
 
     /**
@@ -152,11 +146,9 @@ public class GenericMessageTests implements SpringIntegrationExamplesConstants {
      * Expected result: The new message should have the same payload and headers
      * as the original message except for the message id and timestamp headers and,
      * of course, the header added to the new message.
-     *
-     * @throws InterruptedException If delay interrupted. Should not happen.
      */
     @Test
-    public void cloningMessageAndAddingHeaderWithMessageBuilderTest() throws InterruptedException {
+    public void cloningMessageAndAddingHeaderWithMessageBuilderTest() {
         final String theHeaderName = "myHeaderName";
         final String theFirstHeaderValue = "myHeaderValueOne";
 
@@ -167,7 +159,7 @@ public class GenericMessageTests implements SpringIntegrationExamplesConstants {
             .build();
 
         /* A short delay as to ascertain that the timestamps will be different. */
-        Thread.sleep(20L);
+        shortDelay(20L);
         // <editor-fold desc="Answer Section" defaultstate="collapsed">
         /*
          * Clone the first message using the {@code MessageBuilder}, creating
@@ -189,11 +181,6 @@ public class GenericMessageTests implements SpringIntegrationExamplesConstants {
             "The value of the header from the original message should be equal",
             theFirstMessage.getHeaders().get(theHeaderName),
             theSecondMessage.getHeaders().get(theHeaderName));
-        Assert.assertNotEquals("The message ids should be different",
-            theFirstMessage.getHeaders().getId(),
-            theSecondMessage.getHeaders().getId());
-        Assert.assertNotEquals("The message timestamps should be different",
-            theFirstMessage.getHeaders().getTimestamp(),
-            theSecondMessage.getHeaders().getTimestamp());
+        assertTimestampAndIdHeadersNotEqual(theFirstMessage, theSecondMessage);
     }
 }
