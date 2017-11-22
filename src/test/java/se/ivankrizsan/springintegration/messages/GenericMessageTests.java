@@ -183,4 +183,41 @@ public class GenericMessageTests extends AbstractTestsParent {
             theSecondMessage.getHeaders().get(theHeaderName));
         assertTimestampAndIdHeadersNotEqual(theFirstMessage, theSecondMessage);
     }
+
+    /**
+     * Tests cloning an immutable message using the new operator.
+     *
+     * Expected result: The new message should have the same payload and headers
+     * as the original message, including the message id and timestamp headers.
+     */
+    @Test
+    public void cloningMessageWithNewTest() {
+        final String theHeaderName = "myHeaderName";
+        final String theFirstHeaderValue = "myHeaderValueOne";
+
+        /* Create the first message. */
+        final Message<String> theFirstMessage = MessageBuilder
+            .withPayload("Hello Integrated World!")
+            .setHeader(theHeaderName, theFirstHeaderValue)
+            .build();
+
+        // <editor-fold desc="Answer Section" defaultstate="collapsed">
+        /* Clone the first message using the new operator. */
+        final Message<String> theSecondMessage = new GenericMessage<>(
+            theFirstMessage.getPayload(),
+                theFirstMessage.getHeaders());
+        // </editor-fold>
+
+        /* Verify the result. */
+        Assert.assertFalse(
+            "Cloned message is not one and the same instance as the original",
+            theFirstMessage == theSecondMessage);
+        Assert.assertEquals("Payloads should be equal",
+            theFirstMessage.getPayload(), theSecondMessage.getPayload());
+        Assert.assertEquals(
+            "The value of the header from the original message should be equal",
+            theFirstMessage.getHeaders().get(theHeaderName),
+            theSecondMessage.getHeaders().get(theHeaderName));
+        assertTimestampAndIdHeadersEqual(theFirstMessage, theSecondMessage);
+    }
 }
