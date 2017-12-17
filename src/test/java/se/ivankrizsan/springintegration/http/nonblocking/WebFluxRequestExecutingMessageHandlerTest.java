@@ -1,3 +1,19 @@
+/*
+ * Copyright 2017 Ivan Krizsan
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package se.ivankrizsan.springintegration.http.nonblocking;
 
 import static org.awaitility.Awaitility.await;
@@ -29,6 +45,7 @@ import se.ivankrizsan.springintegration.messagechannels.helpers.RequestHandlerLo
 import se.ivankrizsan.springintegration.shared.SpringIntegrationExamplesConstants;
 
 import java.net.ConnectException;
+import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -79,7 +96,8 @@ public class WebFluxRequestExecutingMessageHandlerTest implements
          * {@code WebFluxRequestExecutingMessageHandler}.
          */
         theWebClient = createWebClientWithMockResponse(
-            HttpStatus.OK, RESPONSE_MESSAGE_PAYLOAD.getBytes(), null, null);
+            HttpStatus.OK, RESPONSE_MESSAGE_PAYLOAD.getBytes(Charset.forName("UTF-8")),
+            null, null);
 
         // <editor-fold desc="Answer Section" defaultstate="collapsed">
         /*
@@ -220,7 +238,8 @@ public class WebFluxRequestExecutingMessageHandlerTest implements
         final WebClient theWebClient;
 
         theWebClient = createWebClientWithMockResponse(HttpStatus.FORBIDDEN,
-            "Forbidden response body".getBytes(), null, null);
+            "Forbidden response body".getBytes(Charset.forName("UTF-8")),
+            null, null);
 
         // <editor-fold desc="Answer Section" defaultstate="collapsed">
         /* Create the reply message channels on which the reply is to be received. */

@@ -1,4 +1,20 @@
-package se.ivankrizsan.springintegration.messagechannels;
+/*
+ * Copyright 2017 Ivan Krizsan
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package se.ivankrizsan.springintegration.messagechannels.pollable;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -18,8 +34,9 @@ import se.ivankrizsan.springintegration.shared.EmptyConfiguration;
 import se.ivankrizsan.springintegration.shared.SpringIntegrationExamplesConstants;
 
 /**
- * Exercises demonstrating the use of Spring Integration pollable message channels.
- * A pollable message channel holds its data in a queue.
+ * Exercises demonstrating the use of Spring Integration {@code QueueChannel}.
+ * A {@code QueueChannel} is a pollable message channel that stores its messages
+ * in a {@code Queue} collection.
  *
  * @author Ivan Krizsan
  * @see QueueChannel
