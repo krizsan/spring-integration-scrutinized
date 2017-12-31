@@ -32,6 +32,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import se.ivankrizsan.springintegration.shared.EmptyConfiguration;
 import se.ivankrizsan.springintegration.shared.SpringIntegrationExamplesConstants;
 
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -70,7 +71,8 @@ public class RendezvousChannelTests implements SpringIntegrationExamplesConstant
         final RendezvousChannel theRendezvousChannel;
         final Message<String> theInputMessage;
         final Message<?> theOutputMessage;
-        final AtomicBoolean theMessageSendResultAtomic = new AtomicBoolean(false);
+        final AtomicBoolean theMessageSendResultAtomic = new AtomicBoolean();
+        final Semaphore theSendThreadFinishedSemaphore = new Semaphore(1);
 
         theInputMessage = MessageBuilder.withPayload(GREETING_STRING).build();
 
@@ -83,9 +85,11 @@ public class RendezvousChannelTests implements SpringIntegrationExamplesConstant
          * Need to invoke the send operation in a separate thread,
          * since it is blocking with rendezvous message channels.
          */
+        theSendThreadFinishedSemaphore.acquire();
         final Thread theSendThread = new Thread(() -> {
             final boolean theSendResult = theRendezvousChannel.send(theInputMessage);
             theMessageSendResultAtomic.set(theSendResult);
+            theSendThreadFinishedSemaphore.release();
         });
         theSendThread.start();
 
@@ -97,6 +101,11 @@ public class RendezvousChannelTests implements SpringIntegrationExamplesConstant
         Assert.assertEquals("Input and output payloads should be the same",
             GREETING_STRING,
             theOutputMessagePayload);
+        /*
+         * Must wait until sending thread completely finished what it should do
+         * in order to avoid test failures.
+         */
+        theSendThreadFinishedSemaphore.acquire();
         Assert.assertTrue("The message sending should be successful",
             theMessageSendResultAtomic.get());
     }
