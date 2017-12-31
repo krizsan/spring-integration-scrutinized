@@ -39,6 +39,8 @@ public class MessageChannelsCommonTestsConfiguration implements SpringIntegratio
 
     /**
      * Thread scoped queue message channel bean.
+     * Need to be defined as a Spring bean in order to set the scope of the bean
+     * to thread scope.
      *
      * @return Queue message channel.
      */

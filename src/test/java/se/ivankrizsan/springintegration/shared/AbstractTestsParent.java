@@ -17,11 +17,14 @@
 package se.ivankrizsan.springintegration.shared;
 
 import org.junit.Assert;
+import org.springframework.integration.support.MessageBuilder;
 import org.springframework.messaging.Message;
+import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.util.ObjectUtils;
 
 import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Abstract superclass for the tests that contain common helper methods.
@@ -190,6 +193,27 @@ public abstract class AbstractTestsParent implements SpringIntegrationExamplesCo
             Thread.sleep(inDelayInMilliseconds);
         } catch (final InterruptedException theException) {
             /* Ignore exceptions. */
+        }
+    }
+
+    /**
+     * Sends a number of messages to the supplied message channel with a random delay between
+     * each message.
+     *
+     * @param inMessageChannel Message channel to send messages to.
+     * @throws InterruptedException
+     */
+    protected void sendSomeMessagesToMessageChannelWithRandomDelay(
+        final MessageChannel inMessageChannel) {
+        Message<String> theInputMessage;
+
+        for (int i = 0; i < METRICSTEST_MESSAGE_COUNT; i++) {
+            theInputMessage = MessageBuilder.withPayload(Integer.toString(i)).build();
+            inMessageChannel.send(theInputMessage);
+
+            /* A random delay to get some variation in the metrics of the message channel. */
+            final long theDelay = ThreadLocalRandom.current().nextLong(METRICSTEST_MAX_DELAY);
+            shortDelay(theDelay);
         }
     }
 }

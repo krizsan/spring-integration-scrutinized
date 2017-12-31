@@ -27,10 +27,8 @@ import org.springframework.integration.support.management.DefaultMessageChannelM
 import org.springframework.messaging.Message;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
+import se.ivankrizsan.springintegration.shared.AbstractTestsParent;
 import se.ivankrizsan.springintegration.shared.EmptyConfiguration;
-import se.ivankrizsan.springintegration.shared.SpringIntegrationExamplesConstants;
-
-import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Exercises demonstrating the use of Spring Integration null message channels.
@@ -45,7 +43,7 @@ import java.util.concurrent.ThreadLocalRandom;
 @SpringBootTest
 @EnableIntegration
 @ContextConfiguration(classes = { EmptyConfiguration.class })
-public class NullChannelTests implements SpringIntegrationExamplesConstants {
+public class NullChannelTests extends AbstractTestsParent {
     /* Constant(s): */
 
     /* Instance variable(s): */
@@ -56,11 +54,9 @@ public class NullChannelTests implements SpringIntegrationExamplesConstants {
      *
      * Expected result: Sending messages to a null message channel should always succeed.
      * Receiving messages from a null message channel should always return null.
-     *
-     * @throws Exception If error occurs. Indicates test failure.
      */
     @Test
-    public void sendReceiveTest() throws Exception {
+    public void sendReceiveTest() {
         final NullChannel theNullChannel;
         final Message<String> theInputMessage;
         final Object theOutputMessage;
@@ -94,14 +90,11 @@ public class NullChannelTests implements SpringIntegrationExamplesConstants {
      *
      * Expected result: Full statistics, including message count and a calculated
      * mean send duration, should be maintained by the message channel.
-     *
-     * @throws Exception If an error occurs. Indicates test failure.
      */
     @Test
-    public void nullChannelFullStatisticsTest() throws Exception {
+    public void nullChannelFullStatisticsTest() {
         final NullChannel theNullChannel;
         final DefaultMessageChannelMetrics theMessageChannelMetrics;
-        Message<String> theInputMessage;
 
         // <editor-fold desc="Answer Section" defaultstate="collapsed">
         /* Create and name the message channel. */
@@ -122,15 +115,7 @@ public class NullChannelTests implements SpringIntegrationExamplesConstants {
          */
         theNullChannel.setStatsEnabled(true);
 
-        /* Send some messages to the message channel. */
-        for (int i = 0; i < METRICSTEST_MESSAGE_COUNT; i++) {
-            theInputMessage = MessageBuilder.withPayload(Integer.toString(i)).build();
-            theNullChannel.send(theInputMessage);
-
-            /* A random delay to get some variation in the metrics of the message channel. */
-            final long theDelay = ThreadLocalRandom.current().nextLong(METRICSTEST_MAX_DELAY);
-            Thread.sleep(theDelay);
-        }
+        sendSomeMessagesToMessageChannelWithRandomDelay(theNullChannel);
         // </editor-fold>
 
         /*

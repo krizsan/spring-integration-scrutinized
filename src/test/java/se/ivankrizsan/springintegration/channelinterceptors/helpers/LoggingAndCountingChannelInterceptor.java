@@ -24,6 +24,7 @@ import org.springframework.messaging.support.ChannelInterceptor;
 
 import java.text.MessageFormat;
 import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Message channel interceptor that logs information about the messages being
@@ -41,12 +42,12 @@ public class LoggingAndCountingChannelInterceptor implements ChannelInterceptor 
         LogFactory.getLog(LoggingAndCountingChannelInterceptor.class);
 
     /* Instance variable(s): */
-    protected int mPreSendMessageCount;
-    protected int mPostSendMessageCount;
-    protected int mAfterSendCompletionMessageCount;
-    protected int mPreReceiveMessageCount;
-    protected int mPostReceiveMessageCount;
-    protected int mAfterReceiveCompletionMessageCount;
+    protected AtomicInteger mPreSendMessageCount = new AtomicInteger();
+    protected AtomicInteger mPostSendMessageCount = new AtomicInteger();
+    protected AtomicInteger mAfterSendCompletionMessageCount = new AtomicInteger();
+    protected AtomicInteger mPreReceiveMessageCount = new AtomicInteger();
+    protected AtomicInteger mPostReceiveMessageCount = new AtomicInteger();
+    protected AtomicInteger mAfterReceiveCompletionMessageCount = new AtomicInteger();
 
     @Override
     public Message<?> preSend(final Message<?> inMessage,
@@ -55,7 +56,7 @@ public class LoggingAndCountingChannelInterceptor implements ChannelInterceptor 
             inMessage,
             inChannel,
             (Object[]) null);
-        mPreSendMessageCount += 1;
+        mPreSendMessageCount.incrementAndGet();
         return inMessage;
     }
 
@@ -66,7 +67,7 @@ public class LoggingAndCountingChannelInterceptor implements ChannelInterceptor 
             inMessage,
             inChannel,
             (Object[]) null);
-        mPostSendMessageCount += 1;
+        mPostSendMessageCount.incrementAndGet();
     }
 
     @Override
@@ -79,7 +80,7 @@ public class LoggingAndCountingChannelInterceptor implements ChannelInterceptor 
             inMessage,
             inChannel,
             inException);
-        mAfterSendCompletionMessageCount += 1;
+        mAfterSendCompletionMessageCount.incrementAndGet();
     }
 
     @Override
@@ -89,7 +90,7 @@ public class LoggingAndCountingChannelInterceptor implements ChannelInterceptor 
             null,
             inChannel,
             (Object[]) null);
-        mPreReceiveMessageCount += 1;
+        mPreReceiveMessageCount.incrementAndGet();
 
         /* Returning true means go ahead with the receive. */
         return true;
@@ -103,7 +104,7 @@ public class LoggingAndCountingChannelInterceptor implements ChannelInterceptor 
             null,
             inChannel,
             (Object[]) null);
-        mPostReceiveMessageCount += 1;
+        mPostReceiveMessageCount.incrementAndGet();
         return inMessage;
     }
 
@@ -115,7 +116,31 @@ public class LoggingAndCountingChannelInterceptor implements ChannelInterceptor 
             "After message receive completion. Channel: " + inChannel.toString()
                 + " Payload: " + inMessage.getPayload()
                 + " Exception: " + inException);
-        mAfterReceiveCompletionMessageCount += 1;
+        mAfterReceiveCompletionMessageCount.incrementAndGet();
+    }
+
+    public int getPreSendMessageCount() {
+        return mPreSendMessageCount.get();
+    }
+
+    public int getPostSendMessageCount() {
+        return mPostSendMessageCount.get();
+    }
+
+    public int getAfterSendCompletionMessageCount() {
+        return mAfterSendCompletionMessageCount.get();
+    }
+
+    public int getPreReceiveMessageCount() {
+        return mPreReceiveMessageCount.get();
+    }
+
+    public int getPostReceiveMessageCount() {
+        return mPostReceiveMessageCount.get();
+    }
+
+    public int getAfterReceiveCompletionMessageCount() {
+        return mAfterReceiveCompletionMessageCount.get();
     }
 
     /**
@@ -130,31 +155,30 @@ public class LoggingAndCountingChannelInterceptor implements ChannelInterceptor 
      * @param inMessage Spring Integration message which payload to log. May be null.
      * @param inMessageChannel Spring Integration message channel which to log.
      * May be null.
-     * @param inAdditionalInMessage Objects which string representation(s) are to
+     * @param inAdditionalInMessages Objects which string representation(s) are to
      * be inserted into log message, or null.
      */
     protected void logMessageWithChannelAndPayload(final String inLogMessage,
         final Message<?> inMessage,
         final MessageChannel inMessageChannel,
-        final Object... inAdditionalInMessage) {
+        final Object... inAdditionalInMessages) {
         if (LOGGER.isInfoEnabled()) {
             final int theAppendMsgParamsStartIndex =
-                (inAdditionalInMessage != null) ? inAdditionalInMessage.length : 0;
+                (inAdditionalInMessages != null) ? inAdditionalInMessages.length : 0;
 
             String theLogMessage =
                 new StringBuilder().append(inLogMessage)
                     .append(" Channel: {")
                     .append(theAppendMsgParamsStartIndex)
                     .append("}. Payload: {")
-                    .append(theAppendMsgParamsStartIndex)
-                    .append(1)
+                    .append(theAppendMsgParamsStartIndex + 1)
                     .append("}")
                     .toString();
 
             final Object[] theLogMessageParameters;
-            if (inAdditionalInMessage != null) {
-                theLogMessageParameters = Arrays.copyOf(inAdditionalInMessage,
-                    inAdditionalInMessage.length + 2);
+            if (inAdditionalInMessages != null) {
+                theLogMessageParameters = Arrays.copyOf(inAdditionalInMessages,
+                    inAdditionalInMessages.length + 2);
             } else {
                 theLogMessageParameters = new Object[2];
             }
@@ -169,29 +193,5 @@ public class LoggingAndCountingChannelInterceptor implements ChannelInterceptor 
                 MessageFormat.format(theLogMessage, theLogMessageParameters);
             LOGGER.info(theLogMessage);
         }
-    }
-
-    public int getPreSendMessageCount() {
-        return mPreSendMessageCount;
-    }
-
-    public int getPostSendMessageCount() {
-        return mPostSendMessageCount;
-    }
-
-    public int getAfterSendCompletionMessageCount() {
-        return mAfterSendCompletionMessageCount;
-    }
-
-    public int getPreReceiveMessageCount() {
-        return mPreReceiveMessageCount;
-    }
-
-    public int getPostReceiveMessageCount() {
-        return mPostReceiveMessageCount;
-    }
-
-    public int getAfterReceiveCompletionMessageCount() {
-        return mAfterReceiveCompletionMessageCount;
     }
 }
