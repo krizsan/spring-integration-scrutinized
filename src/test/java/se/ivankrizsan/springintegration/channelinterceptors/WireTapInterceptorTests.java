@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Ivan Krizsan
+ * Copyright 2017-2019 Ivan Krizsan
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,8 @@ package se.ivankrizsan.springintegration.channelinterceptors;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -31,8 +30,7 @@ import org.springframework.integration.filter.ExpressionEvaluatingSelector;
 import org.springframework.integration.support.MessageBuilder;
 import org.springframework.integration.support.MutableMessage;
 import org.springframework.messaging.Message;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import se.ivankrizsan.springintegration.shared.EmptyConfiguration;
 import se.ivankrizsan.springintegration.shared.SpringIntegrationExamplesConstants;
 
@@ -46,10 +44,9 @@ import static org.awaitility.Awaitility.await;
  * @author Ivan Krizsan
  * @see WireTap
  */
-@RunWith(SpringRunner.class)
 @SpringBootTest
 @EnableIntegration
-@ContextConfiguration(classes = { EmptyConfiguration.class })
+@SpringJUnitConfig(classes = { EmptyConfiguration.class })
 public class WireTapInterceptorTests implements SpringIntegrationExamplesConstants {
     /* Constant(s): */
     protected static final Log LOGGER = LogFactory.getLog(WireTapInterceptorTests.class);
@@ -62,18 +59,15 @@ public class WireTapInterceptorTests implements SpringIntegrationExamplesConstan
     @Autowired
     protected BeanFactory mBeanFactory;
 
-
     /**
      * Tests applying a wire-tap message channel interceptor to a message channel.
      * Wire-tapped messages are sent to a separate message channel.
      *
      * Expected result: The message arriving on the wire-tap message channel
      * should be identical to the message arriving on the main message channel.
-     *
-     * @throws Exception If an error occurs. Indicates test failure.
      */
     @Test
-    public void basicWireTapTest() throws Exception {
+    public void basicWireTapTest() {
         final QueueChannel theQueueChannel;
         final QueueChannel theWireTapChannel;
         final WireTap theWireTapMessageChannelInterceptor;
@@ -81,7 +75,9 @@ public class WireTapInterceptorTests implements SpringIntegrationExamplesConstan
         final Message<?> theOutputMessage;
         final Message<?> theWireTapMessage;
 
-        theInputMessage = MessageBuilder.withPayload(GREETING_STRING).build();
+        theInputMessage = MessageBuilder
+            .withPayload(GREETING_STRING)
+            .build();
 
         // <editor-fold desc="Answer Section" defaultstate="collapsed">
         /* Create the main message channel. */
@@ -109,18 +105,26 @@ public class WireTapInterceptorTests implements SpringIntegrationExamplesConstan
         /* Receive and verify message from main message channel. */
         theOutputMessage =
             theQueueChannel.receive(RECEIVE_TIMEOUT_5000_MILLISECONDS);
+        Assertions.assertNotNull(
+            theOutputMessage,
+            "A message should be available from the message channel");
         final Object theOutputMessagePayload = theOutputMessage.getPayload();
-        Assert.assertEquals("Payload of message from main message channel should match",
+        Assertions.assertEquals(
             GREETING_STRING,
-            theOutputMessagePayload);
+            theOutputMessagePayload,
+            "Payload of message from main message channel should match");
 
         /* Receive and verify message from wire-tap message channel. */
         theWireTapMessage =
             theWireTapChannel.receive(RECEIVE_TIMEOUT_5000_MILLISECONDS);
+        Assertions.assertNotNull(
+            theWireTapMessage,
+            "A message should be available from the wire-tap message channel");
         final Object theWireTapMessagePayload = theWireTapMessage.getPayload();
-        Assert.assertEquals("Payload of message from wire-tap message channel should match",
+        Assertions.assertEquals(
             GREETING_STRING,
-            theWireTapMessagePayload);
+            theWireTapMessagePayload,
+            "Payload of message from wire-tap message channel should match");
     }
 
     /**
@@ -132,11 +136,9 @@ public class WireTapInterceptorTests implements SpringIntegrationExamplesConstan
      * Expected result: Manipulating the wire-tap message will affect the message
      * received on the main message channel, since they are one and the same
      * message instance.
-     *
-     * @throws Exception If an error occurs. Indicates test failure.
      */
     @Test
-    public void wireTappedMessageManipulationTest() throws Exception {
+    public void wireTappedMessageManipulationTest() {
         final QueueChannel theQueueChannel;
         final QueueChannel theWireTapChannel;
         final WireTap theWireTapMessageChannelInterceptor;
@@ -172,17 +174,31 @@ public class WireTapInterceptorTests implements SpringIntegrationExamplesConstan
         /* Receive and verify message from main message channel. */
         theOutputMessage =
             theQueueChannel.receive(RECEIVE_TIMEOUT_5000_MILLISECONDS);
-        Assert.assertFalse("The output message should not contain the '1' header",
-            theOutputMessage.getHeaders().containsKey("1"));
+        Assertions.assertNotNull(
+            theOutputMessage,
+            "A message should be available from the main message channel");
+        Assertions.assertFalse(
+            theOutputMessage
+                .getHeaders()
+                .containsKey("1"),
+            "The output message should not contain the '1' header");
 
         /* Receive and verify message from wire-tap message channel. */
         theWireTapMessage = (MutableMessage<String>)
             theWireTapChannel.receive(RECEIVE_TIMEOUT_5000_MILLISECONDS);
-        Assert.assertFalse("The wire-tap message should not contain the '1' header",
-            theWireTapMessage.getHeaders().containsKey("1"));
+        Assertions.assertNotNull(
+            theWireTapMessage,
+            "A message should be available from the wire-tap message channel");
+        Assertions.assertFalse(
+            theWireTapMessage
+                .getHeaders()
+                .containsKey("1"),
+            "The wire-tap message should not contain the '1' header");
 
         /* Modify the wire-tap message headers. */
-        theWireTapMessage.getHeaders().put("1", "1");
+        theWireTapMessage
+            .getHeaders()
+            .put("1", "1");
 
         /*
          * Note how the message received from the main message channel will now
@@ -190,8 +206,11 @@ public class WireTapInterceptorTests implements SpringIntegrationExamplesConstan
          * The message received on the main message channel and the message received
          * on the wire-tap channel is really one and the same instance.
          */
-        Assert.assertTrue("The output message will contain the '1' header",
-            theOutputMessage.getHeaders().containsKey("1"));
+        Assertions.assertTrue(
+            theOutputMessage
+                .getHeaders()
+                .containsKey("1"),
+            "The output message should contain the '1' header");
     }
 
     /**
@@ -202,11 +221,9 @@ public class WireTapInterceptorTests implements SpringIntegrationExamplesConstan
      * Expected result:
      * Only messages which meet the criteria set by the message selector should be
      * sent to the wire-tap message channel.
-     *
-     * @throws Exception If an error occurs. Indicates test failure.
      */
     @Test
-    public void wireTapWithMessageSelectorTest() throws Exception {
+    public void wireTapWithMessageSelectorTest() {
         final QueueChannel theQueueChannel;
         final QueueChannel theWireTapChannel;
         final WireTap theWireTapMessageChannelInterceptor;
@@ -252,19 +269,30 @@ public class WireTapInterceptorTests implements SpringIntegrationExamplesConstan
         theQueueChannel.send(theInputMessage);
         // </editor-fold>
 
-        await().atMost(2, TimeUnit.SECONDS).until(() -> theQueueChannel.getQueueSize() > 1);
+        await()
+            .atMost(2, TimeUnit.SECONDS)
+            .until(() -> theQueueChannel.getQueueSize() > 1);
 
         /* Verify number of messages on the main and wire-tap message channels. */
-        Assert.assertEquals("Two messages should have been sent to the main message channel",
-            2, theQueueChannel.getQueueSize());
-        Assert.assertEquals("One should have been sent to the wire-tap message channel",
-            1, theWireTapChannel.getQueueSize());
+        Assertions.assertEquals(
+            2,
+            theQueueChannel.getQueueSize(),
+            "Two messages should have been sent to the main message channel");
+        Assertions.assertEquals(
+            1,
+            theWireTapChannel.getQueueSize(),
+            "One should have been sent to the wire-tap message channel");
 
         /* Verify wire-tapped message that it indeed is the correct one. */
         theWireTapMessage =
             theWireTapChannel.receive(RECEIVE_TIMEOUT_5000_MILLISECONDS);
+        Assertions.assertNotNull(
+            theWireTapMessage,
+            "A message should be available from the wire-tap message channel");
         final Object theWireTapMessagePayload = theWireTapMessage.getPayload();
-        Assert.assertEquals("Payload of message from wire-tap message channel should match",
-            PAYLOAD2, theWireTapMessagePayload);
+        Assertions.assertEquals(
+            PAYLOAD2,
+            theWireTapMessagePayload,
+            "Payload of message from wire-tap message channel should match");
     }
 }

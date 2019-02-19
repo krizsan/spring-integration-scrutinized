@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Ivan Krizsan
+ * Copyright 2017-2019 Ivan Krizsan
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,17 +18,15 @@ package se.ivankrizsan.springintegration.messagechannels.pollable;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.integration.IntegrationMessageHeaderAccessor;
 import org.springframework.integration.channel.PriorityChannel;
 import org.springframework.integration.config.EnableIntegration;
 import org.springframework.integration.support.MessageBuilder;
 import org.springframework.messaging.Message;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import se.ivankrizsan.springintegration.shared.EmptyConfiguration;
 import se.ivankrizsan.springintegration.shared.SpringIntegrationExamplesConstants;
 
@@ -42,10 +40,9 @@ import java.util.Comparator;
  * @author Ivan Krizsan
  * @see PriorityChannel
  */
-@RunWith(SpringRunner.class)
 @SpringBootTest
 @EnableIntegration
-@ContextConfiguration(classes = { EmptyConfiguration.class })
+@SpringJUnitConfig(classes = { EmptyConfiguration.class })
 public class PriorityChannelTests implements SpringIntegrationExamplesConstants {
     /* Constant(s): */
     protected static final Log LOGGER = LogFactory.getLog(PriorityChannelTests.class);
@@ -59,16 +56,16 @@ public class PriorityChannelTests implements SpringIntegrationExamplesConstants 
      * Expected result: There should be a message when the message channel
      * is polled and and the message payload should be identical to the
      * payload of the sent message.
-     *
-     * @throws Exception If an error occurs. Indicates test failure.
      */
     @Test
-    public void successfullyPollingMessageTest() throws Exception {
+    public void successfullyPollingMessageTest() {
         final PriorityChannel thePriorityChannel;
         final Message<String> theInputMessage;
         final Message<?> theOutputMessage;
 
-        theInputMessage = MessageBuilder.withPayload(GREETING_STRING).build();
+        theInputMessage = MessageBuilder
+            .withPayload(GREETING_STRING)
+            .build();
 
         // <editor-fold desc="Answer Section" defaultstate="collapsed">
         thePriorityChannel = new PriorityChannel();
@@ -80,11 +77,15 @@ public class PriorityChannelTests implements SpringIntegrationExamplesConstants 
 
         theOutputMessage =
             thePriorityChannel.receive(RECEIVE_TIMEOUT_5000_MILLISECONDS);
+        Assertions.assertNotNull(
+            theOutputMessage,
+            "A message should be available from the message channel");
         final Object theOutputMessagePayload = theOutputMessage.getPayload();
 
-        Assert.assertEquals("Input and output payloads should be the same",
+        Assertions.assertEquals(
             GREETING_STRING,
-            theOutputMessagePayload);
+            theOutputMessagePayload,
+            "Input and output payloads should be the same");
     }
 
     /**
@@ -93,11 +94,9 @@ public class PriorityChannelTests implements SpringIntegrationExamplesConstants 
      *
      * Expected result: The second message, having a higher priority, should
      * be received before the first message.
-     *
-     * @throws Exception If an error occurs. Indicates test failure.
      */
     @Test
-    public void messagesWithDifferentPriority() throws Exception {
+    public void messagesWithDifferentPriority() {
         final PriorityChannel thePriorityChannel;
         final Message<String> theInputMessage1;
         final Message<String> theInputMessage2;
@@ -108,8 +107,14 @@ public class PriorityChannelTests implements SpringIntegrationExamplesConstants 
          * Second message has higher priority than first message.
          * Default priority comparision mechanism is used.
          */
-        theInputMessage1 = MessageBuilder.withPayload("1").setPriority(1).build();
-        theInputMessage2 = MessageBuilder.withPayload("2").setPriority(2).build();
+        theInputMessage1 = MessageBuilder
+            .withPayload("1")
+            .setPriority(1)
+            .build();
+        theInputMessage2 = MessageBuilder
+            .withPayload("2")
+            .setPriority(2)
+            .build();
 
         // <editor-fold desc="Answer Section" defaultstate="collapsed">
         thePriorityChannel = new PriorityChannel();
@@ -127,12 +132,14 @@ public class PriorityChannelTests implements SpringIntegrationExamplesConstants 
         final Object theOutputMessagePayload1 = theOutputMessage1.getPayload();
         final Object theOutputMessagePayload2 = theOutputMessage2.getPayload();
 
-        Assert.assertEquals("Message with higher priority should be received first",
+        Assertions.assertEquals(
             "2",
-            theOutputMessagePayload1);
-        Assert.assertEquals("Message with lower priority should be received second",
+            theOutputMessagePayload1,
+            "Message with higher priority should be received first");
+        Assertions.assertEquals(
             "1",
-            theOutputMessagePayload2);
+            theOutputMessagePayload2,
+            "Message with lower priority should be received second");
     }
 
     /**
@@ -146,12 +153,9 @@ public class PriorityChannelTests implements SpringIntegrationExamplesConstants 
      * Expected result: The message with the priority-string being first
      * in alphabetical order should be received first, the other message
      * afterwards.
-     *
-     * @throws Exception If an error occurs. Indicates test failure.
      */
     @Test
-    public void messagesWithDifferentPriorityCustomPriorityComparator()
-        throws Exception {
+    public void messagesWithDifferentPriorityCustomPriorityComparator() {
         final PriorityChannel thePriorityChannel;
         final Message<String> theInputMessage1;
         final Message<String> theInputMessage2;
@@ -162,10 +166,12 @@ public class PriorityChannelTests implements SpringIntegrationExamplesConstants 
          * Second message has higher priority than first message.
          * Default priority comparision mechanism is used.
          */
-        theInputMessage1 = MessageBuilder.withPayload("1")
+        theInputMessage1 = MessageBuilder
+            .withPayload("1")
             .setHeader(CUSTOM_PRIORITY_HEADER, "orange")
             .build();
-        theInputMessage2 = MessageBuilder.withPayload("2")
+        theInputMessage2 = MessageBuilder
+            .withPayload("2")
             .setHeader(CUSTOM_PRIORITY_HEADER, "banana")
             .build();
 
@@ -177,10 +183,10 @@ public class PriorityChannelTests implements SpringIntegrationExamplesConstants 
         final Comparator<Message<?>> theMessagePriorityComparator =
             (inMessage1, inMessage2) -> {
                 final String thePriority1 =
-                    (String) new IntegrationMessageHeaderAccessor(inMessage1).getHeader(
+                    (String)new IntegrationMessageHeaderAccessor(inMessage1).getHeader(
                         CUSTOM_PRIORITY_HEADER);
                 final String thePriority2 =
-                    (String) new IntegrationMessageHeaderAccessor(inMessage2).getHeader(
+                    (String)new IntegrationMessageHeaderAccessor(inMessage2).getHeader(
                         CUSTOM_PRIORITY_HEADER);
                 return thePriority1.compareTo(thePriority2);
             };
@@ -194,17 +200,25 @@ public class PriorityChannelTests implements SpringIntegrationExamplesConstants 
 
         theOutputMessage1 =
             thePriorityChannel.receive(RECEIVE_TIMEOUT_5000_MILLISECONDS);
+        Assertions.assertNotNull(
+            theOutputMessage1,
+            "A first message should be available from the message channel");
         theOutputMessage2 =
             thePriorityChannel.receive(RECEIVE_TIMEOUT_5000_MILLISECONDS);
+        Assertions.assertNotNull(
+            theOutputMessage2,
+            "A second message should be available from the message channel");
         final Object theOutputMessagePayload1 = theOutputMessage1.getPayload();
         final Object theOutputMessagePayload2 = theOutputMessage2.getPayload();
 
-        Assert.assertEquals("Message with higher priority should be received first",
+        Assertions.assertEquals(
             "2",
-            theOutputMessagePayload1);
-        Assert.assertEquals("Message with lower priority should be received second",
+            theOutputMessagePayload1,
+            "Message with higher priority should be received first");
+        Assertions.assertEquals(
             "1",
-            theOutputMessagePayload2);
+            theOutputMessagePayload2,
+            "Message with lower priority should be received second");
     }
 
     /**
@@ -213,11 +227,9 @@ public class PriorityChannelTests implements SpringIntegrationExamplesConstants 
      *
      * Expected result: The messages should be received in the same order
      * they were sent.
-     *
-     * @throws Exception If an error occurs. Indicates test failure.
      */
     @Test
-    public void messagesWithSamePriority() throws Exception {
+    public void messagesWithSamePriority() {
         final PriorityChannel thePriorityChannel;
         final Message<String> theInputMessage1;
         final Message<String> theInputMessage2;
@@ -228,8 +240,14 @@ public class PriorityChannelTests implements SpringIntegrationExamplesConstants 
          * Second message has higher priority than first message.
          * Default priority comparision mechanism is used.
          */
-        theInputMessage1 = MessageBuilder.withPayload("1").setPriority(1).build();
-        theInputMessage2 = MessageBuilder.withPayload("2").setPriority(1).build();
+        theInputMessage1 = MessageBuilder
+            .withPayload("1")
+            .setPriority(1)
+            .build();
+        theInputMessage2 = MessageBuilder
+            .withPayload("2")
+            .setPriority(1)
+            .build();
 
         // <editor-fold desc="Answer Section" defaultstate="collapsed">
         thePriorityChannel = new PriorityChannel();
@@ -242,18 +260,24 @@ public class PriorityChannelTests implements SpringIntegrationExamplesConstants 
 
         theOutputMessage1 =
             thePriorityChannel.receive(RECEIVE_TIMEOUT_5000_MILLISECONDS);
+        Assertions.assertNotNull(
+            theOutputMessage1,
+            "A first message should be available from the message channel");
         theOutputMessage2 =
             thePriorityChannel.receive(RECEIVE_TIMEOUT_5000_MILLISECONDS);
+        Assertions.assertNotNull(
+            theOutputMessage2,
+            "A second message should be available from the message channel");
         final Object theOutputMessagePayload1 = theOutputMessage1.getPayload();
         final Object theOutputMessagePayload2 = theOutputMessage2.getPayload();
 
-        Assert.assertEquals(
-            "Message with same priority should be received in order sent",
+        Assertions.assertEquals(
             "1",
-            theOutputMessagePayload1);
-        Assert.assertEquals(
-            "Message with same priority should be received in order sent",
+            theOutputMessagePayload1,
+            "Message with same priority should be received in order sent");
+        Assertions.assertEquals(
             "2",
-            theOutputMessagePayload2);
+            theOutputMessagePayload2,
+            "Message with same priority should be received in order sent");
     }
 }

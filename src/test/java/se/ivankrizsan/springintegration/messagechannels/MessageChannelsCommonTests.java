@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Ivan Krizsan
+ * Copyright 2017-2019 Ivan Krizsan
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,10 @@
 
 package se.ivankrizsan.springintegration.messagechannels;
 
-import static org.awaitility.Awaitility.await;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -37,8 +34,7 @@ import org.springframework.integration.support.management.DefaultMessageChannelM
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHandler;
 import org.springframework.messaging.converter.GenericMessageConverter;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import se.ivankrizsan.springintegration.channelinterceptors.helpers.LoggingAndCountingChannelInterceptor;
 import se.ivankrizsan.springintegration.messagechannels.configuration.MessageChannelsCommonTestsConfiguration;
 import se.ivankrizsan.springintegration.shared.AbstractTestsParent;
@@ -49,6 +45,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static org.awaitility.Awaitility.await;
+
 /**
  * Exercises demonstrating properties that are common to both pollable and subscribable
  * message channels in Spring Integration.
@@ -57,10 +55,9 @@ import java.util.concurrent.atomic.AtomicReference;
  *
  * @author Ivan Krizsan
  */
-@RunWith(SpringRunner.class)
 @SpringBootTest
 @EnableIntegration
-@ContextConfiguration(classes = { MessageChannelsCommonTestsConfiguration.class })
+@SpringJUnitConfig(classes = { MessageChannelsCommonTestsConfiguration.class })
 public class MessageChannelsCommonTests extends AbstractTestsParent {
     /* Constant(s): */
     protected static final Log LOGGER = LogFactory.getLog(MessageChannelsCommonTests.class);
@@ -89,7 +86,9 @@ public class MessageChannelsCommonTests extends AbstractTestsParent {
      */
     @Test
     public void scopedMessageChannelTest() throws Exception {
-        final Message<String> theInputMessage = MessageBuilder.withPayload(GREETING_STRING).build();
+        final Message<String> theInputMessage = MessageBuilder
+            .withPayload(GREETING_STRING)
+            .build();
         final Message<?> theSameThreadOutputMsg;
         final Message<?> theDifferentThreadOutputMsg;
 
@@ -102,14 +101,16 @@ public class MessageChannelsCommonTests extends AbstractTestsParent {
         // </editor-fold>
         /* Verify that no message has been received by the receiver (other) thread. */
         theDifferentThreadOutputMsg = mScopedChannelReceivedMessageReference.get();
-        Assert.assertNull("No message should have been received by the receiver thread",
-            theDifferentThreadOutputMsg);
+        Assertions.assertNull(
+            theDifferentThreadOutputMsg,
+            "No message should have been received by the receiver thread");
 
         /* Verify that a message has been received by the same thread that sent the message. */
         theSameThreadOutputMsg =
             mThreadScopedMessageChannel.receive(RECEIVE_TIMEOUT_500_MILLISECONDS);
-        Assert.assertNotNull("A message should have been received by the same thread.",
-            theSameThreadOutputMsg);
+        Assertions.assertNotNull(
+            theSameThreadOutputMsg,
+            "A message should have been received by the same thread");
     }
 
     /**
@@ -120,11 +121,9 @@ public class MessageChannelsCommonTests extends AbstractTestsParent {
      *
      * Expected result: One message history entry should be generated for the message sent
      * and it should contain the name of the message channel to which the message was sent.
-     *
-     * @throws Exception If an error occurs. Indicates test failure.
      */
     @Test
-    public void messageHistoryTest() throws Exception {
+    public void messageHistoryTest() {
         final AbstractMessageChannel theMessageChannel;
         final Message<String> theInputMessage;
         final List<Message> theSubscriberReceivedMessages =
@@ -146,12 +145,16 @@ public class MessageChannelsCommonTests extends AbstractTestsParent {
         ((DirectChannel)theMessageChannel).subscribe(theSubscriber);
 
         /* Send a message to the channel. */
-        theInputMessage = MessageBuilder.withPayload(GREETING_STRING).build();
+        theInputMessage = MessageBuilder
+            .withPayload(GREETING_STRING)
+            .build();
         theMessageChannel.send(theInputMessage);
 
         // </editor-fold>
-        await().atMost(2, TimeUnit.SECONDS).until(() ->
-            theSubscriberReceivedMessages.size() > 0);
+        await()
+            .atMost(2, TimeUnit.SECONDS)
+            .until(() ->
+                theSubscriberReceivedMessages.size() > 0);
 
         final Message<String> theFirstReceivedMessage = theSubscriberReceivedMessages.get(0);
         final MessageHistory theFirstReceivedMessageHistory =
@@ -161,8 +164,10 @@ public class MessageChannelsCommonTests extends AbstractTestsParent {
         LOGGER.info("Message history object: " + theFirstReceivedMessageHistory);
         LOGGER.info("Message history entry: " + theMessageHistoryEntry);
 
-        Assert.assertEquals("Message history entry should be for our message channel",
-            DIRECT_CHANNEL_NAME, theMessageHistoryEntry.getProperty("name"));
+        Assertions.assertEquals(
+            DIRECT_CHANNEL_NAME,
+            theMessageHistoryEntry.getProperty("name"),
+            "Message history entry should be for our message channel");
     }
 
     /**
@@ -212,10 +217,11 @@ public class MessageChannelsCommonTests extends AbstractTestsParent {
 
         sendSomeMessagesToMessageChannelWithRandomDelay(theMessageChannel);
 
-
         // </editor-fold>
-        await().atMost(2, TimeUnit.SECONDS).until(() ->
-            theSubscriberReceivedMessages.size() >= METRICSTEST_MESSAGE_COUNT);
+        await()
+            .atMost(2, TimeUnit.SECONDS)
+            .until(() ->
+                theSubscriberReceivedMessages.size() >= METRICSTEST_MESSAGE_COUNT);
 
         /*
          * Check for some metrics from the message channel.
@@ -224,10 +230,13 @@ public class MessageChannelsCommonTests extends AbstractTestsParent {
          * With full statistics, additional metrics will also be maintained, such as
          * duration and mean duration of send operations on the message channel.
          */
-        Assert.assertEquals("Metrics number of messages sent should match",
-            METRICSTEST_MESSAGE_COUNT, theMessageChannelMetrics.getSendCount());
-        Assert.assertTrue("Metrics mean send duration should be greater than zero",
-            theMessageChannelMetrics.getMeanSendDuration() > 0);
+        Assertions.assertEquals(
+            METRICSTEST_MESSAGE_COUNT,
+            theMessageChannelMetrics.getSendCount(),
+            "Metrics number of messages sent should match");
+        Assertions.assertTrue(
+            theMessageChannelMetrics.getMeanSendDuration() > 0,
+            "Metrics mean send duration should be greater than zero");
 
         /* Retrieve some metrics from the message channel metrics object. */
         LOGGER.info("*** Metrics from the message channel metrics object:");
@@ -284,18 +293,21 @@ public class MessageChannelsCommonTests extends AbstractTestsParent {
 
         sendSomeMessagesToMessageChannelWithRandomDelay(theMessageChannel);
 
-
         // </editor-fold>
-        await().atMost(2, TimeUnit.SECONDS).until(() ->
-            theSubscriberReceivedMessages.size() >= METRICSTEST_MESSAGE_COUNT);
+        await()
+            .atMost(2, TimeUnit.SECONDS)
+            .until(() ->
+                theSubscriberReceivedMessages.size() >= METRICSTEST_MESSAGE_COUNT);
 
         /*
          * Check metrics from the message channel.
          * With simple metrics only counts, for instance, the
          * number of messages sent, will be maintained.
          */
-        Assert.assertEquals("Metrics number of messages sent should match",
-            METRICSTEST_MESSAGE_COUNT, theMessageChannel.getSendCount());
+        Assertions.assertEquals(
+            METRICSTEST_MESSAGE_COUNT,
+            theMessageChannel.getSendCount(),
+            "Metrics number of messages sent should match");
 
         /* Retrieve some metrics from the message channel itself. */
         LOGGER.info("*** Metrics from the message channel:");
@@ -309,8 +321,6 @@ public class MessageChannelsCommonTests extends AbstractTestsParent {
         LOGGER.info("Mean send duration: " + theMessageChannel.getMeanSendDuration());
         LOGGER.info("Max send duration: " + theMessageChannel.getMaxSendDuration());
         LOGGER.info("Send count: " + theMessageChannel.getSendCount());
-        // TODO remove this log line when version containing fix for INT-4373 is released.
-        LOGGER.info("NOTE! Due to INT-4373 the error count is wrong.");
         LOGGER.info("Error count: " + theMessageChannel.getSendErrorCount());
     }
 
@@ -345,8 +355,10 @@ public class MessageChannelsCommonTests extends AbstractTestsParent {
 
         sendSomeMessagesToMessageChannelWithRandomDelay(theMessageChannel);
         // </editor-fold>
-        await().atMost(2, TimeUnit.SECONDS).until(() ->
-            theSubscriberReceivedMessages.size() >= METRICSTEST_MESSAGE_COUNT);
+        await()
+            .atMost(2, TimeUnit.SECONDS)
+            .until(() ->
+                theSubscriberReceivedMessages.size() >= METRICSTEST_MESSAGE_COUNT);
 
         /* No verification of the log output is made. */
     }
@@ -366,7 +378,9 @@ public class MessageChannelsCommonTests extends AbstractTestsParent {
         final Message<?> theInputMessage;
         final List<Message> theSubscriberReceivedMessages = new CopyOnWriteArrayList<>();
 
-        theInputMessage = MessageBuilder.withPayload(new Long(1337)).build();
+        theInputMessage = MessageBuilder
+            .withPayload(1337L)
+            .build();
 
         // <editor-fold desc="Answer Section" defaultstate="collapsed">
         theMessageChannel = new DirectChannel();
@@ -385,11 +399,15 @@ public class MessageChannelsCommonTests extends AbstractTestsParent {
 
         theMessageChannel.send(theInputMessage);
 
-        await().atMost(2, TimeUnit.SECONDS).until(() -> theSubscriberReceivedMessages.size() > 0);
+        await()
+            .atMost(2, TimeUnit.SECONDS)
+            .until(() -> theSubscriberReceivedMessages.size() > 0);
 
         /* Verify that the subscriber has received a message. */
-        Assert.assertTrue("A single message should have been received",
-            theSubscriberReceivedMessages.size() == 1);
+        Assertions.assertEquals(
+            1,
+            theSubscriberReceivedMessages.size(),
+            "A single message should have been received");
 
         LOGGER.info("Message received: " + theSubscriberReceivedMessages.get(0));
     }
@@ -410,7 +428,9 @@ public class MessageChannelsCommonTests extends AbstractTestsParent {
         final Message<?> theInputMessage;
         final List<Message> theSubscriberReceivedMessages = new CopyOnWriteArrayList<>();
 
-        theInputMessage = MessageBuilder.withPayload(NUMBER_STRING).build();
+        theInputMessage = MessageBuilder
+            .withPayload(NUMBER_STRING)
+            .build();
 
         // <editor-fold desc="Answer Section" defaultstate="collapsed">
         theMessageChannel = new DirectChannel();
@@ -433,7 +453,7 @@ public class MessageChannelsCommonTests extends AbstractTestsParent {
          */
         try {
             theMessageChannel.send(theInputMessage);
-            Assert.fail("An exception should be thrown");
+            Assertions.fail("An exception should be thrown");
         } catch (final Exception theException) {
             LOGGER.info("Exception thrown when sending message with payload type not allowed",
                 theException);
@@ -455,7 +475,9 @@ public class MessageChannelsCommonTests extends AbstractTestsParent {
         final List<Message> theSubscriberReceivedMessages = new CopyOnWriteArrayList<>();
         final GenericMessageConverter theMessageConverter;
 
-        theInputMessage = MessageBuilder.withPayload(NUMBER_STRING).build();
+        theInputMessage = MessageBuilder
+            .withPayload(NUMBER_STRING)
+            .build();
 
         // <editor-fold desc="Answer Section" defaultstate="collapsed">
         theMessageChannel = new PublishSubscribeChannel();
@@ -483,19 +505,23 @@ public class MessageChannelsCommonTests extends AbstractTestsParent {
         // </editor-fold>
         theMessageChannel.send(theInputMessage);
 
-        await().atMost(2, TimeUnit.SECONDS).until(() -> theSubscriberReceivedMessages.size() > 0);
+        await()
+            .atMost(2, TimeUnit.SECONDS)
+            .until(() -> theSubscriberReceivedMessages.size() > 0);
 
-        Assert.assertTrue("A single message should have been received",
-            theSubscriberReceivedMessages.size() == 1);
+        Assertions.assertEquals(
+            1,
+            theSubscriberReceivedMessages.size(),
+            "A single message should have been received");
 
         final Message<?> theOutputMessage = theSubscriberReceivedMessages.get(0);
         final Object theOutputPayload = theOutputMessage.getPayload();
 
         LOGGER.info("Message received: " + theOutputMessage);
-        Assert.assertEquals("Output should contain the number from the"
-                + " input string and be a long integer",
+        Assertions.assertEquals(
             NUMBER_VALUE,
-            theOutputPayload);
+            theOutputPayload,
+            "Output should contain the number from the input string and be a long integer");
     }
 
     /**
@@ -532,27 +558,27 @@ public class MessageChannelsCommonTests extends AbstractTestsParent {
 
         sendSomeMessagesToMessageChannelWithRandomDelay(theMessageChannel);
 
-
         // </editor-fold>
-        await().atMost(2, TimeUnit.SECONDS).until(() ->
-            theSubscriberReceivedMessages.size() >= METRICSTEST_MESSAGE_COUNT);
+        await()
+            .atMost(2, TimeUnit.SECONDS)
+            .until(() ->
+                theSubscriberReceivedMessages.size() >= METRICSTEST_MESSAGE_COUNT);
 
         /*
          * The interceptor's preSend, postSend and afterSendCompletion should have been
          * invoked once for every message sent.
          */
-        Assert.assertEquals(
-            "Interceptor preSend method should have been invoked once for every message",
+        Assertions.assertEquals(
             METRICSTEST_MESSAGE_COUNT,
-            theLoggingAndCountingChannelInterceptor.getPreSendMessageCount());
-        Assert.assertEquals(
-            "Interceptor postSend method should have been invoked once for every message",
+            theLoggingAndCountingChannelInterceptor.getPreSendMessageCount(),
+            "Interceptor preSend method should have been invoked once for every message");
+        Assertions.assertEquals(
             METRICSTEST_MESSAGE_COUNT,
-            theLoggingAndCountingChannelInterceptor.getPostSendMessageCount());
-        Assert.assertEquals(
-            "Interceptor afterSendCompletion method should have been invoked once for"
-            + " every message",
+            theLoggingAndCountingChannelInterceptor.getPostSendMessageCount(),
+            "Interceptor postSend method should have been invoked once for every message");
+        Assertions.assertEquals(
             METRICSTEST_MESSAGE_COUNT,
-            theLoggingAndCountingChannelInterceptor.getAfterSendCompletionMessageCount());
+            theLoggingAndCountingChannelInterceptor.getAfterSendCompletionMessageCount(),
+            "Interceptor afterSendCompletion method should have been invoked once for every message");
     }
 }

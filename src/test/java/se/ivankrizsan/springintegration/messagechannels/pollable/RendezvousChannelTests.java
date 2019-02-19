@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Ivan Krizsan
+ * Copyright 2017-2019 Ivan Krizsan
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,17 +18,15 @@ package se.ivankrizsan.springintegration.messagechannels.pollable;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.integration.channel.RendezvousChannel;
 import org.springframework.integration.config.EnableIntegration;
 import org.springframework.integration.support.MessageBuilder;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import se.ivankrizsan.springintegration.shared.EmptyConfiguration;
 import se.ivankrizsan.springintegration.shared.SpringIntegrationExamplesConstants;
 
@@ -44,10 +42,9 @@ import java.util.concurrent.atomic.AtomicReference;
  * @author Ivan Krizsan
  * @see RendezvousChannel
  */
-@RunWith(SpringRunner.class)
 @SpringBootTest
 @EnableIntegration
-@ContextConfiguration(classes = { EmptyConfiguration.class })
+@SpringJUnitConfig(classes = { EmptyConfiguration.class })
 public class RendezvousChannelTests implements SpringIntegrationExamplesConstants {
     /* Constant(s): */
     protected static final Log LOGGER = LogFactory.getLog(RendezvousChannelTests.class);
@@ -74,7 +71,9 @@ public class RendezvousChannelTests implements SpringIntegrationExamplesConstant
         final AtomicBoolean theMessageSendResultAtomic = new AtomicBoolean();
         final Semaphore theSendThreadFinishedSemaphore = new Semaphore(1);
 
-        theInputMessage = MessageBuilder.withPayload(GREETING_STRING).build();
+        theInputMessage = MessageBuilder
+            .withPayload(GREETING_STRING)
+            .build();
 
         // <editor-fold desc="Answer Section" defaultstate="collapsed">
         theRendezvousChannel = new RendezvousChannel();
@@ -95,19 +94,24 @@ public class RendezvousChannelTests implements SpringIntegrationExamplesConstant
 
         theOutputMessage =
             theRendezvousChannel.receive(RECEIVE_TIMEOUT_5000_MILLISECONDS);
+        Assertions.assertNotNull(
+            theOutputMessage,
+            "A message should be available from the rendezvous message channel");
         final Object theOutputMessagePayload = theOutputMessage.getPayload();
         // </editor-fold>
 
-        Assert.assertEquals("Input and output payloads should be the same",
+        Assertions.assertEquals(
             GREETING_STRING,
-            theOutputMessagePayload);
+            theOutputMessagePayload,
+            "Input and output payloads should be the same");
         /*
          * Must wait until sending thread completely finished what it should do
          * in order to avoid test failures.
          */
         theSendThreadFinishedSemaphore.acquire();
-        Assert.assertTrue("The message sending should be successful",
-            theMessageSendResultAtomic.get());
+        Assertions.assertTrue(
+            theMessageSendResultAtomic.get(),
+            "The message sending should be successful");
     }
 
     /**
@@ -129,7 +133,9 @@ public class RendezvousChannelTests implements SpringIntegrationExamplesConstant
         final AtomicReference<Message> theOutputMessageReference =
             new AtomicReference<>();
 
-        theInputMessage = MessageBuilder.withPayload(GREETING_STRING).build();
+        theInputMessage = MessageBuilder
+            .withPayload(GREETING_STRING)
+            .build();
 
         // <editor-fold desc="Answer Section" defaultstate="collapsed">
         theRendezvousChannel = new RendezvousChannel();
@@ -153,12 +159,15 @@ public class RendezvousChannelTests implements SpringIntegrationExamplesConstant
         theReceiveThread.join();
 
         final Object theOutputMessagePayload =
-            theOutputMessageReference.get().getPayload();
+            theOutputMessageReference
+                .get()
+                .getPayload();
         // </editor-fold>
 
-        Assert.assertEquals("Input and output payloads should be the same",
+        Assertions.assertEquals(
             GREETING_STRING,
-            theOutputMessagePayload);
+            theOutputMessagePayload,
+            "Input and output payloads should be the same");
     }
 
     /**
@@ -172,17 +181,17 @@ public class RendezvousChannelTests implements SpringIntegrationExamplesConstant
      * should timeout and the send operation should be considered as having
      * failed (return false). Trying to receive a message from the message channel
      * should timeout without a message having been received.
-     *
-     * @throws Exception If an error occurs. Indicates test failure.
      */
     @Test
-    public void sendAndReceiveWithTimeoutTest() throws Exception {
+    public void sendAndReceiveWithTimeoutTest() {
         final RendezvousChannel theRendezvousChannel;
         final Message<String> theInputMessage;
         final Message<?> theOutputMessage;
         final boolean theMessageSendResult;
 
-        theInputMessage = MessageBuilder.withPayload(GREETING_STRING).build();
+        theInputMessage = MessageBuilder
+            .withPayload(GREETING_STRING)
+            .build();
 
         // <editor-fold desc="Answer Section" defaultstate="collapsed">
         theRendezvousChannel = new RendezvousChannel();
@@ -201,9 +210,12 @@ public class RendezvousChannelTests implements SpringIntegrationExamplesConstant
             theRendezvousChannel.receive(RECEIVE_TIMEOUT_500_MILLISECONDS);
         // </editor-fold>
 
-        Assert.assertFalse("The message sending should be unsuccessful",
-            theMessageSendResult);
-        Assert.assertNull("No message should have been received", theOutputMessage);
+        Assertions.assertFalse(
+            theMessageSendResult,
+            "The message sending should be unsuccessful");
+        Assertions.assertNull(
+            theOutputMessage,
+            "No message should have been received");
     }
 
     /**
@@ -212,11 +224,9 @@ public class RendezvousChannelTests implements SpringIntegrationExamplesConstant
      *
      * Expected result: The client should receive a reply message from the service
      * containing the expected payload.
-     *
-     * @throws Exception If an error occurs. Indicates test failure.
      */
     @Test
-    public void requestReplyTest() throws Exception {
+    public void requestReplyTest() {
         final RendezvousChannel theRequestRendezvousChannel;
         final RendezvousChannel theReplyRendezvousChannel;
         final Message<String> theClientRequestMessage;
@@ -235,7 +245,8 @@ public class RendezvousChannelTests implements SpringIntegrationExamplesConstant
          * Need to construct the message to the service after the reply channel
          * has been created, in order to set the reply channel on the message.
          */
-        theClientRequestMessage = MessageBuilder.withPayload(GREETING_STRING)
+        theClientRequestMessage = MessageBuilder
+            .withPayload(GREETING_STRING)
             .setReplyChannel(theReplyRendezvousChannel)
             .build();
 
@@ -248,33 +259,44 @@ public class RendezvousChannelTests implements SpringIntegrationExamplesConstant
             /* Receive the request message. */
             final Message<?> theServiceReceivedMessage =
                 theRequestRendezvousChannel.receive();
+            Assertions.assertNotNull(
+                theServiceReceivedMessage,
+                "A message should be available from the rendezvous message channel");
 
             /* Verify the request message payload. */
             final String theReceivedMessagePayload =
-                (String) theServiceReceivedMessage.getPayload();
-            Assert.assertEquals("Request message payload should match",
+                (String)theServiceReceivedMessage.getPayload();
+            Assertions.assertEquals(
                 GREETING_STRING,
-                theReceivedMessagePayload);
+                theReceivedMessagePayload,
+                "Request message payload should match");
 
             /* Send a reply message to the reply channel. */
             final MessageChannel theReplyMessageChannel =
-                (MessageChannel) theServiceReceivedMessage.getHeaders()
+                (MessageChannel)theServiceReceivedMessage
+                    .getHeaders()
                     .getReplyChannel();
             final Message<String> theServiceReplyMessage =
-                MessageBuilder.withPayload(RESPONSE_MESSAGE_PAYLOAD).build();
+                MessageBuilder
+                    .withPayload(RESPONSE_MESSAGE_PAYLOAD)
+                    .build();
             theReplyMessageChannel.send(theServiceReplyMessage);
         });
         theServiceThread.start();
 
         theRequestRendezvousChannel.send(theClientRequestMessage);
-        theClientReplyMessage =
-            (Message<String>) theReplyRendezvousChannel.receive();
-        final Object theClientReplyMessagePayload =
-            theClientReplyMessage.getPayload();
+
+        /* Need a timeout on the receive to prevent the possibility of never completing. */
+        theClientReplyMessage = (Message<String>)theReplyRendezvousChannel.receive(5000);
+        Assertions.assertNotNull(
+            theClientReplyMessage,
+            "A message should be available from the reply rendezvous message channel");
+        final Object theClientReplyMessagePayload = theClientReplyMessage.getPayload();
         // </editor-fold>
 
-        Assert.assertEquals("Reply message payload should match",
+        Assertions.assertEquals(
             RESPONSE_MESSAGE_PAYLOAD,
-            theClientReplyMessagePayload);
+            theClientReplyMessagePayload,
+            "Reply message payload should match");
     }
 }

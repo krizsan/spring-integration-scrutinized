@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Ivan Krizsan
+ * Copyright 2017-2019 Ivan Krizsan
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,8 @@
 
 package se.ivankrizsan.springintegration.http.blocking;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
@@ -26,11 +25,9 @@ import org.springframework.http.MediaType;
 import org.springframework.integration.http.inbound.HttpRequestHandlingMessagingGateway;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
 import java.nio.charset.Charset;
-import java.util.Locale;
 
 /**
  * Exercises demonstrating the use of the {@code HttpRequestHandlingMessagingGateway}
@@ -48,17 +45,16 @@ import java.util.Locale;
  *
  * @author Ivan Krizsan
  */
-@RunWith(SpringRunner.class)
 @SpringBootTest
-@ContextConfiguration(classes = {
-    HttpRequestHandlingMessagingGatewayTestConfiguration.class})
+@SpringJUnitConfig(classes = {
+    HttpRequestHandlingMessagingGatewayTestConfiguration.class
+})
 public class HttpRequestHandlingMessagingGatewayTest {
     /* Constant(s): */
 
     /* Instance variable(s): */
     @Autowired
     protected HttpRequestHandlingMessagingGateway mHttpRequestHandlingMessagingGateway;
-
 
     /**
      * Tests sending a request to the HTTP request handling messaging gateway.
@@ -78,19 +74,23 @@ public class HttpRequestHandlingMessagingGatewayTest {
         mHttpRequestHandlingMessagingGateway.handleRequest(theRequest, theResponse);
 
         /* Verify the the response. */
-        Assert.assertEquals("The HTTP response status should be ok",
-            theResponse.getStatus(), HttpStatus.OK.value());
+        Assertions.assertEquals(
+            HttpStatus.OK.value(),
+            theResponse.getStatus(),
+            "The HTTP response status should be ok");
         final String theResponseBody = theResponse.getContentAsString();
-        Assert.assertTrue("Response body should contain expected string",
+        Assertions.assertTrue(
             theResponseBody.contains(
-                HttpRequestHandlingMessagingGatewayTestConfiguration.RESPONSE_MESSAGE_INITIAL_PART));
+                HttpRequestHandlingMessagingGatewayTestConfiguration.RESPONSE_MESSAGE_INITIAL_PART),
+            "Response body should contain expected string");
 
         final String theResponseHeaderValue =
             theResponse.getHeader(
                 HttpRequestHandlingMessagingGatewayTestConfiguration.HEADER_NAME);
-        Assert.assertEquals("Response header should contain expected content",
+        Assertions.assertEquals(
             HttpRequestHandlingMessagingGatewayTestConfiguration.HEADER_VALUE,
-            theResponseHeaderValue);
+            theResponseHeaderValue,
+            "Response header should contain expected content");
     }
 
     /**
@@ -108,21 +108,26 @@ public class HttpRequestHandlingMessagingGatewayTest {
         final MockHttpServletResponse theResponse = new MockHttpServletResponse();
 
         /* Modify the request as to suit this particular test. */
-        theRequest.setContent(HttpStatus.INTERNAL_SERVER_ERROR.toString().getBytes(
-            Charset.forName("UTF-8")));
+        theRequest.setContent(
+            Integer
+                .toString(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .getBytes(Charset.forName("UTF-8")));
 
         /* Invoke the request handling method of the gateway directly. */
         mHttpRequestHandlingMessagingGateway.handleRequest(theRequest, theResponse);
 
         /* Verify the response. */
-        Assert.assertEquals("The HTTP response status should be Internal Server Error",
-            theResponse.getStatus(), HttpStatus.INTERNAL_SERVER_ERROR.value());
+        Assertions.assertEquals(
+            HttpStatus.INTERNAL_SERVER_ERROR.value(),
+            theResponse.getStatus(),
+            "The HTTP response status should be Internal Server Error");
         final String theResponseHeaderValue =
             theResponse.getHeader(
                 HttpRequestHandlingMessagingGatewayTestConfiguration.HEADER_NAME);
-        Assert.assertEquals("Response header should contain expected content",
+        Assertions.assertEquals(
             HttpRequestHandlingMessagingGatewayTestConfiguration.HEADER_VALUE,
-            theResponseHeaderValue);
+            theResponseHeaderValue,
+            "Response header should contain expected content");
     }
 
     /**

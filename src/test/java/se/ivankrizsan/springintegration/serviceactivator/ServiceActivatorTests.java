@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Ivan Krizsan
+ * Copyright 2017-2019 Ivan Krizsan
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,46 +16,38 @@
 
 package se.ivankrizsan.springintegration.serviceactivator;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.integration.channel.QueueChannel;
 import org.springframework.integration.config.EnableIntegration;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.support.MessageBuilder;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import se.ivankrizsan.springintegration.shared.SpringIntegrationExamplesConstants;
 
-import static se.ivankrizsan.springintegration.serviceactivator
-    .ServiceActivatorTestsConfiguration.PAYLOAD_ERROR;
-import static se.ivankrizsan.springintegration.serviceactivator
-    .ServiceActivatorTestsConfiguration.SERVICEACTIVATOR_ONE_INPUT_CHANNEL;
-import static se.ivankrizsan.springintegration.serviceactivator
-    .ServiceActivatorTestsConfiguration.SERVICEACTIVATOR_ONE_OUTPUT_CHANNEL;
-import static se.ivankrizsan.springintegration.serviceactivator
-    .ServiceActivatorTestsConfiguration.SERVICEACTIVATOR_ONE_RESPONSE;
-import static se.ivankrizsan.springintegration.serviceactivator
-    .ServiceActivatorTestsConfiguration.SERVICEACTIVATOR_TWO_INPUT_CHANNEL;
-import static se.ivankrizsan.springintegration.serviceactivator
-    .ServiceActivatorTestsConfiguration.SERVICEACTIVATOR_TWO_RESPONSE;
+import static se.ivankrizsan.springintegration.serviceactivator.ServiceActivatorTestsConfiguration.PAYLOAD_ERROR;
+import static se.ivankrizsan.springintegration.serviceactivator.ServiceActivatorTestsConfiguration.SERVICEACTIVATOR_ONE_INPUT_CHANNEL;
+import static se.ivankrizsan.springintegration.serviceactivator.ServiceActivatorTestsConfiguration.SERVICEACTIVATOR_ONE_OUTPUT_CHANNEL;
+import static se.ivankrizsan.springintegration.serviceactivator.ServiceActivatorTestsConfiguration.SERVICEACTIVATOR_ONE_RESPONSE;
+import static se.ivankrizsan.springintegration.serviceactivator.ServiceActivatorTestsConfiguration.SERVICEACTIVATOR_TWO_INPUT_CHANNEL;
+import static se.ivankrizsan.springintegration.serviceactivator.ServiceActivatorTestsConfiguration.SERVICEACTIVATOR_TWO_RESPONSE;
 
 /**
  * Exercises demonstrating the use of service activators.
  *
  * @author Ivan Krizsan
- * @see @ServiceActivator
+ * @see ServiceActivator
  */
-@RunWith(SpringRunner.class)
 @SpringBootTest
 @EnableIntegration
-@ContextConfiguration(classes = { ServiceActivatorTestsConfiguration.class })
+@SpringJUnitConfig(classes = { ServiceActivatorTestsConfiguration.class })
 public class ServiceActivatorTests implements SpringIntegrationExamplesConstants {
     /* Constant(s): */
     private static final Logger LOGGER = LoggerFactory.getLogger(ServiceActivatorTests.class);
@@ -99,10 +91,15 @@ public class ServiceActivatorTests implements SpringIntegrationExamplesConstants
         /* Receive and verify the response message from the service activator. */
         theResponseMessage = mServiceActivatorOneOutputChannel.receive(2000);
 
-        Assert.assertNotNull("Service activator should produce a response message",
-            theResponseMessage);
-        Assert.assertEquals("Response message should have expected payload",
-            SERVICEACTIVATOR_ONE_RESPONSE, theResponseMessage.getPayload().toString());
+        Assertions.assertNotNull(
+            theResponseMessage,
+            "Service activator should produce a response message");
+        Assertions.assertEquals(
+            SERVICEACTIVATOR_ONE_RESPONSE,
+            theResponseMessage
+                .getPayload()
+                .toString(),
+            "Response message should have expected payload");
     }
 
     /**
@@ -144,9 +141,9 @@ public class ServiceActivatorTests implements SpringIntegrationExamplesConstants
          */
         theErrorMessage = mErrorMessageChannel.receive(2000);
 
-        Assert.assertNull(
-            "No message should have been sent to the application error channel.",
-            theErrorMessage);
+        Assertions.assertNull(
+            theErrorMessage,
+            "No message should have been sent to the application error channel");
     }
 
     /**
@@ -200,11 +197,12 @@ public class ServiceActivatorTests implements SpringIntegrationExamplesConstants
         theGlobalErrorMessage = mErrorMessageChannel.receive(2000);
         theLocalErrorMessage = theErrorChannel.receive(2000);
 
-        Assert.assertNull(
-            "No message should have been sent to the application error channel.",
-            theGlobalErrorMessage);
-        Assert.assertNull("No message should have been sent to the test-local error channel.",
-            theLocalErrorMessage);
+        Assertions.assertNull(
+            theGlobalErrorMessage,
+            "No message should have been sent to the application error channel");
+        Assertions.assertNull(
+            theLocalErrorMessage,
+            "No message should have been sent to the test-local error channel");
     }
 
     /**
@@ -245,10 +243,15 @@ public class ServiceActivatorTests implements SpringIntegrationExamplesConstants
         /* Receive and verify the response message from the service activator. */
         theResponseMessage = theServiceActivatorTwoOutputChannel.receive(2000);
 
-        Assert.assertNotNull("Service activator should produce a response message",
-            theResponseMessage);
-        Assert.assertEquals("Response message should have expected payload",
-            SERVICEACTIVATOR_TWO_RESPONSE, theResponseMessage.getPayload().toString());
+        Assertions.assertNotNull(
+            theResponseMessage,
+            "Service activator should produce a response message");
+        Assertions.assertEquals(
+            SERVICEACTIVATOR_TWO_RESPONSE,
+            theResponseMessage
+                .getPayload()
+                .toString(),
+            "Response message should have expected payload");
     }
 
     /**
@@ -286,17 +289,20 @@ public class ServiceActivatorTests implements SpringIntegrationExamplesConstants
         // </editor-fold>
         /* Receive and verify the response message from the output message channel. */
         theOutputChannelResponseMessage = mServiceActivatorOneOutputChannel.receive(2000);
-        Assert.assertNotNull(
-            "A response message should have been sent to the output message channel.",
-            theOutputChannelResponseMessage);
-        Assert.assertEquals(
-            "The output message channel response message should have the expected payload.",
-            SERVICEACTIVATOR_ONE_RESPONSE, theOutputChannelResponseMessage.getPayload().toString());
+        Assertions.assertNotNull(
+            theOutputChannelResponseMessage,
+            "A response message should have been sent to the output message channel");
+        Assertions.assertEquals(
+            SERVICEACTIVATOR_ONE_RESPONSE,
+            theOutputChannelResponseMessage
+                .getPayload()
+                .toString(),
+            "The output message channel response message should have the expected payload");
 
         /* Receive and verify the response message from the reply message channel. */
         theReplyChannelResponseMessage = theMessageReplyChannel.receive(2000);
-        Assert.assertNull(
-            "No message should have been sent to the reply message channel set on the request.",
-            theReplyChannelResponseMessage);
+        Assertions.assertNull(
+            theReplyChannelResponseMessage,
+            "No message should have been sent to the reply message channel set on the request");
     }
 }

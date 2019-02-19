@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Ivan Krizsan
+ * Copyright 2017-2019 Ivan Krizsan
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package se.ivankrizsan.springintegration.shared;
 
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.springframework.integration.support.MessageBuilder;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
@@ -36,17 +36,22 @@ public abstract class AbstractTestsParent implements SpringIntegrationExamplesCo
 
     /* Instance variable(s): */
 
-
     /**
      * Asserts that the supplied message contains a timestamp and an id header.
      *
      * @param inMessage Message to check.
      */
     protected void assertContainsTimestampAndIdHeaders(final Message<?> inMessage) {
-        Assert.assertTrue("Message should contain an id header",
-            inMessage.getHeaders().containsKey(MessageHeaders.ID));
-        Assert.assertTrue("Message should contain a timestamp header",
-            inMessage.getHeaders().containsKey(MessageHeaders.TIMESTAMP));
+        Assertions.assertTrue(
+            inMessage
+                .getHeaders()
+                .containsKey(MessageHeaders.ID),
+            "Message should contain an id header");
+        Assertions.assertTrue(
+            inMessage
+                .getHeaders()
+                .containsKey(MessageHeaders.TIMESTAMP),
+            "Message should contain a timestamp header");
     }
 
     /**
@@ -58,14 +63,22 @@ public abstract class AbstractTestsParent implements SpringIntegrationExamplesCo
      */
     protected void assertTimestampAndIdHeadersNotEqual(final Message<?> inFirstMessage,
         final Message<?> inSecondMessage) {
-        Assert.assertNotEquals(
-            "The two messages should have different message ids",
-            inFirstMessage.getHeaders().getId(),
-            inSecondMessage.getHeaders().getId());
-        Assert.assertNotEquals(
-            "The timestamp should not be the same in the messages",
-            inFirstMessage.getHeaders().getTimestamp(),
-            inSecondMessage.getHeaders().getTimestamp());
+        Assertions.assertNotEquals(
+            inFirstMessage
+                .getHeaders()
+                .getId(),
+            inSecondMessage
+                .getHeaders()
+                .getId(),
+            "The two messages should have different message ids");
+        Assertions.assertNotEquals(
+            inFirstMessage
+                .getHeaders()
+                .getTimestamp(),
+            inSecondMessage
+                .getHeaders()
+                .getTimestamp(),
+            "The timestamp should not be the same in the messages");
     }
 
     /**
@@ -77,14 +90,22 @@ public abstract class AbstractTestsParent implements SpringIntegrationExamplesCo
      */
     protected void assertTimestampAndIdHeadersEqual(final Message<?> inFirstMessage,
         final Message<?> inSecondMessage) {
-        Assert.assertEquals(
-            "The two messages should have equal message ids",
-            inFirstMessage.getHeaders().getId(),
-            inSecondMessage.getHeaders().getId());
-        Assert.assertEquals(
-            "The timestamp should be the same in the messages",
-            inFirstMessage.getHeaders().getTimestamp(),
-            inSecondMessage.getHeaders().getTimestamp());
+        Assertions.assertEquals(
+            inFirstMessage
+                .getHeaders()
+                .getId(),
+            inSecondMessage
+                .getHeaders()
+                .getId(),
+            "The two messages should have equal message ids");
+        Assertions.assertEquals(
+            inFirstMessage
+                .getHeaders()
+                .getTimestamp(),
+            inSecondMessage
+                .getHeaders()
+                .getTimestamp(),
+            "The timestamp should be the same in the messages");
     }
 
     /**
@@ -106,14 +127,20 @@ public abstract class AbstractTestsParent implements SpringIntegrationExamplesCo
         }
 
         /* If the number of message headers differs, the messages are not equal. */
-        if (inFirstMessage.getHeaders().size()
-            != inSecondMessage.getHeaders().size()) {
+        if (inFirstMessage
+            .getHeaders()
+            .size()
+            != inSecondMessage
+            .getHeaders()
+            .size()) {
             return false;
         }
 
         /* Compare each message header. */
-        for (Map.Entry<String, Object> theFirstMsgHdrEntry :
-            inFirstMessage.getHeaders().entrySet()) {
+        for (final Map.Entry<String, Object> theFirstMsgHdrEntry :
+            inFirstMessage
+                .getHeaders()
+                .entrySet()) {
             final String theFirstMsgHdrKey = theFirstMsgHdrEntry.getKey();
 
             /* Disregard id and timestamp message headers. */
@@ -124,14 +151,18 @@ public abstract class AbstractTestsParent implements SpringIntegrationExamplesCo
                  * If header does not exist in both messages, then the
                  * messages not equal.
                  */
-                if (!inSecondMessage.getHeaders().containsKey(theFirstMsgHdrKey)) {
+                if (!inSecondMessage
+                    .getHeaders()
+                    .containsKey(theFirstMsgHdrKey)) {
                     return false;
                 }
 
                 /* Compare the values of the message headers. */
                 final Object theFirstMsgHdrValue = theFirstMsgHdrEntry.getValue();
                 final Object theSecondMsgHdrValue =
-                    inSecondMessage.getHeaders().get(theFirstMsgHdrKey);
+                    inSecondMessage
+                        .getHeaders()
+                        .get(theFirstMsgHdrKey);
 
                 /* If header values not equal, then messages are not equal. */
                 if (!ObjectUtils.nullSafeEquals(
@@ -154,20 +185,31 @@ public abstract class AbstractTestsParent implements SpringIntegrationExamplesCo
     protected void assertMessagesEqualDisregardIdAndTimestampHeaders(
         final Message<String> inFirstMessage,
         final Message<String> inSecondMessage) {
-        Assert.assertEquals("Message payloads should be equal",
+        Assertions.assertEquals("Message payloads should be equal",
             inFirstMessage.getPayload(), inSecondMessage.getPayload());
 
         /* The number of message headers in the two messages should be the same. */
-        Assert.assertEquals("Number of message headers in the messages should be equal",
-            inFirstMessage.getHeaders().size(), inSecondMessage.getHeaders().size());
+        Assertions.assertEquals(
+            inFirstMessage
+                .getHeaders()
+                .size(),
+            inSecondMessage
+                .getHeaders()
+                .size(),
+            "Number of message headers in the messages should be equal");
 
         /* Compare message header values. */
-        for (Map.Entry<String, Object> theFirstMsgHdrEntry :
-            inFirstMessage.getHeaders().entrySet()) {
+        for (final Map.Entry<String, Object> theFirstMsgHdrEntry :
+            inFirstMessage
+                .getHeaders()
+                .entrySet()) {
             final String theFirstMsgHdrKey = theFirstMsgHdrEntry.getKey();
 
-            Assert.assertTrue("Both messages should contain the header "
-                + theFirstMsgHdrKey, inSecondMessage.getHeaders().containsKey(theFirstMsgHdrKey));
+            Assertions.assertTrue(
+                inSecondMessage
+                    .getHeaders()
+                    .containsKey(theFirstMsgHdrKey),
+                "Both messages should contain the header " + theFirstMsgHdrKey);
 
             /* Only compare values of other headers, not of timestamp and id headers. */
             if (!MessageHeaders.ID.equals(theFirstMsgHdrKey)
@@ -175,10 +217,13 @@ public abstract class AbstractTestsParent implements SpringIntegrationExamplesCo
                 /* Compare the values of the message headers. */
                 final Object theFirstMsgHdrValue = theFirstMsgHdrEntry.getValue();
                 final Object theSecondMsgHdrValue =
-                    inSecondMessage.getHeaders().get(theFirstMsgHdrKey);
-                Assert.assertEquals("Value of message header "
-                    + theFirstMsgHdrKey + " should be same in both messages",
-                    theFirstMsgHdrValue, theSecondMsgHdrValue);
+                    inSecondMessage
+                        .getHeaders()
+                        .get(theFirstMsgHdrKey);
+                Assertions.assertEquals(
+                    theFirstMsgHdrValue,
+                    theSecondMsgHdrValue,
+                    "Value of message header " + theFirstMsgHdrKey + " should be same in both messages");
             }
         }
     }
@@ -201,18 +246,21 @@ public abstract class AbstractTestsParent implements SpringIntegrationExamplesCo
      * each message.
      *
      * @param inMessageChannel Message channel to send messages to.
-     * @throws InterruptedException
      */
     protected void sendSomeMessagesToMessageChannelWithRandomDelay(
         final MessageChannel inMessageChannel) {
         Message<String> theInputMessage;
 
         for (int i = 0; i < METRICSTEST_MESSAGE_COUNT; i++) {
-            theInputMessage = MessageBuilder.withPayload(Integer.toString(i)).build();
+            theInputMessage = MessageBuilder
+                .withPayload(Integer.toString(i))
+                .build();
             inMessageChannel.send(theInputMessage);
 
             /* A random delay to get some variation in the metrics of the message channel. */
-            final long theDelay = ThreadLocalRandom.current().nextLong(METRICSTEST_MAX_DELAY);
+            final long theDelay = ThreadLocalRandom
+                .current()
+                .nextLong(METRICSTEST_MAX_DELAY);
             shortDelay(theDelay);
         }
     }

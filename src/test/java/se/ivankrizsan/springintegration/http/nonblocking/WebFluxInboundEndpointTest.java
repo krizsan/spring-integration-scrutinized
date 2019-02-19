@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Ivan Krizsan
+ * Copyright 2017-2019 Ivan Krizsan
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,17 +16,15 @@
 
 package se.ivankrizsan.springintegration.http.nonblocking;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.test.web.reactive.server.FluxExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.BodyInserters;
@@ -39,9 +37,8 @@ import org.springframework.web.reactive.function.BodyInserters;
  *
  * @author Ivan Krizsan
  */
-@RunWith(SpringRunner.class)
 @SpringBootTest
-@ContextConfiguration(classes = { WebFluxInboundEndpointTestConfiguration.class })
+@SpringJUnitConfig(classes = { WebFluxInboundEndpointTestConfiguration.class })
 public class WebFluxInboundEndpointTest {
     /* Constant(s): */
 
@@ -71,17 +68,25 @@ public class WebFluxInboundEndpointTest {
             .returnResult(String.class);
 
         /* Get the reply body and headers. */
-        final String theReplyBody = theReplyFlux.getResponseBody().blockFirst();
+        final String theReplyBody = theReplyFlux
+            .getResponseBody()
+            .blockFirst();
         final HttpHeaders theReplyHeaders = theReplyFlux.getResponseHeaders();
         final String theReplyHeaderValue =
             theReplyHeaders.getFirst(WebFluxInboundEndpointTestConfiguration.HEADER_NAME);
 
         /* Verify the result. */
-        Assert.assertTrue("Reply body should contain expected string",
+        Assertions.assertNotNull(
+            theReplyBody,
+            "There should be a reply body");
+        Assertions.assertTrue(
             theReplyBody.contains(
-                WebFluxInboundEndpointTestConfiguration.RESPONSE_MESSAGE_INITIAL_PART));
-        Assert.assertEquals("Reply header should contain expected content",
-            WebFluxInboundEndpointTestConfiguration.HEADER_VALUE, theReplyHeaderValue);
+                WebFluxInboundEndpointTestConfiguration.RESPONSE_MESSAGE_INITIAL_PART),
+            "Reply body should contain expected string");
+        Assertions.assertEquals(
+            WebFluxInboundEndpointTestConfiguration.HEADER_VALUE,
+            theReplyHeaderValue,
+            "Reply header should contain expected content");
     }
 
     /**
@@ -109,10 +114,14 @@ public class WebFluxInboundEndpointTest {
         final HttpHeaders theReplyHeaders = theReplyFlux.getResponseHeaders();
         final String theReplyHeaderValue =
             theReplyHeaders.getFirst(WebFluxInboundEndpointTestConfiguration.HEADER_NAME);
-        theReplyFlux.getResponseBody().blockFirst();
+        theReplyFlux
+            .getResponseBody()
+            .blockFirst();
 
         /* Verify the result. */
-        Assert.assertEquals("Reply header should contain expected content",
-            WebFluxInboundEndpointTestConfiguration.HEADER_VALUE, theReplyHeaderValue);
+        Assertions.assertEquals(
+            WebFluxInboundEndpointTestConfiguration.HEADER_VALUE,
+            theReplyHeaderValue,
+            "Reply header should contain expected content");
     }
 }

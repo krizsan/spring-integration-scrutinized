@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Ivan Krizsan
+ * Copyright 2017-2019 Ivan Krizsan
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,17 +16,15 @@
 
 package se.ivankrizsan.springintegration.messagechannels;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.integration.channel.NullChannel;
 import org.springframework.integration.config.EnableIntegration;
 import org.springframework.integration.support.MessageBuilder;
 import org.springframework.integration.support.management.DefaultMessageChannelMetrics;
 import org.springframework.messaging.Message;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import se.ivankrizsan.springintegration.shared.AbstractTestsParent;
 import se.ivankrizsan.springintegration.shared.EmptyConfiguration;
 
@@ -39,15 +37,13 @@ import se.ivankrizsan.springintegration.shared.EmptyConfiguration;
  * @author Ivan Krizsan
  * @see org.springframework.integration.channel.NullChannel
  */
-@RunWith(SpringRunner.class)
 @SpringBootTest
 @EnableIntegration
-@ContextConfiguration(classes = { EmptyConfiguration.class })
+@SpringJUnitConfig(classes = { EmptyConfiguration.class })
 public class NullChannelTests extends AbstractTestsParent {
     /* Constant(s): */
 
     /* Instance variable(s): */
-
 
     /**
      * Tests sending and receiving one message from a {@code NullChannel}.
@@ -61,7 +57,9 @@ public class NullChannelTests extends AbstractTestsParent {
         final Message<String> theInputMessage;
         final Object theOutputMessage;
 
-        theInputMessage = MessageBuilder.withPayload(GREETING_STRING).build();
+        theInputMessage = MessageBuilder
+            .withPayload(GREETING_STRING)
+            .build();
 
         // <editor-fold desc="Answer Section" defaultstate="collapsed">
         /* Create and name the message channel. */
@@ -80,9 +78,9 @@ public class NullChannelTests extends AbstractTestsParent {
         // </editor-fold>
 
         /* Sending messages to a null channel should always be successful. */
-        Assert.assertTrue("Sending messages should always succeed", theSendSuccessFlag);
+        Assertions.assertTrue(theSendSuccessFlag, "Sending messages should always succeed");
         /* No messages will ever be received from a null message channel. */
-        Assert.assertNull("No message should be received from a null channel", theOutputMessage);
+        Assertions.assertNull(theOutputMessage, "No message should be received from a null channel");
     }
 
     /**
@@ -125,9 +123,12 @@ public class NullChannelTests extends AbstractTestsParent {
          * With full metrics, additional statistics will also be gathered, such as
          * mean duration of send operation on the message channel.
          */
-        Assert.assertEquals("Metrics number of messages sent should match",
-            METRICSTEST_MESSAGE_COUNT, theMessageChannelMetrics.getSendCount());
-        Assert.assertTrue("Metrics mean send duration should be greater than zero",
-            theMessageChannelMetrics.getMeanSendDuration() > 0);
+        Assertions.assertEquals(
+            METRICSTEST_MESSAGE_COUNT,
+            theMessageChannelMetrics.getSendCount(),
+            "Metrics number of messages sent should match");
+        Assertions.assertTrue(
+            theMessageChannelMetrics.getMeanSendDuration() > 0,
+            "Metrics mean send duration should be greater than zero");
     }
 }

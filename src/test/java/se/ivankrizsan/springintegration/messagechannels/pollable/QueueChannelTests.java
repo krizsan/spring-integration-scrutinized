@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Ivan Krizsan
+ * Copyright 2017-2019 Ivan Krizsan
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,18 +18,15 @@ package se.ivankrizsan.springintegration.messagechannels.pollable;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.integration.channel.QueueChannel;
 import org.springframework.integration.config.EnableIntegration;
 import org.springframework.integration.support.MessageBuilder;
 import org.springframework.messaging.Message;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
-import se.ivankrizsan.springintegration.channelinterceptors.helpers
-    .LoggingAndCountingChannelInterceptor;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
+import se.ivankrizsan.springintegration.channelinterceptors.helpers.LoggingAndCountingChannelInterceptor;
 import se.ivankrizsan.springintegration.shared.EmptyConfiguration;
 import se.ivankrizsan.springintegration.shared.SpringIntegrationExamplesConstants;
 
@@ -41,10 +38,9 @@ import se.ivankrizsan.springintegration.shared.SpringIntegrationExamplesConstant
  * @author Ivan Krizsan
  * @see QueueChannel
  */
-@RunWith(SpringRunner.class)
 @SpringBootTest
 @EnableIntegration
-@ContextConfiguration(classes = { EmptyConfiguration.class })
+@SpringJUnitConfig(classes = { EmptyConfiguration.class })
 public class QueueChannelTests implements SpringIntegrationExamplesConstants {
     /* Constant(s): */
     protected static final Log LOGGER = LogFactory.getLog(QueueChannelTests.class);
@@ -58,16 +54,16 @@ public class QueueChannelTests implements SpringIntegrationExamplesConstants {
      * Expected result: There should be a message when the message channel
      * is polled and and the message payload should be identical to the
      * payload of the sent message.
-     *
-     * @throws Exception If an error occurs. Indicates test failure.
      */
     @Test
-    public void successfullyPollingMessageTest() throws Exception {
+    public void successfullyPollingMessageTest() {
         final QueueChannel theQueueChannel;
         final Message<String> theInputMessage;
         final Message<?> theOutputMessage;
 
-        theInputMessage = MessageBuilder.withPayload(GREETING_STRING).build();
+        theInputMessage = MessageBuilder
+            .withPayload(GREETING_STRING)
+            .build();
 
         // <editor-fold desc="Answer Section" defaultstate="collapsed">
         theQueueChannel = new QueueChannel();
@@ -78,12 +74,16 @@ public class QueueChannelTests implements SpringIntegrationExamplesConstants {
 
         theOutputMessage =
             theQueueChannel.receive(RECEIVE_TIMEOUT_5000_MILLISECONDS);
+        Assertions.assertNotNull(
+            theOutputMessage,
+            "A message should be available from the message channel");
         final Object theOutputMessagePayload = theOutputMessage.getPayload();
         // </editor-fold>
 
-        Assert.assertEquals("Input and output payloads should be the same",
+        Assertions.assertEquals(
             GREETING_STRING,
-            theOutputMessagePayload);
+            theOutputMessagePayload,
+            "Input and output payloads should be the same");
     }
 
     /**
@@ -94,17 +94,17 @@ public class QueueChannelTests implements SpringIntegrationExamplesConstants {
      *
      * Expected result: Sending message to the channel and receiving messages
      * from the message channel should be intercepted.
-     *
-     * @throws Exception If an error occurs. Indicates test failure.
      */
     @Test
-    public void withInterceptorTest() throws Exception {
+    public void withInterceptorTest() {
         final QueueChannel theQueueChannel;
         final Message<String> theInputMessage;
         final Message<?> theOutputMessage;
         final LoggingAndCountingChannelInterceptor theLoggingAndCountingChannelInterceptor;
 
-        theInputMessage = MessageBuilder.withPayload(GREETING_STRING).build();
+        theInputMessage = MessageBuilder
+            .withPayload(GREETING_STRING)
+            .build();
 
         theQueueChannel = new QueueChannel();
         theQueueChannel.setComponentName(DIRECT_CHANNEL_NAME);
@@ -117,38 +117,46 @@ public class QueueChannelTests implements SpringIntegrationExamplesConstants {
 
         theOutputMessage =
             theQueueChannel.receive(RECEIVE_TIMEOUT_5000_MILLISECONDS);
+        Assertions.assertNotNull(
+            theOutputMessage,
+            "A message should be available from the message channel");
         final Object theOutputMessagePayload = theOutputMessage.getPayload();
         // </editor-fold>
 
-        Assert.assertEquals("Input and output payloads should be the same",
+        Assertions.assertEquals(
             GREETING_STRING,
-            theOutputMessagePayload);
+            theOutputMessagePayload,
+            "Input and output payloads should be the same");
 
         /*
          * Sending message should have been intercepted at three occasions.
          * Receiving message should have been intercepted at three occasions.
          */
-        Assert.assertEquals(
-            "Sending should have been intercepted before the message being sent",
+        Assertions.assertEquals(
             1,
-            theLoggingAndCountingChannelInterceptor.getPreSendMessageCount());
-        Assert.assertEquals(
-            "Sending should have been intercepted after the message having been sent",
+            theLoggingAndCountingChannelInterceptor.getPreSendMessageCount(),
+            "Sending should have been intercepted before the message being sent");
+        Assertions.assertEquals(
             1,
-            theLoggingAndCountingChannelInterceptor.getPostSendMessageCount());
-        Assert.assertEquals("Message sending should have completed", 1,
-            theLoggingAndCountingChannelInterceptor.getAfterSendCompletionMessageCount());
+            theLoggingAndCountingChannelInterceptor.getPostSendMessageCount(),
+            "Sending should have been intercepted after the message having been sent");
+        Assertions.assertEquals(
+            1,
+            theLoggingAndCountingChannelInterceptor.getAfterSendCompletionMessageCount(),
+            "Message sending should have completed");
 
-        Assert.assertEquals(
-            "Receiving should have been intercepted before the message was received",
+        Assertions.assertEquals(
             1,
-            theLoggingAndCountingChannelInterceptor.getPreReceiveMessageCount());
-        Assert.assertEquals(
-            "Receiving should have been intercepted after the message having been sent",
+            theLoggingAndCountingChannelInterceptor.getPreReceiveMessageCount(),
+            "Receiving should have been intercepted before the message was received");
+        Assertions.assertEquals(
             1,
-            theLoggingAndCountingChannelInterceptor.getPostReceiveMessageCount());
-        Assert.assertEquals("Message receiving should have completed", 1,
-            theLoggingAndCountingChannelInterceptor.getAfterReceiveCompletionMessageCount());
+            theLoggingAndCountingChannelInterceptor.getPostReceiveMessageCount(),
+            "Receiving should have been intercepted after the message having been sent");
+        Assertions.assertEquals(
+            1,
+            theLoggingAndCountingChannelInterceptor.getAfterReceiveCompletionMessageCount(),
+            "Message receiving should have completed");
     }
 
     /**
@@ -159,19 +167,21 @@ public class QueueChannelTests implements SpringIntegrationExamplesConstants {
      * Expected result: The first send operation should succeed but the second
      * send should fail. One single message should be available from the message
      * channel after both sends have completed.
-     *
-     * @throws Exception If an error occurs. Indicates test failure.
      */
     @Test
-    public void sendingCapacityLimitReachedTest() throws Exception {
+    public void sendingCapacityLimitReachedTest() {
         final QueueChannel theQueueChannel;
         final Message<String> theInputMessage1;
         final Message<String> theInputMessage2;
         final boolean theSendSuccessFlag1;
         final boolean theSendSuccessFlag2;
 
-        theInputMessage1 = MessageBuilder.withPayload("1").build();
-        theInputMessage2 = MessageBuilder.withPayload("2").build();
+        theInputMessage1 = MessageBuilder
+            .withPayload("1")
+            .build();
+        theInputMessage2 = MessageBuilder
+            .withPayload("2")
+            .build();
 
         // <editor-fold desc="Answer Section" defaultstate="collapsed">
         theQueueChannel = new QueueChannel(1);
@@ -189,13 +199,16 @@ public class QueueChannelTests implements SpringIntegrationExamplesConstants {
             theQueueChannel.send(theInputMessage2, SEND_TIMEOUT_500_MILLISECONDS);
         // </editor-fold>
 
-        Assert.assertTrue("Sending first message should succeed",
-            theSendSuccessFlag1);
-        Assert.assertFalse("Sending second message should fail",
-            theSendSuccessFlag2);
-        Assert.assertEquals("One single message should be in the queue channel",
+        Assertions.assertTrue(
+            theSendSuccessFlag1,
+            "Sending first message should succeed");
+        Assertions.assertFalse(
+            theSendSuccessFlag2,
+            "Sending second message should fail");
+        Assertions.assertEquals(
             1,
-            theQueueChannel.getQueueSize());
+            theQueueChannel.getQueueSize(),
+            "One single message should be in the queue channel");
     }
 
     /**
@@ -206,11 +219,9 @@ public class QueueChannelTests implements SpringIntegrationExamplesConstants {
      *
      * Expected result: The receive operation should result in null being obtained
      * instead of a message.
-     *
-     * @throws Exception If an error occurs. Indicates test failure.
      */
     @Test
-    public void pollingMessageEmptyQueueChannelWithTimeout() throws Exception {
+    public void pollingMessageEmptyQueueChannelWithTimeout() {
         final QueueChannel theQueueChannel;
         final Message<?> theOutputMessage;
 
@@ -223,8 +234,8 @@ public class QueueChannelTests implements SpringIntegrationExamplesConstants {
             theQueueChannel.receive(RECEIVE_TIMEOUT_5000_MILLISECONDS);
         // </editor-fold>
 
-        Assert.assertNull(
-            "Null should be the result when a receive from an empty queue channel timed out",
-            theOutputMessage);
+        Assertions.assertNull(
+            theOutputMessage,
+            "Null should be the result when a receive from an empty queue channel timed out");
     }
 }

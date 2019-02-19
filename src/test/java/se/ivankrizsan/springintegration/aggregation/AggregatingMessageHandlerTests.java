@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Ivan Krizsan
+ * Copyright 2017-2019 Ivan Krizsan
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +19,8 @@ package se.ivankrizsan.springintegration.aggregation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hamcrest.Matchers;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -36,8 +35,7 @@ import org.springframework.integration.channel.QueueChannel;
 import org.springframework.integration.config.EnableIntegration;
 import org.springframework.integration.support.MessageBuilder;
 import org.springframework.messaging.Message;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import se.ivankrizsan.springintegration.shared.EmptyConfiguration;
 import se.ivankrizsan.springintegration.shared.SpringIntegrationExamplesConstants;
 
@@ -52,10 +50,9 @@ import static org.awaitility.Awaitility.await;
  * @author Ivan Krizsan
  * @see AggregatingMessageHandler
  */
-@RunWith(SpringRunner.class)
 @SpringBootTest
 @EnableIntegration
-@ContextConfiguration(classes = { EmptyConfiguration.class })
+@SpringJUnitConfig(classes = { EmptyConfiguration.class })
 public class AggregatingMessageHandlerTests implements SpringIntegrationExamplesConstants {
     /* Class variable(s): */
     protected static final Log LOGGER = LogFactory.getLog(AggregatingMessageHandlerTests.class);
@@ -160,16 +157,22 @@ public class AggregatingMessageHandlerTests implements SpringIntegrationExamples
         theAggregatingMessageHandler.handleMessage(theInputMessage2);
         // </editor-fold>
 
-        await().atMost(2, TimeUnit.SECONDS).until(
-            () -> theAggregatorOutputChannel.getQueueSize() >= 1);
+        await()
+            .atMost(2, TimeUnit.SECONDS)
+            .until(
+                () -> theAggregatorOutputChannel.getQueueSize() >= 1);
 
         /* Verify number of messages on the two message channels used by the aggregator. */
         final int theAggregatorOutputChannelSize = theAggregatorOutputChannel.getQueueSize();
         final int theAggregatorDiscardChannelSize = theAggregatorDiscardChannel.getQueueSize();
-        Assert.assertTrue("No messages should be posted to the discard message channel",
-            theAggregatorDiscardChannelSize == 0);
-        Assert.assertTrue("One messages should be available on the output message channel",
-            theAggregatorOutputChannelSize == 1);
+        Assertions.assertEquals(
+            0,
+            theAggregatorDiscardChannelSize,
+            "No messages should be posted to the discard message channel");
+        Assertions.assertEquals(
+            1,
+            theAggregatorOutputChannelSize,
+            "One messages should be available on the output message channel");
 
         /*
          * Retrieve lists of payloads from the aggregated message.
@@ -177,7 +180,10 @@ public class AggregatingMessageHandlerTests implements SpringIntegrationExamples
          * example, in the payload and one shared group of headers.
          */
         final Message<List<String>> theAggregateMessage =
-            (Message<List<String>>) theAggregatorOutputChannel.receive();
+            (Message<List<String>>)theAggregatorOutputChannel.receive();
+        Assertions.assertNotNull(
+            theAggregateMessage,
+            "A message should be available from the aggregator output message channel");
         final List<String> theAggregateMessagePayloads = theAggregateMessage.getPayload();
 
         /* Verify that grouped messages have expected payloads. */

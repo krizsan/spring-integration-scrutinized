@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Ivan Krizsan
+ * Copyright 2017-2019 Ivan Krizsan
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -77,7 +77,9 @@ public class WebFluxInboundEndpointTestConfiguration {
      */
     @Bean
     public WebTestClient httpTestClient(final ApplicationContext inApplicationContext) {
-        return WebTestClient.bindToApplicationContext(inApplicationContext).build();
+        return WebTestClient
+            .bindToApplicationContext(inApplicationContext)
+            .build();
     }
 
     /**
@@ -146,8 +148,8 @@ public class WebFluxInboundEndpointTestConfiguration {
     @Bean(name = HTTP_HEADER_MAPPER)
     public DefaultHttpHeaderMapper httpInboundEndpointHeaderMapper() {
         final DefaultHttpHeaderMapper theHeaderMapper = new DefaultHttpHeaderMapper();
-        theHeaderMapper.setInboundHeaderNames(new String[]{"*"});
-        theHeaderMapper.setOutboundHeaderNames(new String[]{"*"});
+        theHeaderMapper.setInboundHeaderNames(new String[]{ "*" });
+        theHeaderMapper.setOutboundHeaderNames(new String[]{ "*" });
         return theHeaderMapper;
     }
 
@@ -181,7 +183,9 @@ public class WebFluxInboundEndpointTestConfiguration {
 
         final String theRequestPayload = inRequestMessage.getPayload();
 
-        if (HttpStatus.INTERNAL_SERVER_ERROR.toString().equals(theRequestPayload)) {
+        if (HttpStatus.INTERNAL_SERVER_ERROR
+            .toString()
+            .equals(theRequestPayload)) {
             theResponseEntity = new ResponseEntity<>(
                 "<500 Internal Server Error,{}>", HttpStatus.INTERNAL_SERVER_ERROR);
             theResponse = MessageBuilder

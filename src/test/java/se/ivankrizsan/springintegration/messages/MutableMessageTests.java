@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Ivan Krizsan
+ * Copyright 2017-2019 Ivan Krizsan
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,17 +16,16 @@
 
 package se.ivankrizsan.springintegration.messages;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.integration.config.EnableIntegration;
 import org.springframework.integration.support.MessageBuilder;
 import org.springframework.integration.support.MutableMessage;
 import org.springframework.integration.support.MutableMessageBuilder;
 import org.springframework.messaging.Message;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import se.ivankrizsan.springintegration.shared.AbstractTestsParent;
 import se.ivankrizsan.springintegration.shared.EmptyConfiguration;
 
@@ -42,10 +41,9 @@ import java.util.Set;
  * @author Ivan Krizsan
  * @see MutableMessage
  */
-@RunWith(SpringRunner.class)
 @SpringBootTest
 @EnableIntegration
-@ContextConfiguration(classes = {EmptyConfiguration.class})
+@SpringJUnitConfig(classes = { EmptyConfiguration.class })
 public class MutableMessageTests extends AbstractTestsParent {
     /* Constant(s): */
 
@@ -77,16 +75,30 @@ public class MutableMessageTests extends AbstractTestsParent {
         // </editor-fold>
 
         /* Verify the created message. */
-        Assert.assertTrue("Message should be a MutableMessage",
-            theMessage instanceof MutableMessage);
-        Assert.assertEquals("Message payload should be the greeting string",
-            GREETING_STRING, theMessage.getPayload());
-        Assert.assertEquals("Message should contain three message headers",
-            3, theMessage.getHeaders().size());
-        Assert.assertTrue("Message should contain expected header",
-            theMessage.getHeaders().containsKey(MESSAGE_HEADER_NAME));
-        Assert.assertEquals("Message header value should be expected value",
-            MESSAGE_HEADER_VALUE, theMessage.getHeaders().get(MESSAGE_HEADER_NAME));
+        Assertions.assertTrue(
+            theMessage instanceof MutableMessage,
+            "Message should be a MutableMessage");
+        Assertions.assertEquals(
+            GREETING_STRING,
+            theMessage.getPayload(),
+            "Message payload should be the greeting string");
+        Assertions.assertEquals(
+            3,
+            theMessage
+                .getHeaders()
+                .size(),
+            "Message should contain three message headers");
+        Assertions.assertTrue(
+            theMessage
+                .getHeaders()
+                .containsKey(MESSAGE_HEADER_NAME),
+            "Message should contain expected header");
+        Assertions.assertEquals(
+            MESSAGE_HEADER_VALUE,
+            theMessage
+                .getHeaders()
+                .get(MESSAGE_HEADER_NAME),
+            "Message header value should be expected value");
         assertContainsTimestampAndIdHeaders(theMessage);
     }
 
@@ -112,16 +124,30 @@ public class MutableMessageTests extends AbstractTestsParent {
         // </editor-fold>
 
         /* Verify the created message. */
-        Assert.assertTrue("Message should be a MutableMessage",
-            theMessage instanceof MutableMessage);
-        Assert.assertEquals("Message payload should be the greeting string",
-            GREETING_STRING, theMessage.getPayload());
-        Assert.assertEquals("Message should contain three message headers",
-            3, theMessage.getHeaders().size());
-        Assert.assertTrue("Message should contain expected header",
-            theMessage.getHeaders().containsKey(MESSAGE_HEADER_NAME));
-        Assert.assertEquals("Message header value should be expected value",
-            MESSAGE_HEADER_VALUE, theMessage.getHeaders().get(MESSAGE_HEADER_NAME));
+        Assertions.assertTrue(
+            theMessage instanceof MutableMessage,
+            "Message should be a MutableMessage");
+        Assertions.assertEquals(
+            GREETING_STRING,
+            theMessage.getPayload(),
+            "Message payload should be the greeting string");
+        Assertions.assertEquals(
+            3,
+            theMessage
+                .getHeaders()
+                .size(),
+            "Message should contain three message headers");
+        Assertions.assertTrue(
+            theMessage
+                .getHeaders()
+                .containsKey(MESSAGE_HEADER_NAME),
+            "Message should contain expected header");
+        Assertions.assertEquals(
+            MESSAGE_HEADER_VALUE,
+            theMessage
+                .getHeaders()
+                .get(MESSAGE_HEADER_NAME),
+            "Message header value should be expected value");
         assertContainsTimestampAndIdHeaders(theMessage);
     }
 
@@ -140,7 +166,7 @@ public class MutableMessageTests extends AbstractTestsParent {
      * Expected result: Asserting that the values of the message header in the
      * first and second message are different is expected to fail.
      */
-    @Test(expected = AssertionError.class)
+    @Test
     public void cloningMutableMessageWithMutableMessageBuilderTest() {
         final String theHeaderName = "myHeaderName";
         final String theFirstHeaderValue = "myHeaderValueOne";
@@ -161,16 +187,22 @@ public class MutableMessageTests extends AbstractTestsParent {
             .build();
 
         /* Check that the header value of the second message is the same as that of the first. */
-        Assert.assertEquals(
-            "Message header in first and second message should contain the same value",
-            theFirstMessage.getHeaders().get(theHeaderName),
-            theSecondMessage.getHeaders().get(theHeaderName));
+        Assertions.assertEquals(
+            theFirstMessage
+                .getHeaders()
+                .get(theHeaderName),
+            theSecondMessage
+                .getHeaders()
+                .get(theHeaderName),
+            "Message header in first and second message should contain the same value");
 
         /*
          * Modify what one would believe is the header in the second message (only)
          * but what turns out to be the headers of both the messages.
          */
-        theSecondMessage.getHeaders().put(theHeaderName, theSecondHeaderValue);
+        theSecondMessage
+            .getHeaders()
+            .put(theHeaderName, theSecondHeaderValue);
 
         /*
          * Here's the counter-intuitive behaviour:
@@ -179,8 +211,13 @@ public class MutableMessageTests extends AbstractTestsParent {
          * Note that this behaviour is intended according to https://jira.spring.io/browse/INT-4314
          * The assertion is thus expected to fail.
          */
-        Assert.assertNotEquals(theFirstMessage.getHeaders().get(theHeaderName),
-            theSecondMessage.getHeaders().get(theHeaderName));
+        Assertions.assertThrows(AssertionError.class, () ->
+            Assertions.assertNotEquals(theFirstMessage
+                .getHeaders()
+                .get(theHeaderName),
+            theSecondMessage
+                .getHeaders()
+                .get(theHeaderName)));
     }
 
     /**
@@ -209,23 +246,33 @@ public class MutableMessageTests extends AbstractTestsParent {
          * Create the second message using the {@code MutableMessageBuilder}
          * with the same payload and headers as the first message.
          */
-        final Message<String> theSecondMessage = new MutableMessage<String>(
+        final Message<String> theSecondMessage = new MutableMessage<>(
             theFirstMessage.getPayload(), theFirstMessage.getHeaders());
 
         /* Check that the header value of the second message is the same as that of the first. */
-        Assert.assertEquals(
-            "Message header in first and second message should contain the same value",
-            theFirstMessage.getHeaders().get(theHeaderName),
-            theSecondMessage.getHeaders().get(theHeaderName));
+        Assertions.assertEquals(
+            theFirstMessage
+                .getHeaders()
+                .get(theHeaderName),
+            theSecondMessage
+                .getHeaders()
+                .get(theHeaderName),
+            "Message header in first and second message should contain the same value");
 
         /* Modify the value of the message header in the second message. */
-        theSecondMessage.getHeaders().put(theHeaderName, theSecondHeaderValue);
+        theSecondMessage
+            .getHeaders()
+            .put(theHeaderName, theSecondHeaderValue);
 
         /* Verify that the value of the message header in the first and second message differ. */
-        Assert.assertNotEquals(
-            "The value of the header from the first and second message should not be equal",
-            theFirstMessage.getHeaders().get(theHeaderName),
-            theSecondMessage.getHeaders().get(theHeaderName));
+        Assertions.assertNotEquals(
+            theFirstMessage
+                .getHeaders()
+                .get(theHeaderName),
+            theSecondMessage
+                .getHeaders()
+                .get(theHeaderName),
+            "The value of the header from the first and second message should not be equal");
 
         /* Verify that message id and timestamp are the same in the two messages. */
         assertTimestampAndIdHeadersEqual(theFirstMessage, theSecondMessage);
@@ -265,19 +312,29 @@ public class MutableMessageTests extends AbstractTestsParent {
             .build();
 
         /* Check that the header value of the second message is the same as that of the first. */
-        Assert.assertEquals(
-            "Message header in first and second message should contain the same value",
-            theFirstMessage.getHeaders().get(theHeaderName),
-            theSecondMessage.getHeaders().get(theHeaderName));
+        Assertions.assertEquals(
+            theFirstMessage
+                .getHeaders()
+                .get(theHeaderName),
+            theSecondMessage
+                .getHeaders()
+                .get(theHeaderName),
+            "Message header in first and second message should contain the same value");
 
         /* Modify the header in the second message. */
-        theSecondMessage.getHeaders().put(theHeaderName, theSecondHeaderValue);
+        theSecondMessage
+            .getHeaders()
+            .put(theHeaderName, theSecondHeaderValue);
 
         /* Check that the value of the message header is different in the two messages. */
-        Assert.assertNotEquals(
-            "The value of the header from the first and second message should not be equal",
-            theFirstMessage.getHeaders().get(theHeaderName),
-            theSecondMessage.getHeaders().get(theHeaderName));
+        Assertions.assertNotEquals(
+            theFirstMessage
+                .getHeaders()
+                .get(theHeaderName),
+            theSecondMessage
+                .getHeaders()
+                .get(theHeaderName),
+            "The value of the header from the first and second message should not be equal");
 
         assertTimestampAndIdHeadersEqual(theFirstMessage, theSecondMessage);
     }
@@ -299,11 +356,17 @@ public class MutableMessageTests extends AbstractTestsParent {
             .build();
 
         /* Attempt to modify a message header in the message. */
-        theMessage.getHeaders().put(MESSAGE_HEADER_NAME, "");
+        theMessage
+            .getHeaders()
+            .put(MESSAGE_HEADER_NAME, "");
         // </editor-fold>
 
-        Assert.assertEquals("Message header value should be modified", "",
-            theMessage.getHeaders().get(MESSAGE_HEADER_NAME));
+        Assertions.assertEquals(
+            "",
+            theMessage
+                .getHeaders()
+                .get(MESSAGE_HEADER_NAME),
+            "Message header value should be modified");
     }
 
     /**
@@ -349,8 +412,10 @@ public class MutableMessageTests extends AbstractTestsParent {
         /* Message that has a different header value message. */
         theDifferentHeaderMessage = new MutableMessage<>(
             GREETING_STRING, theReferenceMessageHeaders);
-        theDifferentHeaderMessage.getHeaders().put(MESSAGE_HEADER_NAME,
-            MESSAGE_HEADER_VALUE + "1");
+        theDifferentHeaderMessage
+            .getHeaders()
+            .put(MESSAGE_HEADER_NAME,
+                MESSAGE_HEADER_VALUE + "1");
 
         /* Message which has a different payload. */
         theDifferentPayloadMessage = new MutableMessage<>(GREETING_STRING + "1",
@@ -373,28 +438,24 @@ public class MutableMessageTests extends AbstractTestsParent {
         theMessageHeadersSet.add(
             System.identityHashCode(theDifferentPayloadMessage.getHeaders()));
 
-        Assert.assertEquals(
-            "Each message should have a message headers object of its own",
-            4, theMessageHeadersSet.size());
+        Assertions.assertEquals(
+            4,
+            theMessageHeadersSet.size(),
+            "Each message should have a message headers object of its own");
 
         /* Compare the reference message to each of the other messages. */
-        Assert.assertTrue(
-            "One and the same message shall be equal",
-            compareMessagesDisregardIdAndTimestampHeaders(theReferenceMessage,
-                theReferenceMessage));
-        Assert.assertTrue(
-            "Two messages created in the same way have different ids and"
-                + " will not be equal",
-            compareMessagesDisregardIdAndTimestampHeaders(theReferenceMessage,
-                theSameAsFirstMessage));
-        Assert.assertFalse(
-            "Two messages created with different headers shall not be equal",
-            compareMessagesDisregardIdAndTimestampHeaders(theReferenceMessage,
-                theDifferentHeaderMessage));
-        Assert.assertFalse(
-            "Two messages created with different payloads shall not be equal",
-            compareMessagesDisregardIdAndTimestampHeaders(theReferenceMessage,
-                theDifferentPayloadMessage));
+        Assertions.assertTrue(
+            compareMessagesDisregardIdAndTimestampHeaders(theReferenceMessage, theReferenceMessage),
+            "One and the same message shall be equal");
+        Assertions.assertTrue(
+            compareMessagesDisregardIdAndTimestampHeaders(theReferenceMessage, theSameAsFirstMessage),
+            "Two messages created in the same way have different ids and will not be equal");
+        Assertions.assertFalse(
+            compareMessagesDisregardIdAndTimestampHeaders(theReferenceMessage, theDifferentHeaderMessage),
+            "Two messages created with different headers shall not be equal");
+        Assertions.assertFalse(
+            compareMessagesDisregardIdAndTimestampHeaders(theReferenceMessage, theDifferentPayloadMessage),
+            "Two messages created with different payloads shall not be equal");
     }
 
     /**
@@ -416,10 +477,16 @@ public class MutableMessageTests extends AbstractTestsParent {
             .build();
 
         /* Attempt to modify the payload of the message. */
-        theMessage.getPayload().add("Second list payload entry");
+        theMessage
+            .getPayload()
+            .add("Second list payload entry");
         // </editor-fold>
 
-        Assert.assertEquals("Payload list should contain two entries",
-            2, theMessage.getPayload().size());
+        Assertions.assertEquals(
+            2,
+            theMessage
+                .getPayload()
+                .size(),
+            "Payload list should contain two entries");
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Ivan Krizsan
+ * Copyright 2017-2019 Ivan Krizsan
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,18 +20,12 @@ import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
 
-import static se.ivankrizsan.springintegration.serviceactivator
-    .ServiceActivatorTestsConfiguration.PAYLOAD_ERROR;
-import static se.ivankrizsan.springintegration.serviceactivator
-    .ServiceActivatorTestsConfiguration.SERVICEACTIVATOR_ONE_INPUT_CHANNEL;
-import static se.ivankrizsan.springintegration.serviceactivator
-    .ServiceActivatorTestsConfiguration.SERVICEACTIVATOR_ONE_OUTPUT_CHANNEL;
-import static se.ivankrizsan.springintegration.serviceactivator
-    .ServiceActivatorTestsConfiguration.SERVICEACTIVATOR_ONE_RESPONSE;
-import static se.ivankrizsan.springintegration.serviceactivator
-    .ServiceActivatorTestsConfiguration.SERVICEACTIVATOR_TWO_INPUT_CHANNEL;
-import static se.ivankrizsan.springintegration.serviceactivator
-    .ServiceActivatorTestsConfiguration.SERVICEACTIVATOR_TWO_RESPONSE;
+import static se.ivankrizsan.springintegration.serviceactivator.ServiceActivatorTestsConfiguration.PAYLOAD_ERROR;
+import static se.ivankrizsan.springintegration.serviceactivator.ServiceActivatorTestsConfiguration.SERVICEACTIVATOR_ONE_INPUT_CHANNEL;
+import static se.ivankrizsan.springintegration.serviceactivator.ServiceActivatorTestsConfiguration.SERVICEACTIVATOR_ONE_OUTPUT_CHANNEL;
+import static se.ivankrizsan.springintegration.serviceactivator.ServiceActivatorTestsConfiguration.SERVICEACTIVATOR_ONE_RESPONSE;
+import static se.ivankrizsan.springintegration.serviceactivator.ServiceActivatorTestsConfiguration.SERVICEACTIVATOR_TWO_INPUT_CHANNEL;
+import static se.ivankrizsan.springintegration.serviceactivator.ServiceActivatorTestsConfiguration.SERVICEACTIVATOR_TWO_RESPONSE;
 
 /**
  * This class implements a number of service activators that all use the request-response

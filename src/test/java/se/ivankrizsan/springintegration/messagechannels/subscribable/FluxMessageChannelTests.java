@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Ivan Krizsan
+ * Copyright 2017-2019 Ivan Krizsan
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,13 +18,13 @@ package se.ivankrizsan.springintegration.messagechannels.subscribable;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.integration.channel.FluxMessageChannel;
 import org.springframework.integration.support.MessageBuilder;
 import org.springframework.messaging.Message;
-import se.ivankrizsan.springintegration.shared.SpringIntegrationExamplesConstants;
 import se.ivankrizsan.springintegration.messagechannels.helpers.MyReactiveSubscriber;
+import se.ivankrizsan.springintegration.shared.SpringIntegrationExamplesConstants;
 
 /**
  * Exercises demonstrating use of Spring Integration flux message channels.
@@ -46,15 +46,15 @@ public class FluxMessageChannelTests implements SpringIntegrationExamplesConstan
      *
      * Expected result: Each subscriber should receive one copy of the
      * message sent.
-     *
-     * @throws Exception If error occurred. Indicates test failure.
      */
     @Test
-    public void multipleSubscribersTest() throws Exception {
+    public void multipleSubscribersTest() {
         final FluxMessageChannel theFluxMessageChannel;
         final Message<String> theInputMessage;
 
-        theInputMessage = MessageBuilder.withPayload(GREETING_STRING).build();
+        theInputMessage = MessageBuilder
+            .withPayload(GREETING_STRING)
+            .build();
 
         // <editor-fold desc="Answer Section" defaultstate="collapsed">
         /* Create the two subscribers. */
@@ -75,18 +75,32 @@ public class FluxMessageChannelTests implements SpringIntegrationExamplesConstan
         // </editor-fold>
 
         /* Verify that both subscribers received one copy each of the message. */
-        Assert.assertTrue(
-            "A single message should have been received by first subscriber",
-            theFirstSubscriber.getSubscriberReceivedMessages().size() == 1);
-        Assert.assertEquals("Message should have expected payload",
+        Assertions.assertEquals(
+            1,
+            theFirstSubscriber
+                .getSubscriberReceivedMessages()
+                .size(),
+            "A single message should have been received by first subscriber");
+        Assertions.assertEquals(
             GREETING_STRING,
-            theFirstSubscriber.getSubscriberReceivedMessages().get(0).getPayload());
-        Assert.assertTrue(
-            "A single message should have been received by second subscriber",
-            theSecondSubscriber.getSubscriberReceivedMessages().size() == 1);
-        Assert.assertEquals("Message should have expected payload",
+            theFirstSubscriber
+                .getSubscriberReceivedMessages()
+                .get(0)
+                .getPayload(),
+            "Message should have expected payload");
+        Assertions.assertEquals(
+            1,
+            theSecondSubscriber
+                .getSubscriberReceivedMessages()
+                .size(),
+            "A single message should have been received by second subscriber");
+        Assertions.assertEquals(
             GREETING_STRING,
-            theSecondSubscriber.getSubscriberReceivedMessages().get(0).getPayload());
+            theSecondSubscriber
+                .getSubscriberReceivedMessages()
+                .get(0)
+                .getPayload(),
+            "Message should have expected payload");
     }
 
     /**
@@ -95,17 +109,19 @@ public class FluxMessageChannelTests implements SpringIntegrationExamplesConstan
      *
      * Expected result: Each subscriber should receive one copy of each
      * message sent.
-     *
-     * @throws Exception If error occurred. Indicates test failure.
      */
     @Test
-    public void multipleSubscribersMultipleMessagesTest() throws Exception {
+    public void multipleSubscribersMultipleMessagesTest() {
         final FluxMessageChannel theFluxMessageChannel;
         final Message<String> theFirstInputMessage;
         final Message<String> theSecondInputMessage;
 
-        theFirstInputMessage = MessageBuilder.withPayload("1").build();
-        theSecondInputMessage = MessageBuilder.withPayload("2").build();
+        theFirstInputMessage = MessageBuilder
+            .withPayload("1")
+            .build();
+        theSecondInputMessage = MessageBuilder
+            .withPayload("2")
+            .build();
 
         // <editor-fold desc="Answer Section" defaultstate="collapsed">
         /* Create the two subscribers. */
@@ -127,25 +143,47 @@ public class FluxMessageChannelTests implements SpringIntegrationExamplesConstan
         // </editor-fold>
 
         /* Verify that both subscribers received one copy each of the messages. */
-        Assert.assertTrue(
-            "Two messages should have been received by first subscriber",
-            theFirstSubscriber.getSubscriberReceivedMessages().size() == 2);
-        Assert.assertEquals("First message should have expected payload",
+        Assertions.assertEquals(
+            2,
+            theFirstSubscriber
+                .getSubscriberReceivedMessages()
+                .size(),
+            "Two messages should have been received by first subscriber");
+        Assertions.assertEquals(
             "1",
-            theFirstSubscriber.getSubscriberReceivedMessages().get(0).getPayload());
-        Assert.assertEquals("Second message should have expected payload",
+            theFirstSubscriber
+                .getSubscriberReceivedMessages()
+                .get(0)
+                .getPayload(),
+            "First message should have expected payload");
+        Assertions.assertEquals(
             "2",
-            theFirstSubscriber.getSubscriberReceivedMessages().get(1).getPayload());
+            theFirstSubscriber
+                .getSubscriberReceivedMessages()
+                .get(1)
+                .getPayload(),
+            "Second message should have expected payload");
 
-        Assert.assertTrue(
-            "Two messages should have been received by second subscriber",
-            theSecondSubscriber.getSubscriberReceivedMessages().size() == 2);
-        Assert.assertEquals("First message should have expected payload",
+        Assertions.assertEquals(
+            2,
+            theSecondSubscriber
+                .getSubscriberReceivedMessages()
+                .size(),
+            "Two messages should have been received by second subscriber");
+        Assertions.assertEquals(
             "1",
-            theSecondSubscriber.getSubscriberReceivedMessages().get(0).getPayload());
-        Assert.assertEquals("Second message should have expected payload",
+            theSecondSubscriber
+                .getSubscriberReceivedMessages()
+                .get(0)
+                .getPayload(),
+            "First message should have expected payload");
+        Assertions.assertEquals(
             "2",
-            theSecondSubscriber.getSubscriberReceivedMessages().get(1).getPayload());
+            theSecondSubscriber
+                .getSubscriberReceivedMessages()
+                .get(1)
+                .getPayload(),
+            "Second message should have expected payload");
     }
 
     /**
@@ -156,17 +194,19 @@ public class FluxMessageChannelTests implements SpringIntegrationExamplesConstan
      *
      * Expected result: Each subscriber should receive one copy of the first
      * message sent.
-     *
-     * @throws Exception If error occurred. Indicates test failure.
      */
     @Test
-    public void multipleSubscribersMultipleMessagesLimitEventCountTest() throws Exception {
+    public void multipleSubscribersMultipleMessagesLimitEventCountTest() {
         final FluxMessageChannel theFluxMessageChannel;
         final Message<String> theFirstInputMessage;
         final Message<String> theSecondInputMessage;
 
-        theFirstInputMessage = MessageBuilder.withPayload("1").build();
-        theSecondInputMessage = MessageBuilder.withPayload("2").build();
+        theFirstInputMessage = MessageBuilder
+            .withPayload("1")
+            .build();
+        theSecondInputMessage = MessageBuilder
+            .withPayload("2")
+            .build();
 
         // <editor-fold desc="Answer Section" defaultstate="collapsed">
         /*
@@ -192,18 +232,32 @@ public class FluxMessageChannelTests implements SpringIntegrationExamplesConstan
         // </editor-fold>
 
         /* Verify that both subscribers received one copy of the first message. */
-        Assert.assertTrue(
-            "One should have been received by first subscriber",
-            theFirstSubscriber.getSubscriberReceivedMessages().size() == 1);
-        Assert.assertEquals("Message should have expected payload",
+        Assertions.assertEquals(
+            1,
+            theFirstSubscriber
+                .getSubscriberReceivedMessages()
+                .size(),
+            "One message should have been received by first subscriber");
+        Assertions.assertEquals(
             "1",
-            theFirstSubscriber.getSubscriberReceivedMessages().get(0).getPayload());
+            theFirstSubscriber
+                .getSubscriberReceivedMessages()
+                .get(0)
+                .getPayload(),
+            "Message should have expected payload");
 
-        Assert.assertTrue(
-            "One message should have been received by second subscriber",
-            theSecondSubscriber.getSubscriberReceivedMessages().size() == 1);
-        Assert.assertEquals("Message should have expected payload",
+        Assertions.assertEquals(
+            1,
+            theSecondSubscriber
+                .getSubscriberReceivedMessages()
+                .size(),
+            "One message should have been received by second subscriber");
+        Assertions.assertEquals(
             "1",
-            theSecondSubscriber.getSubscriberReceivedMessages().get(0).getPayload());
+            theSecondSubscriber
+                .getSubscriberReceivedMessages()
+                .get(0)
+                .getPayload(),
+            "Message should have expected payload");
     }
 }

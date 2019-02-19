@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Ivan Krizsan
+ * Copyright 2017-2019 Ivan Krizsan
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,13 @@
 
 package se.ivankrizsan.springintegration.http.blocking;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.integration.channel.QueueChannel;
@@ -32,9 +32,7 @@ import org.springframework.integration.http.outbound.HttpRequestExecutingMessage
 import org.springframework.integration.support.MessageBuilder;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHandlingException;
-import org.springframework.messaging.MessagingException;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
@@ -58,10 +56,9 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
  *
  * @author Ivan Krizsan
  */
-@RunWith(SpringRunner.class)
 @SpringBootTest
 @EnableIntegration
-@ContextConfiguration(classes = { EmptyConfiguration.class })
+@SpringJUnitConfig(classes = { EmptyConfiguration.class })
 public class HttpRequestExecutingMessageHandlerTest implements
     SpringIntegrationExamplesConstants {
     /* Constant(s): */
@@ -122,20 +119,31 @@ public class HttpRequestExecutingMessageHandlerTest implements
          * Create the request message. Since the outbound HTTP request will be a GET request
          * the message payload will not be used and is thus set to empty string.
          */
-        theRequestMessage = MessageBuilder.withPayload("").build();
+        theRequestMessage = MessageBuilder
+            .withPayload("")
+            .build();
 
         theHttpOutboundHandler.handleMessage(theRequestMessage);
         // </editor-fold>
 
-        await().atMost(2, TimeUnit.SECONDS).until(() ->
-            theHttpOutboundHandlerReplyChannel.getQueueSize() > 0);
+        await()
+            .atMost(2, TimeUnit.SECONDS)
+            .until(() ->
+                theHttpOutboundHandlerReplyChannel.getQueueSize() > 0);
 
         /* Check that the HTTP status indicates a successful request. */
         theReplyMessage = theHttpOutboundHandlerReplyChannel.receive();
-        theHttpReplyStatusCode = theReplyMessage.getHeaders().get(HttpHeaders.STATUS_CODE)
+        Assertions.assertNotNull(
+            theReplyMessage,
+            "A message should be available from the reply message channel");
+        theHttpReplyStatusCode = theReplyMessage
+            .getHeaders()
+            .get(HttpHeaders.STATUS_CODE)
             .toString();
-        Assert.assertEquals("HTTP status code should indicate a successful request",
-            "200", theHttpReplyStatusCode);
+        Assertions.assertEquals(
+            HttpStatus.OK.toString(),
+            theHttpReplyStatusCode,
+            "HTTP status code should indicate a successful request");
     }
 
     /**
@@ -187,7 +195,9 @@ public class HttpRequestExecutingMessageHandlerTest implements
          * Create the request message. Since the outbound HTTP request will be a GET request
          * the message payload will not be used and is thus set to empty string.
          */
-        theRequestMessage = MessageBuilder.withPayload("").build();
+        theRequestMessage = MessageBuilder
+            .withPayload("")
+            .build();
 
         try {
             /* Send the request message to the HTTP outbound message handler. */
@@ -199,13 +209,18 @@ public class HttpRequestExecutingMessageHandlerTest implements
         // </editor-fold>
 
         /* Make sure an exception was thrown. */
-        Assert.assertNotNull("An exception should have been thrown - make sure "
-            + "no local service is listening on the port!", theExceptionRootCause);
+        Assertions.assertNotNull(
+            theExceptionRootCause,
+            "An exception should have been thrown - make sure no local service is listening on the port!");
 
-        Assert.assertTrue("The root cause should be a ConnectException",
-            theExceptionRootCause instanceof ConnectException);
-        Assert.assertTrue("The ConnectException should indicate connection refused",
-            theExceptionRootCause.getMessage().contains("Connection refused"));
+        Assertions.assertTrue(
+            theExceptionRootCause instanceof ConnectException,
+            "The root cause should be a ConnectException");
+        Assertions.assertTrue(
+            theExceptionRootCause
+                .getMessage()
+                .contains("Connection refused"),
+            "The ConnectException should indicate connection refused");
     }
 
     /**
@@ -254,7 +269,9 @@ public class HttpRequestExecutingMessageHandlerTest implements
          * Create the request message. Since the outbound HTTP request will be a GET request
          * the message payload will not be used and is thus set to empty string.
          */
-        theRequestMessage = MessageBuilder.withPayload("").build();
+        theRequestMessage = MessageBuilder
+            .withPayload("")
+            .build();
 
         /* Send the outbound HTTP request. */
         try {
@@ -265,9 +282,14 @@ public class HttpRequestExecutingMessageHandlerTest implements
         // </editor-fold>
 
         /* Verify the thrown exception. */
-        Assert.assertNotNull("An exception should have been thrown", theRootCause);
-        Assert.assertTrue("The exception should indicate a response with HTTP status 400",
-            theRootCause.getMessage().contains("400"));
+        Assertions.assertNotNull(
+            theRootCause,
+            "An exception should have been thrown");
+        Assertions.assertTrue(
+            theRootCause
+                .getMessage()
+                .contains("400"),
+            "The exception should indicate a response with HTTP status 400");
     }
 
     /**
@@ -303,7 +325,7 @@ public class HttpRequestExecutingMessageHandlerTest implements
         /* Create a custom error handler that never throws exceptions on errors. */
         theNoOpErrorHandler = new DefaultResponseErrorHandler() {
             @Override
-            public void handleError(final ClientHttpResponse inResponse) throws IOException {
+            public void handleError(final ClientHttpResponse inResponse) {
                 /* Never throw an exception when there is an error. */
             }
         };
@@ -328,7 +350,9 @@ public class HttpRequestExecutingMessageHandlerTest implements
          * Create the request message. Since the outbound HTTP request will be a GET request
          * the message payload will not be used and is thus set to empty string.
          */
-        theRequestMessage = MessageBuilder.withPayload("").build();
+        theRequestMessage = MessageBuilder
+            .withPayload("")
+            .build();
 
         /* Send the outbound HTTP request. Note: No try-catch. */
         theHttpOutboundHandler.handleMessage(theRequestMessage);
@@ -336,9 +360,16 @@ public class HttpRequestExecutingMessageHandlerTest implements
 
         /* Check that the HTTP status indicates a failed request. */
         theReplyMessage = theHttpOutboundHandlerReplyChannel.receive();
-        theHttpReplyStatusCode = theReplyMessage.getHeaders().get(HttpHeaders.STATUS_CODE)
+        Assertions.assertNotNull(
+            theReplyMessage,
+            "A message should be available from the reply message channel");
+        theHttpReplyStatusCode = theReplyMessage
+            .getHeaders()
+            .get(HttpHeaders.STATUS_CODE)
             .toString();
-        Assert.assertEquals("HTTP status code should indicate a HTTP status 400",
-            "400", theHttpReplyStatusCode);
+        Assertions.assertEquals(
+            HttpStatus.BAD_REQUEST.toString(),
+            theHttpReplyStatusCode,
+            "HTTP status code should indicate a HTTP status 400");
     }
 }

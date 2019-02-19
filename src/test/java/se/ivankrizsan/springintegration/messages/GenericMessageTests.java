@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Ivan Krizsan
+ * Copyright 2017-2019 Ivan Krizsan
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,16 +15,14 @@
  */
 package se.ivankrizsan.springintegration.messages;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.integration.config.EnableIntegration;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.GenericMessage;
 import org.springframework.messaging.support.MessageBuilder;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import se.ivankrizsan.springintegration.shared.AbstractTestsParent;
 import se.ivankrizsan.springintegration.shared.EmptyConfiguration;
 
@@ -37,10 +35,9 @@ import java.util.Map;
  * @author Ivan Krizsan
  * @see org.springframework.messaging.support.GenericMessage
  */
-@RunWith(SpringRunner.class)
 @SpringBootTest
 @EnableIntegration
-@ContextConfiguration(classes = { EmptyConfiguration.class })
+@SpringJUnitConfig(classes = { EmptyConfiguration.class })
 public class GenericMessageTests extends AbstractTestsParent {
     /* Constant(s): */
 
@@ -69,20 +66,33 @@ public class GenericMessageTests extends AbstractTestsParent {
 
         /* Create the message. */
         theMessage = new GenericMessage<>(GREETING_STRING, theMessageHeadersMap);
-
         // </editor-fold>
 
         /* Verify the created message. */
-        Assert.assertTrue("Message should be a GenericMessage",
-            theMessage instanceof GenericMessage);
-        Assert.assertEquals("Message payload should be the greeting string",
-            GREETING_STRING, theMessage.getPayload());
-        Assert.assertEquals("Message should contain three message headers",
-            3, theMessage.getHeaders().size());
-        Assert.assertTrue("Message should contain expected header",
-            theMessage.getHeaders().containsKey(MESSAGE_HEADER_NAME));
-        Assert.assertEquals("Message header value should be expected value",
-            MESSAGE_HEADER_VALUE, theMessage.getHeaders().get(MESSAGE_HEADER_NAME));
+        Assertions.assertTrue(
+            theMessage instanceof GenericMessage,
+            "Message should be a GenericMessage");
+        Assertions.assertEquals(
+            GREETING_STRING,
+            theMessage.getPayload(),
+            "Message should contain expected payload");
+        Assertions.assertEquals(
+            3,
+            theMessage
+                .getHeaders()
+                .size(),
+            "Message should contain three message headers");
+        Assertions.assertTrue(
+            theMessage
+                .getHeaders()
+                .containsKey(MESSAGE_HEADER_NAME),
+            "Message should contain expected header");
+        Assertions.assertEquals(
+            MESSAGE_HEADER_VALUE,
+            theMessage
+                .getHeaders()
+                .get(MESSAGE_HEADER_NAME),
+            "Message header value should be expected value");
         assertContainsTimestampAndIdHeaders(theMessage);
     }
 
@@ -108,16 +118,30 @@ public class GenericMessageTests extends AbstractTestsParent {
         // </editor-fold>
 
         /* Verify the created message. */
-        Assert.assertTrue("Message should be a GenericMessage",
-            theMessage instanceof GenericMessage);
-        Assert.assertEquals("Message payload should be the greeting string",
-            GREETING_STRING, theMessage.getPayload());
-        Assert.assertEquals("Message should contain three message headers",
-            3, theMessage.getHeaders().size());
-        Assert.assertTrue("Message should contain the expected header",
-            theMessage.getHeaders().containsKey(MESSAGE_HEADER_NAME));
-        Assert.assertEquals("Message header value should be expected value",
-            MESSAGE_HEADER_VALUE, theMessage.getHeaders().get(MESSAGE_HEADER_NAME));
+        Assertions.assertTrue(
+            theMessage instanceof GenericMessage,
+            "Message should be a GenericMessage");
+        Assertions.assertEquals(
+            GREETING_STRING,
+            theMessage.getPayload(),
+            "Message payload should be the greeting string");
+        Assertions.assertEquals(
+            3,
+            theMessage
+                .getHeaders()
+                .size(),
+            "Message should contain three message headers");
+        Assertions.assertTrue(
+            theMessage
+                .getHeaders()
+                .containsKey(MESSAGE_HEADER_NAME),
+            "Message should contain the expected header");
+        Assertions.assertEquals(
+            MESSAGE_HEADER_VALUE,
+            theMessage
+                .getHeaders()
+                .get(MESSAGE_HEADER_NAME),
+            "Message header value should be expected value");
         assertContainsTimestampAndIdHeaders(theMessage);
     }
 
@@ -149,8 +173,9 @@ public class GenericMessageTests extends AbstractTestsParent {
         // </editor-fold>
 
         /* Verify the result. */
-        Assert.assertTrue("Cloned message is one and the same instance as the original",
-            theFirstMessage == theSecondMessage);
+        Assertions.assertSame(theFirstMessage,
+            theSecondMessage,
+            "Cloned message is one and the same instance as the original");
     }
 
     /**
@@ -186,15 +211,21 @@ public class GenericMessageTests extends AbstractTestsParent {
         // </editor-fold>
 
         /* Verify the result. */
-        Assert.assertFalse(
-            "Cloned message is not one and the same instance as the original",
-            theFirstMessage == theSecondMessage);
-        Assert.assertEquals("Payloads should be equal",
-            theFirstMessage.getPayload(), theSecondMessage.getPayload());
-        Assert.assertEquals(
-            "The value of the header from the original message should be equal",
-            theFirstMessage.getHeaders().get(theHeaderName),
-            theSecondMessage.getHeaders().get(theHeaderName));
+        Assertions.assertNotSame(theFirstMessage,
+            theSecondMessage,
+            "Cloned message is not one and the same instance as the original");
+        Assertions.assertEquals(
+            theFirstMessage.getPayload(),
+            theSecondMessage.getPayload(),
+            "Payloads should be equal");
+        Assertions.assertEquals(
+            theFirstMessage
+                .getHeaders()
+                .get(theHeaderName),
+            theSecondMessage
+                .getHeaders()
+                .get(theHeaderName),
+            "The value of the header from the original message should be equal");
         assertTimestampAndIdHeadersNotEqual(theFirstMessage, theSecondMessage);
     }
 
@@ -219,19 +250,25 @@ public class GenericMessageTests extends AbstractTestsParent {
         /* Clone the first message using the new operator. */
         final Message<String> theSecondMessage = new GenericMessage<>(
             theFirstMessage.getPayload(),
-                theFirstMessage.getHeaders());
+            theFirstMessage.getHeaders());
         // </editor-fold>
 
         /* Verify the result. */
-        Assert.assertFalse(
-            "Cloned message is not one and the same instance as the original",
-            theFirstMessage == theSecondMessage);
-        Assert.assertEquals("Payloads should be equal",
-            theFirstMessage.getPayload(), theSecondMessage.getPayload());
-        Assert.assertEquals(
-            "The value of the header from the original message should be equal",
-            theFirstMessage.getHeaders().get(theHeaderName),
-            theSecondMessage.getHeaders().get(theHeaderName));
+        Assertions.assertNotSame(theFirstMessage,
+            theSecondMessage,
+            "Cloned message is not one and the same instance as the original");
+        Assertions.assertEquals(
+            theFirstMessage.getPayload(),
+            theSecondMessage.getPayload(),
+            "Payloads should be equal");
+        Assertions.assertEquals(
+            theFirstMessage
+                .getHeaders()
+                .get(theHeaderName),
+            theSecondMessage
+                .getHeaders()
+                .get(theHeaderName),
+            "The value of the header from the original message should be equal");
         assertTimestampAndIdHeadersEqual(theFirstMessage, theSecondMessage);
     }
 }

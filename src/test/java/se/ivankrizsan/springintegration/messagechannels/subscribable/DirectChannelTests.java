@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Ivan Krizsan
+ * Copyright 2017-2019 Ivan Krizsan
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,8 @@ package se.ivankrizsan.springintegration.messagechannels.subscribable;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.integration.channel.DirectChannel;
 import org.springframework.integration.config.EnableIntegration;
@@ -29,8 +28,7 @@ import org.springframework.integration.dispatcher.RoundRobinLoadBalancingStrateg
 import org.springframework.integration.support.MessageBuilder;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHandler;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import se.ivankrizsan.springintegration.shared.EmptyConfiguration;
 import se.ivankrizsan.springintegration.shared.SpringIntegrationExamplesConstants;
 
@@ -51,10 +49,9 @@ import static org.awaitility.Awaitility.await;
  * @author Ivan Krizsan
  * @see DirectChannel
  */
-@RunWith(SpringRunner.class)
 @SpringBootTest
 @EnableIntegration
-@ContextConfiguration(classes = { EmptyConfiguration.class })
+@SpringJUnitConfig(classes = { EmptyConfiguration.class })
 public class DirectChannelTests implements SpringIntegrationExamplesConstants {
 
     /* Class variable(s): */
@@ -74,11 +71,9 @@ public class DirectChannelTests implements SpringIntegrationExamplesConstants {
      * message channel subscriber and the message payload should be identical to
      * the payload of the sent message.
      * The sender and the receiver should be invoked by one and the same thread.
-     *
-     * @throws Exception If an error occurs. Indicates test failure.
      */
     @Test
-    public void singleSubscriberAndSendReceiveThreadTest() throws Exception {
+    public void singleSubscriberAndSendReceiveThreadTest() {
         final DirectChannel theDirectChannel;
         final Message<String> theInputMessage;
         final List<Message> theSubscriberReceivedMessages =
@@ -86,7 +81,9 @@ public class DirectChannelTests implements SpringIntegrationExamplesConstants {
         final AtomicLong theSubscriberThreadId = new AtomicLong(0);
         final long theSenderThreadId;
 
-        theInputMessage = MessageBuilder.withPayload(GREETING_STRING).build();
+        theInputMessage = MessageBuilder
+            .withPayload(GREETING_STRING)
+            .build();
 
         // <editor-fold desc="Answer Section" defaultstate="collapsed">
         theDirectChannel = new DirectChannel();
@@ -97,33 +94,43 @@ public class DirectChannelTests implements SpringIntegrationExamplesConstants {
          * to a list. Register the subscriber with the subscribable message channel.
          */
         final MessageHandler theSubscriber = inMessage -> {
-            theSubscriberThreadId.set(Thread.currentThread().getId());
+            theSubscriberThreadId.set(Thread
+                .currentThread()
+                .getId());
             theSubscriberReceivedMessages.add(inMessage);
         };
         theDirectChannel.subscribe(theSubscriber);
 
-        theSenderThreadId = Thread.currentThread().getId();
+        theSenderThreadId = Thread
+            .currentThread()
+            .getId();
         theDirectChannel.send(theInputMessage);
         // </editor-fold>
-        await().atMost(2, TimeUnit.SECONDS).until(() ->
+        await()
+            .atMost(2, TimeUnit.SECONDS)
+            .until(() ->
                 theSubscriberReceivedMessages.size() > 0);
 
         /*
          * The sender and the subscriber should have been executed by the same thread.
          */
-        Assert.assertEquals(
-            "Sender and subscriber should be executed by the same thread",
-            theSenderThreadId, theSubscriberThreadId.get());
+        Assertions.assertEquals(
+            theSenderThreadId,
+            theSubscriberThreadId.get(),
+            "Sender and subscriber should be executed by the same thread");
 
-        Assert.assertTrue("A single message should have been received",
-            theSubscriberReceivedMessages.size() == 1);
+        Assertions.assertEquals(
+            1,
+            theSubscriberReceivedMessages.size(),
+            "A single message should have been received");
 
         final Message<?> theOutputMessage = theSubscriberReceivedMessages.get(0);
         final Object theOutputPayload = theOutputMessage.getPayload();
 
-        Assert.assertEquals("Input and output payloads should be the same",
+        Assertions.assertEquals(
             GREETING_STRING,
-            theOutputPayload);
+            theOutputPayload,
+            "Input and output payloads should be the same");
     }
 
     /**
@@ -133,11 +140,9 @@ public class DirectChannelTests implements SpringIntegrationExamplesConstants {
      * Expected result: One single message should have been received by the
      * first message channel subscriber. No message should have been received
      * by the second subscriber.
-     *
-     * @throws Exception If an error occurs. Indicates test failure.
      */
     @Test
-    public void multipleSubscribersTest() throws Exception {
+    public void multipleSubscribersTest() {
         final DirectChannel theDirectChannel;
         final Message<String> theInputMessage;
         final List<Message> theFirstSubscriberReceivedMessages =
@@ -145,7 +150,9 @@ public class DirectChannelTests implements SpringIntegrationExamplesConstants {
         final List<Message> theSecondSubscriberReceivedMessages =
             new CopyOnWriteArrayList<>();
 
-        theInputMessage = MessageBuilder.withPayload(GREETING_STRING).build();
+        theInputMessage = MessageBuilder
+            .withPayload(GREETING_STRING)
+            .build();
 
         // <editor-fold desc="Answer Section" defaultstate="collapsed">
         theDirectChannel = new DirectChannel();
@@ -164,12 +171,14 @@ public class DirectChannelTests implements SpringIntegrationExamplesConstants {
         final boolean theFirstSubscribedFlag = theDirectChannel.subscribe(theFirstSubscriber);
         final boolean theSecondSubscribedFlag = theDirectChannel.subscribe(theSecondSubscriber);
 
-        Assert.assertTrue(theFirstSubscribedFlag);
-        Assert.assertTrue(theSecondSubscribedFlag);
+        Assertions.assertTrue(theFirstSubscribedFlag);
+        Assertions.assertTrue(theSecondSubscribedFlag);
 
         theDirectChannel.send(theInputMessage);
         // </editor-fold>
-        await().atMost(2, TimeUnit.SECONDS).until(() ->
+        await()
+            .atMost(2, TimeUnit.SECONDS)
+            .until(() ->
                 theFirstSubscriberReceivedMessages.size() > 0);
 
         /*
@@ -180,11 +189,14 @@ public class DirectChannelTests implements SpringIntegrationExamplesConstants {
          * Please see subsequent tests for load balancing of messages from a
          * direct message channel with multiple subscribers.
          */
-        Assert.assertTrue(
-            "A single message should have been received by first subscriber",
-            theFirstSubscriberReceivedMessages.size() == 1);
-        Assert.assertTrue("No message should have been received by second subscriber",
-            theSecondSubscriberReceivedMessages.size() == 0);
+        Assertions.assertEquals(
+            1,
+            theFirstSubscriberReceivedMessages.size(),
+            "A single message should have been received by first subscriber");
+        Assertions.assertEquals(
+            0,
+            theSecondSubscriberReceivedMessages.size(),
+            "No message should have been received by second subscriber");
     }
 
     /**
@@ -194,11 +206,9 @@ public class DirectChannelTests implements SpringIntegrationExamplesConstants {
      * Two messages are then sent to the channel.
      *
      * Expected result: Each subscriber should receive one message.
-     *
-     * @throws Exception If an error occurs. Indicates test failure.
      */
     @Test
-    public void loadBalancingTest() throws Exception {
+    public void loadBalancingTest() {
         final DirectChannel theDirectChannel;
         final Message<String> theInputMessage1;
         final Message<String> theInputMessage2;
@@ -207,8 +217,12 @@ public class DirectChannelTests implements SpringIntegrationExamplesConstants {
         final List<Message> theSecondSubscriberReceivedMessages =
             new CopyOnWriteArrayList<>();
 
-        theInputMessage1 = MessageBuilder.withPayload("1").build();
-        theInputMessage2 = MessageBuilder.withPayload("2").build();
+        theInputMessage1 = MessageBuilder
+            .withPayload("1")
+            .build();
+        theInputMessage2 = MessageBuilder
+            .withPayload("2")
+            .build();
 
         // <editor-fold desc="Answer Section" defaultstate="collapsed">
         /*
@@ -237,26 +251,36 @@ public class DirectChannelTests implements SpringIntegrationExamplesConstants {
         final boolean theSecondSubscribedFlag =
             theDirectChannel.subscribe(theSecondSubscriber);
 
-        Assert.assertTrue(theFirstSubscribedFlag);
-        Assert.assertTrue(theSecondSubscribedFlag);
+        Assertions.assertTrue(theFirstSubscribedFlag);
+        Assertions.assertTrue(theSecondSubscribedFlag);
 
         theDirectChannel.send(theInputMessage1);
         theDirectChannel.send(theInputMessage2);
         // </editor-fold>
-        await().atMost(2, TimeUnit.SECONDS).until(() ->
+        await()
+            .atMost(2, TimeUnit.SECONDS)
+            .until(() ->
                 theFirstSubscriberReceivedMessages.size() > 0);
 
-        Assert.assertTrue(
-            "A single message should have been received by first subscriber",
-            theFirstSubscriberReceivedMessages.size() == 1);
-        Assert.assertEquals("The first subscriber should receive the first message",
+        Assertions.assertEquals(
+            1,
+            theFirstSubscriberReceivedMessages.size(),
+            "A single message should have been received by first subscriber");
+        Assertions.assertEquals(
             "1",
-            theFirstSubscriberReceivedMessages.get(0).getPayload());
-        Assert.assertTrue(
-            "A single message should have been received by second subscriber",
-            theSecondSubscriberReceivedMessages.size() == 1);
-        Assert.assertEquals("The second subscriber should receive the second message",
+            theFirstSubscriberReceivedMessages
+                .get(0)
+                .getPayload(),
+            "The first subscriber should receive the first message");
+        Assertions.assertEquals(
+            1,
+            theSecondSubscriberReceivedMessages.size(),
+            "A single message should have been received by second subscriber");
+        Assertions.assertEquals(
             "2",
-            theSecondSubscriberReceivedMessages.get(0).getPayload());
+            theSecondSubscriberReceivedMessages
+                .get(0)
+                .getPayload(),
+            "The second subscriber should receive the second message");
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Ivan Krizsan
+ * Copyright 2017-2019 Ivan Krizsan
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,7 +55,7 @@ public class LoggingAndCountingChannelInterceptor implements ChannelInterceptor 
         logMessageWithChannelAndPayload("Before message sent.",
             inMessage,
             inChannel,
-            (Object[]) null);
+            (Object[])null);
         mPreSendMessageCount.incrementAndGet();
         return inMessage;
     }
@@ -66,7 +66,7 @@ public class LoggingAndCountingChannelInterceptor implements ChannelInterceptor 
         logMessageWithChannelAndPayload("After message sent.",
             inMessage,
             inChannel,
-            (Object[]) null);
+            (Object[])null);
         mPostSendMessageCount.incrementAndGet();
     }
 
@@ -89,7 +89,7 @@ public class LoggingAndCountingChannelInterceptor implements ChannelInterceptor 
         logMessageWithChannelAndPayload("Pre-receive.",
             null,
             inChannel,
-            (Object[]) null);
+            (Object[])null);
         mPreReceiveMessageCount.incrementAndGet();
 
         /* Returning true means go ahead with the receive. */
@@ -103,7 +103,7 @@ public class LoggingAndCountingChannelInterceptor implements ChannelInterceptor 
         logMessageWithChannelAndPayload("Post-receive.",
             null,
             inChannel,
-            (Object[]) null);
+            (Object[])null);
         mPostReceiveMessageCount.incrementAndGet();
         return inMessage;
     }
@@ -167,13 +167,10 @@ public class LoggingAndCountingChannelInterceptor implements ChannelInterceptor 
                 (inAdditionalInMessages != null) ? inAdditionalInMessages.length : 0;
 
             String theLogMessage =
-                new StringBuilder().append(inLogMessage)
-                    .append(" Channel: {")
-                    .append(theAppendMsgParamsStartIndex)
-                    .append("}. Payload: {")
-                    .append(theAppendMsgParamsStartIndex + 1)
-                    .append("}")
-                    .toString();
+                String.format("%s Channel: {%d}. Payload: {%d}",
+                    inLogMessage,
+                    theAppendMsgParamsStartIndex,
+                    theAppendMsgParamsStartIndex + 1);
 
             final Object[] theLogMessageParameters;
             if (inAdditionalInMessages != null) {

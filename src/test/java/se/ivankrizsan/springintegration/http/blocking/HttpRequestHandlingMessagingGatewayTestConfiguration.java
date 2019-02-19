@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Ivan Krizsan
+ * Copyright 2017-2019 Ivan Krizsan
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -136,8 +136,8 @@ public class HttpRequestHandlingMessagingGatewayTestConfiguration {
     @Bean(name = HTTP_HEADER_MAPPER)
     public DefaultHttpHeaderMapper httpInboundEndpointHeaderMapper() {
         final DefaultHttpHeaderMapper theHeaderMapper = new DefaultHttpHeaderMapper();
-        theHeaderMapper.setInboundHeaderNames(new String[]{"*"});
-        theHeaderMapper.setOutboundHeaderNames(new String[]{"*"});
+        theHeaderMapper.setInboundHeaderNames(new String[]{ "*" });
+        theHeaderMapper.setOutboundHeaderNames(new String[]{ "*" });
         return theHeaderMapper;
     }
 
@@ -171,13 +171,15 @@ public class HttpRequestHandlingMessagingGatewayTestConfiguration {
 
         final String theRequestPayload = inRequestMessage.getPayload();
 
-        if (HttpStatus.INTERNAL_SERVER_ERROR.toString().equals(theRequestPayload)) {
+        if (Integer
+            .toString(HttpStatus.INTERNAL_SERVER_ERROR.value())
+            .equals(theRequestPayload)) {
             theResponseEntity = new ResponseEntity<>(
                 "<500 Internal Server Error,{}>", HttpStatus.INTERNAL_SERVER_ERROR);
             theResponse = MessageBuilder
                 .withPayload(theResponseEntity)
                 .setHeader(HEADER_NAME, HEADER_VALUE)
-                .setHeader(HttpHeaders.STATUS_CODE, HttpStatus.INTERNAL_SERVER_ERROR.toString())
+                .setHeader(HttpHeaders.STATUS_CODE, Integer.toString(HttpStatus.INTERNAL_SERVER_ERROR.value()))
                 .build();
         } else {
             theResponseEntity =

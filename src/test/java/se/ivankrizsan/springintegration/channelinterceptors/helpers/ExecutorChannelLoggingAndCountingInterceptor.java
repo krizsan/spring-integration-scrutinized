@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Ivan Krizsan
+ * Copyright 2017-2019 Ivan Krizsan
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,13 +33,12 @@ import org.springframework.messaging.support.ExecutorChannelInterceptor;
  * @see LoggingAndCountingChannelInterceptor
  */
 public class ExecutorChannelLoggingAndCountingInterceptor extends
-    LoggingAndCountingChannelInterceptor  implements ExecutorChannelInterceptor {
+    LoggingAndCountingChannelInterceptor implements ExecutorChannelInterceptor {
     /* Constant(s): */
 
     /* Instance variable(s): */
     protected int mBeforeHandleMessageCount;
     protected int mAfterMessageHandledMessageCount;
-
 
     @Override
     public Message<?> beforeHandle(final Message<?> inMessage,
@@ -49,7 +48,7 @@ public class ExecutorChannelLoggingAndCountingInterceptor extends
         logMessageWithChannelAndPayload("Before handle.",
             inMessage,
             inMessageChannel,
-            (Object[]) null);
+            (Object[])null);
         mBeforeHandleMessageCount += 1;
 
         /*
@@ -68,7 +67,7 @@ public class ExecutorChannelLoggingAndCountingInterceptor extends
         logMessageWithChannelAndPayload("After message handled.",
             inMessage,
             inMessageChannel,
-            (Object[]) null);
+            (Object[])null);
         mAfterMessageHandledMessageCount += 1;
     }
 

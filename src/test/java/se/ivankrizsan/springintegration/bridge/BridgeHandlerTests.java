@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Ivan Krizsan
+ * Copyright 2017-2019 Ivan Krizsan
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,8 @@
 
 package se.ivankrizsan.springintegration.bridge;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -28,8 +27,7 @@ import org.springframework.integration.endpoint.PollingConsumer;
 import org.springframework.integration.handler.BridgeHandler;
 import org.springframework.integration.support.MessageBuilder;
 import org.springframework.messaging.Message;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import se.ivankrizsan.springintegration.shared.EmptyConfiguration;
 import se.ivankrizsan.springintegration.shared.SpringIntegrationExamplesConstants;
 
@@ -40,10 +38,9 @@ import se.ivankrizsan.springintegration.shared.SpringIntegrationExamplesConstant
  *
  * @author Ivan Krizsan
  */
-@RunWith(SpringRunner.class)
 @SpringBootTest
 @EnableIntegration
-@ContextConfiguration(classes = { EmptyConfiguration.class })
+@SpringJUnitConfig(classes = { EmptyConfiguration.class })
 public class BridgeHandlerTests implements SpringIntegrationExamplesConstants {
     /* Constant(s): */
 
@@ -67,7 +64,9 @@ public class BridgeHandlerTests implements SpringIntegrationExamplesConstants {
         final PollingConsumer thePollingConsumer;
         final BridgeHandler theBridgeHandler;
 
-        theInputMessage = MessageBuilder.withPayload(GREETING_STRING).build();
+        theInputMessage = MessageBuilder
+            .withPayload(GREETING_STRING)
+            .build();
 
         // <editor-fold desc="Answer Section" defaultstate="collapsed">
         /*
@@ -92,9 +91,12 @@ public class BridgeHandlerTests implements SpringIntegrationExamplesConstants {
         theOutputMessage = theBridgeOutputChannel.receive(2000L);
 
         /* Verify received message. */
-        Assert.assertNotNull("A message should have been received on the output message channel",
-            theOutputMessage != null);
-        Assert.assertEquals("Output message payload should be same as input message payload",
-            GREETING_STRING, theOutputMessage.getPayload());
+        Assertions.assertNotNull(
+            theOutputMessage,
+            "A message should have been received on the output message channel");
+        Assertions.assertEquals(
+            GREETING_STRING,
+            theOutputMessage.getPayload(),
+            "Output message payload should be same as input message payload");
     }
 }

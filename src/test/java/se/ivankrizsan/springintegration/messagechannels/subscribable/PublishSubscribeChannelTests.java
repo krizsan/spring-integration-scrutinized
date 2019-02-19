@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Ivan Krizsan
+ * Copyright 2017-2019 Ivan Krizsan
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,8 @@ package se.ivankrizsan.springintegration.messagechannels.subscribable;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -33,8 +32,7 @@ import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHandler;
 import org.springframework.messaging.MessagingException;
 import org.springframework.scheduling.concurrent.ConcurrentTaskExecutor;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import se.ivankrizsan.springintegration.channelinterceptors.helpers.LoggingAndCountingChannelInterceptor;
 import se.ivankrizsan.springintegration.messagechannels.configuration.PublishSubscribeChannelTestsConfiguration;
 import se.ivankrizsan.springintegration.messagechannels.helpers.LoggingAndCountingErrorHandler;
@@ -53,10 +51,9 @@ import static org.awaitility.Awaitility.await;
  * @author Ivan Krizsan
  * @see PublishSubscribeChannel
  */
-@RunWith(SpringRunner.class)
 @SpringBootTest
 @EnableIntegration
-@ContextConfiguration(classes = { PublishSubscribeChannelTestsConfiguration.class })
+@SpringJUnitConfig(classes = { PublishSubscribeChannelTestsConfiguration.class })
 public class PublishSubscribeChannelTests
     implements SpringIntegrationExamplesConstants {
     /* Constant(s): */
@@ -75,11 +72,9 @@ public class PublishSubscribeChannelTests
      *
      * Expected result: Each subscriber should receive one copy of the
      * message sent.
-     *
-     * @throws Exception If initialization of pubsub message channel failed.
      */
     @Test
-    public void multipleSubscribersTest() throws Exception {
+    public void multipleSubscribersTest() {
         final PublishSubscribeChannel thePubsubChannel;
         final Message<String> theInputMessage;
         final List<Message> theFirstSubscriberReceivedMessages =
@@ -87,7 +82,9 @@ public class PublishSubscribeChannelTests
         final List<Message> theSecondSubscriberReceivedMessages =
             new CopyOnWriteArrayList<>();
 
-        theInputMessage = MessageBuilder.withPayload(GREETING_STRING).build();
+        theInputMessage = MessageBuilder
+            .withPayload(GREETING_STRING)
+            .build();
 
         // <editor-fold desc="Answer Section" defaultstate="collapsed">
         thePubsubChannel = new PublishSubscribeChannel();
@@ -113,18 +110,26 @@ public class PublishSubscribeChannelTests
         // </editor-fold>
 
         /* Verify that both subscribers received one copy each of the message. */
-        Assert.assertTrue(
-            "A single message should have been received by first subscriber",
-            theFirstSubscriberReceivedMessages.size() == 1);
-        Assert.assertEquals("Message should have expected payload",
+        Assertions.assertEquals(
+            1,
+            theFirstSubscriberReceivedMessages.size(),
+            "A single message should have been received by first subscriber");
+        Assertions.assertEquals(
             GREETING_STRING,
-            theFirstSubscriberReceivedMessages.get(0).getPayload());
-        Assert.assertTrue(
-            "A single message should have been received by second subscriber",
-            theSecondSubscriberReceivedMessages.size() == 1);
-        Assert.assertEquals("Message should have expected payload",
+            theFirstSubscriberReceivedMessages
+                .get(0)
+                .getPayload(),
+            "Message should have expected payload");
+        Assertions.assertEquals(
+            1,
+            theSecondSubscriberReceivedMessages.size(),
+            "A single message should have been received by second subscriber");
+        Assertions.assertEquals(
             GREETING_STRING,
-            theSecondSubscriberReceivedMessages.get(0).getPayload());
+            theSecondSubscriberReceivedMessages
+                .get(0)
+                .getPayload(),
+            "Message should have expected payload");
     }
 
     /**
@@ -137,11 +142,9 @@ public class PublishSubscribeChannelTests
      * as to indicate that the message sending was not successful.
      * When sending the second message, the send method should return true, as to indicate
      * that sending was successful.
-     *
-     * @throws Exception If initialization of pubsub message channel failed.
      */
     @Test
-    public void minimumNumberOfSubscribersTest() throws Exception {
+    public void minimumNumberOfSubscribersTest() {
         final PublishSubscribeChannel thePubsubChannel;
         final Message<String> theInputMessage;
         final List<Message> theFirstSubscriberReceivedMessages =
@@ -149,7 +152,9 @@ public class PublishSubscribeChannelTests
         final boolean theFirstSendSuccessfulFlag;
         final boolean theSecondSendSuccessfulFlag;
 
-        theInputMessage = MessageBuilder.withPayload(GREETING_STRING).build();
+        theInputMessage = MessageBuilder
+            .withPayload(GREETING_STRING)
+            .build();
 
         // <editor-fold desc="Answer Section" defaultstate="collapsed">
         thePubsubChannel = new PublishSubscribeChannel();
@@ -175,19 +180,17 @@ public class PublishSubscribeChannelTests
         // </editor-fold>
 
         /* Verify that the first send, with too few subscribers, was not successful. */
-        Assert.assertFalse(
-            "Send successful flag should be false when the minimum "
-                + "number of subscribers not subscribed",
-            theFirstSendSuccessfulFlag);
+        Assertions.assertFalse(
+            theFirstSendSuccessfulFlag,
+            "Send successful flag should be false when the minimum number of subscribers not subscribed");
 
         /*
          * Verify that the second send, with number of subscribers greater than
          * or equal to the minimum number of subscribers, was successful.
          */
-        Assert.assertTrue(
-            "Send successful flag should be true when the minimum "
-                + "number of subscribers are subscribed",
-            theSecondSendSuccessfulFlag);
+        Assertions.assertTrue(
+            theSecondSendSuccessfulFlag,
+            "Send successful flag should be true when the minimum number of subscribers are subscribed");
     }
 
     /**
@@ -198,11 +201,9 @@ public class PublishSubscribeChannelTests
      *
      * Expected result: Sending message to the channel should be intercepted.
      * Receiving messages from the message channel should not be intercepted.
-     *
-     * @throws Exception If an error occurs. Indicates test failure.
      */
     @Test
-    public void withInterceptorTest() throws Exception {
+    public void withInterceptorTest() {
         final PublishSubscribeChannel thePubsubChannel;
         final Message<String> theInputMessage;
         final List<Message> theFirstSubscriberReceivedMessages =
@@ -211,7 +212,9 @@ public class PublishSubscribeChannelTests
             new CopyOnWriteArrayList<>();
         final LoggingAndCountingChannelInterceptor theLoggingAndCountingChannelInterceptor;
 
-        theInputMessage = MessageBuilder.withPayload(GREETING_STRING).build();
+        theInputMessage = MessageBuilder
+            .withPayload(GREETING_STRING)
+            .build();
 
         // <editor-fold desc="Answer Section" defaultstate="collapsed">
         thePubsubChannel = new PublishSubscribeChannel();
@@ -241,39 +244,43 @@ public class PublishSubscribeChannelTests
         thePubsubChannel.send(theInputMessage);
         // </editor-fold>
         /* Verify that both subscribers received one copy each of the message. */
-        Assert.assertTrue(
-            "A single message should have been received by first subscriber",
-            theFirstSubscriberReceivedMessages.size() == 1);
-        Assert.assertTrue(
-            "A single message should have been received by second subscriber",
-            theSecondSubscriberReceivedMessages.size() == 1);
+        Assertions.assertEquals(
+            1,
+            theFirstSubscriberReceivedMessages.size(),
+            "A single message should have been received by first subscriber");
+        Assertions.assertEquals(
+            1,
+            theSecondSubscriberReceivedMessages.size(),
+            "A single message should have been received by second subscriber");
         /*
          * Sending of message should have been intercepted.
          * Note that message receiving from a pub-sub message channel is not intercepted.
          */
-        Assert.assertEquals(
-            "Sending should have been intercepted before the message being sent",
-            1, theLoggingAndCountingChannelInterceptor.getPreSendMessageCount());
-        Assert.assertEquals(
-            "Sending should have been intercepted after the message having been sent",
+        Assertions.assertEquals(
             1,
-            theLoggingAndCountingChannelInterceptor.getPostSendMessageCount());
-        Assert.assertEquals("Message sending should have completed",
+            theLoggingAndCountingChannelInterceptor.getPreSendMessageCount(),
+            "Sending should have been intercepted before the message being sent");
+        Assertions.assertEquals(
             1,
-            theLoggingAndCountingChannelInterceptor.getAfterSendCompletionMessageCount());
+            theLoggingAndCountingChannelInterceptor.getPostSendMessageCount(),
+            "Sending should have been intercepted after the message having been sent");
+        Assertions.assertEquals(
+            1,
+            theLoggingAndCountingChannelInterceptor.getAfterSendCompletionMessageCount(),
+            "Message sending should have completed");
 
-        Assert.assertEquals(
-            "Receiving will not be intercepted with pubsub message channels",
+        Assertions.assertEquals(
             0,
-            theLoggingAndCountingChannelInterceptor.getPreReceiveMessageCount());
-        Assert.assertEquals(
-            "Receiving will not be intercepted with pubsub message channels",
+            theLoggingAndCountingChannelInterceptor.getPreReceiveMessageCount(),
+            "Receiving will not be intercepted with pubsub message channels");
+        Assertions.assertEquals(
             0,
-            theLoggingAndCountingChannelInterceptor.getPostReceiveMessageCount());
-        Assert.assertEquals(
-            "Receiving will not be intercepted with pubsub message channels",
+            theLoggingAndCountingChannelInterceptor.getPostReceiveMessageCount(),
+            "Receiving will not be intercepted with pubsub message channels");
+        Assertions.assertEquals(
             0,
-            theLoggingAndCountingChannelInterceptor.getAfterReceiveCompletionMessageCount());
+            theLoggingAndCountingChannelInterceptor.getAfterReceiveCompletionMessageCount(),
+            "Receiving will not be intercepted with pubsub message channels");
     }
 
     /**
@@ -284,16 +291,16 @@ public class PublishSubscribeChannelTests
      * Expected result: Message sending should be successful and the exception should be logged
      * by the default error handler but no exception should be thrown in the thread that sent
      * the message.
-     *
-     * @throws Exception If initialization of pubsub message channel failed.
      */
     @Test
-    public void errorHandlingWithChannelExecutor() throws Exception {
+    public void errorHandlingWithChannelExecutor() {
         final PublishSubscribeChannel thePubsubChannel;
         final Message<String> theInputMessage;
         final boolean theSendSuccessfulFlag;
 
-        theInputMessage = MessageBuilder.withPayload(GREETING_STRING).build();
+        theInputMessage = MessageBuilder
+            .withPayload(GREETING_STRING)
+            .build();
 
         /* A message handler that always fail with an exception. */
         final MessageHandler theSubscriber = inMessage -> {
@@ -326,9 +333,9 @@ public class PublishSubscribeChannelTests
          * Message sending always successful when there is a task executor
          * configured on the channel.
          */
-        Assert.assertTrue(
-            "Message sending always successful when message sent in separate thread",
-            theSendSuccessfulFlag);
+        Assertions.assertTrue(
+            theSendSuccessfulFlag,
+            "Message sending always successful when message sent in separate thread");
     }
 
     /**
@@ -339,18 +346,17 @@ public class PublishSubscribeChannelTests
      * Expected result: Message sending should be successful and no exception should
      * be thrown in the thread that sent the message. The error handler should be
      * invoked and should log the exception.
-     *
-     * @throws Exception If initialization of publish-subscribe message channel
-     * failed.
      */
     @Test
-    public void errorHandlingWithChannelExecutorAndErrorHandler() throws Exception {
+    public void errorHandlingWithChannelExecutorAndErrorHandler() {
         final PublishSubscribeChannel thePubsubChannel;
         final Message<String> theInputMessage;
         final boolean theSendSuccessfulFlag;
         final LoggingAndCountingErrorHandler theMessageChanelErrorHandler;
 
-        theInputMessage = MessageBuilder.withPayload(GREETING_STRING).build();
+        theInputMessage = MessageBuilder
+            .withPayload(GREETING_STRING)
+            .build();
         theMessageChanelErrorHandler = new LoggingAndCountingErrorHandler();
 
         /* A message handler that always fail with an exception. */
@@ -379,14 +385,17 @@ public class PublishSubscribeChannelTests
          * Need to wait in order for the message to be sent and processed properly, since it is
          * sent in another thread.
          */
-        await().atMost(2, TimeUnit.SECONDS).until(() ->
-            theMessageChanelErrorHandler.getErrorCount() > 0);
+        await()
+            .atMost(2, TimeUnit.SECONDS)
+            .until(() ->
+                theMessageChanelErrorHandler.getErrorCount() > 0);
 
-        Assert.assertTrue(
-            "Message sending always successful when message sent in separate thread",
-            theSendSuccessfulFlag);
-        Assert.assertTrue("Error handler should have been invoked",
-            theMessageChanelErrorHandler.getErrorCount() > 0);
+        Assertions.assertTrue(
+            theSendSuccessfulFlag,
+            "Message sending always successful when message sent in separate thread");
+        Assertions.assertTrue(
+            theMessageChanelErrorHandler.getErrorCount() > 0,
+            "Error handler should have been invoked");
     }
 
     /**
@@ -403,17 +412,15 @@ public class PublishSubscribeChannelTests
      * Note that Spring Integration will search for the error channel using the
      * error channel name set on the message and the error channel must thus be
      * a Spring bean with a matching name.
-     *
-     * @throws Exception If initialization of publish-subscribe message
-     * channel failed.
      */
     @Test
-    public void errorMessageToErrorHandlerHeaderChannelTest() throws Exception {
+    public void errorMessageToErrorHandlerHeaderChannelTest() {
         final PublishSubscribeChannel thePubsubChannel;
         final Message<String> theInputMessage;
         final boolean theSendSuccessfulFlag;
 
-        theInputMessage = MessageBuilder.withPayload(GREETING_STRING)
+        theInputMessage = MessageBuilder
+            .withPayload(GREETING_STRING)
             .setErrorChannelName(ERROR_CHANNEL_NAME)
             .build();
 
@@ -444,19 +451,21 @@ public class PublishSubscribeChannelTests
         theSendSuccessfulFlag = thePubsubChannel.send(theInputMessage);
         // </editor-fold>
 
-        await().atMost(2, TimeUnit.SECONDS).until(() ->
-            mCustomErrorMessageChannel.getQueueSize() > 0);
+        await()
+            .atMost(2, TimeUnit.SECONDS)
+            .until(() ->
+                mCustomErrorMessageChannel.getQueueSize() > 0);
 
         /*
          * Message sending always successful when there is a task executor
          * configured on the channel.
          */
-        Assert.assertTrue(
-            "Message sending always successful when message sent in separate thread",
-            theSendSuccessfulFlag);
+        Assertions.assertTrue(
+            theSendSuccessfulFlag,
+            "Message sending always successful when message sent in separate thread");
 
-        Assert.assertTrue(
-            "A message should have been sent to the error message channel",
-            mCustomErrorMessageChannel.getQueueSize() > 0);
+        Assertions.assertTrue(
+            mCustomErrorMessageChannel.getQueueSize() > 0,
+            "A message should have been sent to the error message channel");
     }
 }
