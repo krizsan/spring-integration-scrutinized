@@ -97,10 +97,10 @@ public class FixedSubscriberChannelTests implements SpringIntegrationExamplesCon
         /* Attempt to subscribe a second subscriber to the message channel. */
         // <editor-fold desc="Answer Section" defaultstate="collapsed">
         final MessageHandler theSecondSubscriber = theSubscriberReceivedMessages::add;
-        final boolean theSecondSubcriberSubscribedFlag = mMessageChannelUnderTest.subscribe(theSecondSubscriber);
+        final boolean theSecondSubscriberSubscribedFlag = mMessageChannelUnderTest.subscribe(theSecondSubscriber);
         // </editor-fold>
 
-        Assertions.assertFalse(theSecondSubcriberSubscribedFlag,
+        Assertions.assertFalse(theSecondSubscriberSubscribedFlag,
             "Trying to subscribe a second subscriber to a fixed subscriber "
                         + "message channel should not succeed");
     }
