@@ -42,7 +42,7 @@ public class FixedSubscriberChannelTests implements SpringIntegrationExamplesCon
             () -> mMessageChannelUnderTest = new FixedSubscriberChannel(),
             // </editor-fold>
             "An IllegalArgumentException should be thrown when trying to create a FixedSubscriberChannel"
-                    + " without a subscriber");
+                + " without a subscriber");
         Assert.isNull(mMessageChannelUnderTest,
             "It should not be possible to create a FixedSubscriberChannel without a subscriber");
     }
@@ -80,5 +80,28 @@ public class FixedSubscriberChannelTests implements SpringIntegrationExamplesCon
         Assertions.assertEquals(theInputMessage,
             theReceivedMessage,
             "The received message should be equal to the sent message");
+    }
+
+    /**
+     * Tests subscribing to a fixed subscriber message channel created with a subscriber.
+     * Expected result:
+     * It should not ne possible to subscribe to a fixed message channel after it has been created.
+     */
+    @Test
+    public void subscribeTest() {
+        final List<Message> theSubscriberReceivedMessages = new CopyOnWriteArrayList<>();
+        /* Create the fixed subscriber message channel with a subscriber. */
+        final MessageHandler theFirstSubscriber = theSubscriberReceivedMessages::add;
+        mMessageChannelUnderTest = new FixedSubscriberChannel(theFirstSubscriber);
+
+        /* Attempt to subscribe a second subscriber to the message channel. */
+        // <editor-fold desc="Answer Section" defaultstate="collapsed">
+        final MessageHandler theSecondSubscriber = theSubscriberReceivedMessages::add;
+        final boolean theSecondSubcriberSubscribedFlag = mMessageChannelUnderTest.subscribe(theSecondSubscriber);
+        // </editor-fold>
+
+        Assertions.assertFalse(theSecondSubcriberSubscribedFlag,
+            "Trying to subscribe a second subscriber to a fixed subscriber "
+                        + "message channel should not succeed");
     }
 }
