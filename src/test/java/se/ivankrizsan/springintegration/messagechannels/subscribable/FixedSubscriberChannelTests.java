@@ -90,7 +90,7 @@ public class FixedSubscriberChannelTests implements SpringIntegrationExamplesCon
     @Test
     public void subscribeTest() {
         final List<Message> theSubscriberReceivedMessages = new CopyOnWriteArrayList<>();
-        /* Create the fixed subscriber message channel with a subscriber. */
+        /* Create a fixed subscriber message channel with a subscriber. */
         final MessageHandler theFirstSubscriber = theSubscriberReceivedMessages::add;
         mMessageChannelUnderTest = new FixedSubscriberChannel(theFirstSubscriber);
 
@@ -103,5 +103,27 @@ public class FixedSubscriberChannelTests implements SpringIntegrationExamplesCon
         Assertions.assertFalse(theSecondSubscriberSubscribedFlag,
             "Trying to subscribe a second subscriber to a fixed subscriber "
                         + "message channel should not succeed");
+    }
+
+    /**
+     * Tests unsubscribing an already subscribed subscriber from a fixed subscriber message channel.
+     * Expected result:
+     * It should not be possible to unsubscribe from a fixed subscriber message channel.
+     */
+    @Test
+    public void unsubscribeTest() {
+        final List<Message> theSubscriberReceivedMessages = new CopyOnWriteArrayList<>();
+        /* Create a fixed subscriber message channel with a subscriber. */
+        final MessageHandler theSubscriber = theSubscriberReceivedMessages::add;
+        mMessageChannelUnderTest = new FixedSubscriberChannel(theSubscriber);
+
+        /* Attempt to unsubscriber from the message channel. */
+        // <editor-fold desc="Answer Section" defaultstate="collapsed">
+        final boolean theUnsubscribeSuccessfulFlag = mMessageChannelUnderTest.unsubscribe(theSubscriber);
+        // </editor-fold>
+
+        /* Verify that the unsubscription failed. */
+        Assertions.assertFalse(theUnsubscribeSuccessfulFlag,
+            "It should not be possible to unsubscribe from a fixed subscriber message channel");
     }
 }
