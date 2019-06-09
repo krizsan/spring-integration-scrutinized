@@ -12,3 +12,7 @@ To find an example related to a certain area, start from the `se.ivankrizsan.spr
 package in the `src/main/test/java` directory and navigate to the appropriate package.
 For instance, examples showing how to use different types of message channels are located
 in the package `se.ivankrizsan.springintegration.messagechannels`.
+
+## Notes
+A bug (https://bugs.openjdk.java.net/browse/JDK-8212586) in the OpenJDK 11 compiler causes compilation failure in IntelliJ IDEA.
+This bug has been fixed in JDK 12 and later.
