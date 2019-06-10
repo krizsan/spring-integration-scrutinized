@@ -128,9 +128,13 @@ public class SubscribableChannelsTests implements SpringIntegrationExamplesConst
      * Tests creating a subscribable message channel and subscribing two
      * subscribers to the channel. A message is then sent to the channel.
      * Expected result:
-     * One single message should have been received by the first message
-     * channel subscriber. No message should have been received by the
-     * second subscriber.
+     * One single message should be received by one of the subscribers
+     * subscribed to the message channel. No message should be received by the
+     * other subscriber.
+     * Note!
+     * This behaviour is not common for all subscribable message channels!
+     * The {@code PublishSubscribeChannel} will publish a message sent to the
+     * message channel to all of its subscribers.
      */
     @Test
     public void multipleSubscribersTest() {
@@ -167,6 +171,7 @@ public class SubscribableChannelsTests implements SpringIntegrationExamplesConst
         final boolean theFirstSubscribedFlag = theSubscribableChannel.subscribe(theFirstSubscriber);
         final boolean theSecondSubscribedFlag = theSubscribableChannel.subscribe(theSecondSubscriber);
 
+        /* Verify that both subscribers have been successfully subscribed to the message channel. */
         Assertions.assertTrue(theFirstSubscribedFlag);
         Assertions.assertTrue(theSecondSubscribedFlag);
 
@@ -175,22 +180,15 @@ public class SubscribableChannelsTests implements SpringIntegrationExamplesConst
         await()
             .atMost(2, TimeUnit.SECONDS)
             .until(() ->
-                theFirstSubscriberReceivedMessages.size() > 0);
+                (theFirstSubscriberReceivedMessages.size() > 0) ||
+                    (theSecondSubscriberReceivedMessages.size() > 0));
 
-        /*
-         * Since the message channel is a subscribable channel, only one subscriber
-         * will receive each message sent to the channel.
-         * In this test, since only one message is sent to the channel, only one
-         * of the subscribers will receive a message.
-         */
+        /* Only one subscriber of the direct message channel is expected to receive the message sent. */
         Assertions.assertEquals(
             1,
-            theFirstSubscriberReceivedMessages.size(),
-            "A single message should have been received by first subscriber");
-        Assertions.assertEquals(
-            0,
-            theSecondSubscriberReceivedMessages.size(),
-            "No message should have been received by second subscriber");
+            theFirstSubscriberReceivedMessages.size()
+            + theSecondSubscriberReceivedMessages.size(),
+            "Only one of the subscribers should have received the message sent");
     }
 
     /**
