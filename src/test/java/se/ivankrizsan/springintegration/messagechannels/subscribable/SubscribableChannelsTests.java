@@ -24,7 +24,8 @@ import java.util.concurrent.TimeUnit;
 import static org.awaitility.Awaitility.await;
 
 /**
- * Exercises demonstrating common properties of Spring Integration subscribable message channels.
+ * Exercises demonstrating common properties of Spring Integration subscribable message channels,
+ * that is, message channels that implement the {@code SubscribableChannel} interface.
  *
  * @author Ivan Krizsan
  */
