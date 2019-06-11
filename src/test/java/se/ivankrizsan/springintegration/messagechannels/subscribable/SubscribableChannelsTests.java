@@ -198,7 +198,7 @@ public class SubscribableChannelsTests implements SpringIntegrationExamplesConst
      * another message is sent to the channel.
      * Expected result:
      * The first message should be received by the first subscriber
-     * and the second message should be received by the second subscriber.
+     * and the second message should be received only by the second subscriber.
      */
     @Test
     public void unsubscribeTest() {

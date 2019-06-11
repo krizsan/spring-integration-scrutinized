@@ -40,19 +40,17 @@ public class FluxMessageChannelTests implements SpringIntegrationExamplesConstan
 
     /* Instance variable(s): */
 
+
     /**
      * Tests creating a flux message channel and subscribing two
      * subscribers to the channel. A message is then sent to the channel.
-     *
      * Expected result: Each subscriber should receive one copy of the
      * message sent.
      */
     @Test
     public void multipleSubscribersTest() {
         final FluxMessageChannel theFluxMessageChannel;
-        final Message<String> theInputMessage;
-
-        theInputMessage = MessageBuilder
+        final Message<String> theInputMessage = MessageBuilder
             .withPayload(GREETING_STRING)
             .build();
 
@@ -106,7 +104,6 @@ public class FluxMessageChannelTests implements SpringIntegrationExamplesConstan
     /**
      * Tests creating a flux message channel and subscribing two
      * subscribers to the channel. Two messages are then sent to the channel.
-     *
      * Expected result: Each subscriber should receive one copy of each
      * message sent.
      */
@@ -191,7 +188,6 @@ public class FluxMessageChannelTests implements SpringIntegrationExamplesConstan
      * subscribers to the channel. One of the subscribers limit the number of messages
      * it wants to receive to one message. Two messages are then sent to the channel.
      * Note that
-     *
      * Expected result: Each subscriber should receive one copy of the first
      * message sent.
      */
