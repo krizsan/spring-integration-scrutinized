@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.integration.channel.AbstractSubscribableChannel;
 import org.springframework.integration.channel.DirectChannel;
+import org.springframework.integration.channel.PublishSubscribeChannel;
 import org.springframework.integration.config.EnableIntegration;
 import org.springframework.integration.support.MessageBuilder;
 import org.springframework.messaging.Message;
@@ -192,13 +193,15 @@ public class SubscribableChannelsTests implements SpringIntegrationExamplesConst
     }
 
     /**
-     * Tests creating a subscribable message channel and subscribing two
-     * subscribers to the channel. A message is then sent to the channel.
-     * Then the first subscriber is unsubscribed from the message channel and
-     * another message is sent to the channel.
+     * Tests creating a subscribable message channel that publishes messages sent
+     * to the message channel to all subscribers (a {@code PublishSubscribeChannel})
+     * and subscribing two subscribers to the channel.
+     * Send a message to the message channel.
+     * Unsubscribe one of the subscribers from the message channel.
+     * Send another message to the message channel.
      * Expected result:
-     * The first message should be received by the first subscriber
-     * and the second message should be received only by the second subscriber.
+     * The first message should be received by both the subscribers.
+     * The second message should be received by the remaining subscriber only.
      */
     @Test
     public void unsubscribeTest() {
@@ -210,6 +213,14 @@ public class SubscribableChannelsTests implements SpringIntegrationExamplesConst
         final List<Message> theSecondSubscriberReceivedMessages =
             new CopyOnWriteArrayList<>();
 
+        /*
+         * Create two subscribers (message handler) that adds each received
+         * message to a list.
+         */
+        final MessageHandler theFirstSubscriber = theFirstSubscriberReceivedMessages::add;
+        final MessageHandler theSecondSubscriber = theSecondSubscriberReceivedMessages::add;
+
+        /* Create two test messages. */
         theFirstInputMessage = MessageBuilder
             .withPayload(GREETING_STRING + "1")
             .build();
@@ -218,20 +229,13 @@ public class SubscribableChannelsTests implements SpringIntegrationExamplesConst
             .build();
 
         // <editor-fold desc="Answer Section" defaultstate="collapsed">
-        theSubscribableChannel = new DirectChannel();
+        theSubscribableChannel = new PublishSubscribeChannel();
         /*
          * Give the message channel a name so that it will
          * appear in any related log messages.
          */
         ((AbstractSubscribableChannel)theSubscribableChannel)
             .setBeanName("MessageChannelToUnsubscribeFrom");
-
-        /*
-         * Create two subscribers (message handler) that adds each received
-         * message to a list.
-         */
-        final MessageHandler theFirstSubscriber = theFirstSubscriberReceivedMessages::add;
-        final MessageHandler theSecondSubscriber = theSecondSubscriberReceivedMessages::add;
 
         /* Register the subscribers with the subscribable message channel. */
         theSubscribableChannel.subscribe(theFirstSubscriber);
@@ -253,33 +257,22 @@ public class SubscribableChannelsTests implements SpringIntegrationExamplesConst
         theSubscribableChannel.send(theSecondInputMessage);
 
         // </editor-fold>
+        /* Wait until at least one of the subscribers have received two messages. */
         await()
             .atMost(2, TimeUnit.SECONDS)
             .until(() ->
-                !theFirstSubscriberReceivedMessages.isEmpty() && !theSecondSubscriberReceivedMessages.isEmpty());
+                (theFirstSubscriberReceivedMessages.size() == 2)
+                    || (theSecondSubscriberReceivedMessages.size() == 2));
 
-        /* Each subscriber should have received one message. */
+        /* The first subscribers should have received one message. */
         Assertions.assertEquals(
             1,
             theFirstSubscriberReceivedMessages.size(),
             "First subscriber should have received one message");
+        /* The second subscriber should have received two messages. */
         Assertions.assertEquals(
-            1,
+            2,
             theSecondSubscriberReceivedMessages.size(),
-            "Second subscriber should have received one message");
-
-        /* Check message payloads. */
-        Assertions.assertEquals(
-            GREETING_STRING + "1",
-            theFirstSubscriberReceivedMessages
-                .get(0)
-                .getPayload(),
-            "First subscriber should have received the first message");
-        Assertions.assertEquals(
-            GREETING_STRING + "2",
-            theSecondSubscriberReceivedMessages
-                .get(0)
-                .getPayload(),
-            "Second subscriber should have received the second message");
+            "Second subscriber should have received two messages");
     }
 }
