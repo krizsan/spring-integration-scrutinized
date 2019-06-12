@@ -32,7 +32,7 @@ import static org.awaitility.Awaitility.await;
  */
 @SpringBootTest
 @EnableIntegration
-@SpringJUnitConfig(classes = { EmptyConfiguration.class })
+@SpringJUnitConfig(classes = {EmptyConfiguration.class})
 public class SubscribableChannelsTests implements SpringIntegrationExamplesConstants {
     /* Class variable(s): */
     protected static final Log LOGGER = LogFactory.getLog(SubscribableChannelsTests.class);
@@ -40,10 +40,11 @@ public class SubscribableChannelsTests implements SpringIntegrationExamplesConst
     /* Instance variable(s): */
 
     /**
-     * Tests creating a subscribable message channel and sending a message to it
-     * without any subscribers being subscribed.
+     * Tests creating a subscribable message channel and sending a message
+     * to it without any subscribers being subscribed.
      * Expected result:
-     * An exception should be thrown indicating that the message could not be delivered.
+     * An exception should be thrown indicating that the message could
+     * not be delivered.
      */
     @Test
     public void noSubscribersTest() {
@@ -60,7 +61,7 @@ public class SubscribableChannelsTests implements SpringIntegrationExamplesConst
          * Give the message channel a name so that it will
          * appear in any related log messages.
          */
-        ((AbstractSubscribableChannel)theSubscribableChannel)
+        ((AbstractSubscribableChannel) theSubscribableChannel)
             .setBeanName("MessageChannelWithNoSubscribers");
 
         Assertions.assertThrows(MessageDeliveryException.class, () ->
@@ -72,8 +73,8 @@ public class SubscribableChannelsTests implements SpringIntegrationExamplesConst
      * Tests creating a subscribable message channel and subscribing one
      * subscriber to the channel. A message is then sent to the channel.
      * Expected result:
-     * The single subscriber should receive the message sent to the subscribable
-     * message channel.
+     * The single subscriber should receive the message sent to the
+     * subscribable message channel.
      */
     @Test
     public void singleSubscriberTest() {
@@ -92,7 +93,7 @@ public class SubscribableChannelsTests implements SpringIntegrationExamplesConst
          * Give the message channel a name so that it will
          * appear in any related log messages.
          */
-        ((AbstractSubscribableChannel)theSubscribableChannel)
+        ((AbstractSubscribableChannel) theSubscribableChannel)
             .setBeanName("MessageChannelWithSingleSubscriber");
 
         /*
@@ -114,11 +115,12 @@ public class SubscribableChannelsTests implements SpringIntegrationExamplesConst
                 theSubscriberReceivedMessages.size() > 0);
 
         /*
-         * The subscriber that subscribed to the subscribable message channel
-         * prior to the message was sent to the message channel should receive the
-         * message.
+         * The subscriber that subscribed to the subscribable message
+         * channel prior to the message was sent to the message channel
+         * should receive the message.
          */
-        LOGGER.info("Subscriber received message: " + theSubscriberReceivedMessages.get(0));
+        LOGGER.info("Subscriber received message: "
+            + theSubscriberReceivedMessages.get(0));
         Assertions.assertEquals(
             1,
             theSubscriberReceivedMessages.size(),
@@ -130,12 +132,12 @@ public class SubscribableChannelsTests implements SpringIntegrationExamplesConst
      * subscribers to the channel. A message is then sent to the channel.
      * Expected result:
      * One single message should be received by one of the subscribers
-     * subscribed to the message channel. No message should be received by the
-     * other subscriber.
+     * subscribed to the message channel. No message should be received by
+     * the other subscriber.
      * Note!
      * This behaviour is not common for all subscribable message channels!
-     * The {@code PublishSubscribeChannel} will publish a message sent to the
-     * message channel to all of its subscribers.
+     * The {@code PublishSubscribeChannel} will publish a message sent
+     * to the message channel to all of its subscribers.
      */
     @Test
     public void multipleSubscribersTest() {
@@ -156,7 +158,7 @@ public class SubscribableChannelsTests implements SpringIntegrationExamplesConst
          * Give the message channel a name so that it will
          * appear in any related log messages.
          */
-        ((AbstractSubscribableChannel)theSubscribableChannel)
+        ((AbstractSubscribableChannel) theSubscribableChannel)
             .setBeanName("MessageChannelWithMultipleSubscribers");
 
         /*
@@ -184,24 +186,29 @@ public class SubscribableChannelsTests implements SpringIntegrationExamplesConst
                 (theFirstSubscriberReceivedMessages.size() > 0) ||
                     (theSecondSubscriberReceivedMessages.size() > 0));
 
-        /* Only one subscriber of the direct message channel is expected to receive the message sent. */
+        /*
+         * Only one subscriber of the direct message channel is expected
+         * to receive the message sent.
+         */
         Assertions.assertEquals(
             1,
             theFirstSubscriberReceivedMessages.size()
-            + theSecondSubscriberReceivedMessages.size(),
+                + theSecondSubscriberReceivedMessages.size(),
             "Only one of the subscribers should have received the message sent");
     }
 
     /**
-     * Tests creating a subscribable message channel that publishes messages sent
-     * to the message channel to all subscribers (a {@code PublishSubscribeChannel})
+     * Tests creating a subscribable message channel that publishes
+     * messages sent to the message channel to all subscribers
+     * (a {@code PublishSubscribeChannel})
      * and subscribing two subscribers to the channel.
      * Send a message to the message channel.
      * Unsubscribe one of the subscribers from the message channel.
      * Send another message to the message channel.
      * Expected result:
      * The first message should be received by both the subscribers.
-     * The second message should be received by the remaining subscriber only.
+     * The second message should be received only by the remaining
+     * subscriber.
      */
     @Test
     public void unsubscribeTest() {
@@ -217,8 +224,10 @@ public class SubscribableChannelsTests implements SpringIntegrationExamplesConst
          * Create two subscribers (message handler) that adds each received
          * message to a list.
          */
-        final MessageHandler theFirstSubscriber = theFirstSubscriberReceivedMessages::add;
-        final MessageHandler theSecondSubscriber = theSecondSubscriberReceivedMessages::add;
+        final MessageHandler theFirstSubscriber =
+            theFirstSubscriberReceivedMessages::add;
+        final MessageHandler theSecondSubscriber =
+            theSecondSubscriberReceivedMessages::add;
 
         /* Create two test messages. */
         theFirstInputMessage = MessageBuilder
@@ -234,15 +243,16 @@ public class SubscribableChannelsTests implements SpringIntegrationExamplesConst
          * Give the message channel a name so that it will
          * appear in any related log messages.
          */
-        ((AbstractSubscribableChannel)theSubscribableChannel)
+        ((AbstractSubscribableChannel) theSubscribableChannel)
             .setBeanName("MessageChannelToUnsubscribeFrom");
 
-        /* Register the subscribers with the subscribable message channel. */
+        /* Register subscribers with the subscribable message channel. */
         theSubscribableChannel.subscribe(theFirstSubscriber);
         theSubscribableChannel.subscribe(theSecondSubscriber);
 
         LOGGER.info("Number of subscribers before unsubscribe: "
-            + ((AbstractSubscribableChannel)theSubscribableChannel).getSubscriberCount());
+            + ((AbstractSubscribableChannel) theSubscribableChannel)
+            .getSubscriberCount());
 
         /* Send the first message to the subscribable message channel. */
         theSubscribableChannel.send(theFirstInputMessage);
@@ -251,13 +261,17 @@ public class SubscribableChannelsTests implements SpringIntegrationExamplesConst
         theSubscribableChannel.unsubscribe(theFirstSubscriber);
 
         LOGGER.info("Number of subscribers after unsubscribe: "
-            + ((AbstractSubscribableChannel)theSubscribableChannel).getSubscriberCount());
+            + ((AbstractSubscribableChannel) theSubscribableChannel)
+            .getSubscriberCount());
 
         /* Send the second message to the subscribable message channel. */
         theSubscribableChannel.send(theSecondInputMessage);
 
         // </editor-fold>
-        /* Wait until at least one of the subscribers have received two messages. */
+        /*
+         * Wait until at least one of the subscribers have received
+         * two messages.
+         */
         await()
             .atMost(2, TimeUnit.SECONDS)
             .until(() ->
