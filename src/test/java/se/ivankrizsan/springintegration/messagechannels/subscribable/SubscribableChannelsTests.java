@@ -109,10 +109,11 @@ public class SubscribableChannelsTests implements SpringIntegrationExamplesConst
 
         theSubscribableChannel.send(theInputMessage);
         // </editor-fold>
+        /* Wait until the subscriber has received the message. */
         await()
             .atMost(2, TimeUnit.SECONDS)
             .until(() ->
-                theSubscriberReceivedMessages.size() > 0);
+                !theSubscriberReceivedMessages.isEmpty());
 
         /*
          * The subscriber that subscribed to the subscribable message
@@ -277,6 +278,11 @@ public class SubscribableChannelsTests implements SpringIntegrationExamplesConst
             .until(() ->
                 (theFirstSubscriberReceivedMessages.size() == 2)
                     || (theSecondSubscriberReceivedMessages.size() == 2));
+
+        LOGGER.info("First subscriber received messages: "
+            + theFirstSubscriberReceivedMessages);
+        LOGGER.info("Second subscriber received messages: "
+            + theSecondSubscriberReceivedMessages);
 
         /* The first subscribers should have received one message. */
         Assertions.assertEquals(
